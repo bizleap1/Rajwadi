@@ -1,0 +1,115 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --royal-ivory: #F8F1E7;
+  --heritage-maroon: #5A1F2B;
+  --antique-gold: #C6A15B;
+  --charcoal: #171717;
+  --soft-beige: #E8D8C4;
+}
+
+html {
+  scroll-behavior: smooth;
+  background-color: var(--royal-ivory);
+  color: var(--charcoal);
+}
+
+body {
+  background-color: #F8F1E7;
+  color: #171717;
+  overflow-x: hidden;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+}
+
+/* Custom Selection */
+::selection {
+  background-color: #5A1F2B;
+  color: #F8F1E7;
+}
+
+/* Hide Scrollbar completely across all browsers while preserving smooth scroll */
+html,
+body,
+* {
+  -ms-overflow-style: none !important; /* IE and Edge Legacy */
+  scrollbar-width: none !important; /* Firefox and Chrome 121+ */
+}
+
+*::-webkit-scrollbar,
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+::-webkit-scrollbar {
+  display: none !important;
+  width: 0px !important;
+  height: 0px !important;
+  background: transparent !important;
+  -webkit-appearance: none !important;
+}
+
+*::-webkit-scrollbar-thumb,
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb,
+::-webkit-scrollbar-thumb {
+  display: none !important;
+  background: transparent !important;
+}
+
+*::-webkit-scrollbar-track,
+html::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track,
+::-webkit-scrollbar-track {
+  display: none !important;
+  background: transparent !important;
+}
+
+/* Editorial Typography utilities */
+.font-serif-luxury {
+  font-family: var(--font-cormorant), Cormorant Garamond, Georgia, serif;
+}
+
+.font-sans-luxury {
+  font-family: var(--font-inter), Inter, sans-serif;
+}
+
+/* Subtle image zoom animation */
+.luxury-image-hover {
+  transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.luxury-card:hover .luxury-image-hover {
+  transform: scale(1.06);
+}
+
+/* Gold divider line */
+.gold-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #C6A15B, transparent);
+}
+
+/* Subtle text shimmer */
+@keyframes subtleGoldShimmer {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.shimmer-gold {
+  background: linear-gradient(90deg, #C6A15B 0%, #E8D8C4 50%, #C6A15B 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: subtleGoldShimmer 8s ease infinite;
+}
+
+/* Hide Next.js dev tools floating badge circle */
+nextjs-portal,
+[data-nextjs-toast],
+[data-nextjs-dialog-overlay],
+div[data-nextjs-portal] {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
