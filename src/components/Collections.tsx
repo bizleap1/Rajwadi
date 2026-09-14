@@ -4,99 +4,125 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { COLLECTIONS_DATA } from "@/data/products";
+import { COLLECTIONS_DATA, CollectionItem } from "@/data/products";
 
 export default function Collections() {
-  return (
-    <section id="collections" className="pt-10 md:pt-12 pb-24 md:pb-32 bg-royal-ivory">
-      <div className="max-w-7xl mx-auto px-6 md:px-12">
-        {/* Editorial Section Header */}
-        <div className="text-center max-w-2xl mx-auto mb-16 md:mb-20">
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="flex items-center justify-center gap-3 mb-3"
+  const bridalItem = COLLECTIONS_DATA[0];
+  const festiveItem = COLLECTIONS_DATA[1];
+  const traditionalItem = COLLECTIONS_DATA[2];
+
+  const renderCard = (
+    item: CollectionItem,
+    isFeaturedWide = false,
+    delay = 0
+  ) => {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.1 }}
+        transition={{ duration: 0.7, delay }}
+        className="w-full"
+      >
+        <Link
+          href="#featured"
+          className="group block focus:outline-none focus-visible:ring-1 focus-visible:ring-[#C6A15B]"
+          aria-label={`Explore ${item.title}`}
+        >
+          {/* Image Container: 80% Visual Dominance with Subtle scale(1.03) Hover */}
+          <div
+            className={`relative w-full overflow-hidden bg-[#EFE6D8]/60 ${
+              isFeaturedWide
+                ? "aspect-[4/5] md:aspect-[16/9] lg:aspect-[21/10] md:h-[480px] lg:h-[540px]"
+                : "aspect-[4/5] md:aspect-[4/5] lg:aspect-[3/4] md:h-[560px] lg:h-[620px]"
+            }`}
           >
-            <span className="h-[1px] w-6 bg-antique-gold" />
-            <span className="text-[11px] uppercase tracking-[0.3em] text-antique-gold font-medium">
-              Curated Royal Ensembles
+            <Image
+              src={item.image}
+              alt={item.title}
+              fill
+              sizes={
+                isFeaturedWide
+                  ? "(max-width: 768px) 100vw, 100vw"
+                  : "(max-width: 768px) 100vw, 50vw"
+              }
+              className={`object-cover ${
+                isFeaturedWide
+                  ? `${item.imagePositionMobile} md:${item.imagePositionDesktop}`
+                  : `${item.imagePositionMobile} md:${item.imagePositionDesktop}`
+              } transition-transform duration-700 ease-out group-hover:scale-[1.03]`}
+            />
+          </div>
+
+          {/* Clean Editorial Caption Below Image: 20% Text, No Dark Box, No Badges */}
+          <div className="pt-4 sm:pt-5 pb-1 flex items-baseline justify-between gap-4">
+            <h3 className="font-serif text-2xl sm:text-[26px] md:text-3xl text-[#171717] font-normal tracking-wide">
+              {item.title}
+            </h3>
+
+            <div className="inline-flex items-center text-[11px] sm:text-xs uppercase tracking-[0.2em] text-[#171717]/85 group-hover:text-[#5A1F2B] transition-colors shrink-0 font-medium">
+              <span>Explore Collection</span>
+              <span className="ml-2 text-[#C6A15B] transition-transform duration-300 group-hover:translate-x-1.5 font-sans">
+                →
+              </span>
+            </div>
+          </div>
+        </Link>
+      </motion.div>
+    );
+  };
+
+  return (
+    <section
+      id="collections"
+      className="pt-7 sm:pt-9 md:pt-12 pb-16 sm:pb-20 md:pb-24 lg:pb-28 bg-[#F8F1E7] border-b border-[#E8D8C4]/60"
+    >
+      <div className="max-w-7xl mx-auto px-5 sm:px-8 md:px-12 lg:px-16">
+        {/* Section Header */}
+        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12 md:mb-14">
+          {/* Eyebrow: Antique Gold #C6A15B */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.6 }}
+            className="flex items-center justify-center gap-3 mb-2.5 sm:mb-3"
+          >
+            <span className="h-[1px] w-6 bg-[#C6A15B]" />
+            <span className="text-[11px] sm:text-xs uppercase tracking-[0.3em] text-[#C6A15B] font-medium font-sans">
+              THE COLLECTIONS
             </span>
-            <span className="h-[1px] w-6 bg-antique-gold" />
+            <span className="h-[1px] w-6 bg-[#C6A15B]" />
           </motion.div>
 
+          {/* Headline: Charcoal #171717, No Paragraph */}
           <motion.h2
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.05 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="font-serif text-3xl md:text-5xl text-heritage-maroon font-light tracking-wide mb-4"
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.7, delay: 0.1 }}
+            className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-[54px] text-[#171717] font-normal tracking-wide leading-[1.15]"
           >
-            Royal Collections
+            Timeless Poshaks,
+            <br className="hidden sm:inline" />{" "}
+            Rooted in Heritage
           </motion.h2>
-
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.05 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-xs md:text-sm text-charcoal/70 uppercase tracking-widest"
-          >
-            Handcrafted for ceremonies, weddings, and traditional royal splendor
-          </motion.p>
         </div>
 
-        {/* Large Visual Blocks Grid (2x2 Asymmetric Editorial Layout) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
-          {COLLECTIONS_DATA.map((collection, index) => (
-            <motion.div
-              key={collection.id}
-              initial={{ opacity: 0, y: 25 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.05 }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-              className="group relative overflow-hidden bg-charcoal border border-soft-beige/80 shadow-[0_8px_30px_rgba(0,0,0,0.08)]"
-            >
-              <Link href="#featured" className="block relative">
-                {/* Large Visual Block Image with Smooth Zoom */}
-                <div className="relative w-full h-[450px] md:h-[540px] overflow-hidden">
-                  <Image
-                    src={collection.image}
-                    alt={collection.title}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 50vw"
-                    className="object-cover object-center transition-transform duration-1000 ease-out group-hover:scale-105"
-                  />
-                  {/* Subtle Gradient Overlays */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-charcoal/85 via-charcoal/25 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-500" />
-                  <div className="absolute inset-0 border border-antique-gold/0 group-hover:border-antique-gold/40 transition-colors duration-500 m-3" />
-                </div>
+        {/* Asymmetric Editorial Composition */}
+        <div className="space-y-10 sm:space-y-12 md:space-y-12 lg:space-y-16">
+          {/* Top Row: Bridal + Festive side by side on Desktop; 1 large image at a time on Mobile */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 sm:gap-12 md:gap-10 lg:gap-14">
+            {bridalItem && renderCard(bridalItem, false, 0.1)}
+            {festiveItem && renderCard(festiveItem, false, 0.2)}
+          </div>
 
-                {/* Floating Content within the Block */}
-                <div className="absolute bottom-0 left-0 right-0 p-8 md:p-10 text-royal-ivory">
-                  <span className="inline-block text-[10px] uppercase tracking-[0.25em] text-antique-gold mb-2 font-medium">
-                    {collection.badge}
-                  </span>
-
-                  <h3 className="font-serif text-2xl md:text-3xl lg:text-4xl text-royal-ivory font-normal mb-2 leading-snug">
-                    {collection.title}
-                  </h3>
-
-                  <p className="text-xs md:text-sm text-royal-ivory/80 font-light max-w-md line-clamp-2 mb-6 font-sans">
-                    {collection.description}
-                  </p>
-
-                  <div className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-antique-gold group-hover:text-royal-ivory transition-colors">
-                    <span>Explore Collection</span>
-                    <span className="transition-transform duration-300 group-hover:translate-x-1.5">
-                      →
-                    </span>
-                  </div>
-                </div>
-              </Link>
-            </motion.div>
-          ))}
+          {/* Bottom Row: Traditional as a wider featured image on Desktop; 1 large image at a time on Mobile */}
+          {traditionalItem && (
+            <div className="w-full">
+              {renderCard(traditionalItem, true, 0.25)}
+            </div>
+          )}
         </div>
       </div>
     </section>

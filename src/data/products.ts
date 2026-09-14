@@ -119,42 +119,35 @@ export const REAL_POSHAKS: PoshakProduct[] = [
   },
 ];
 
-export const COLLECTIONS_DATA = [
+export interface CollectionItem {
+  id: string;
+  title: string;
+  image: string;
+  imagePositionDesktop: string;
+  imagePositionMobile: string;
+}
+
+export const COLLECTIONS_DATA: CollectionItem[] = [
   {
     id: "bridal-poshaks",
-    title: "Bridal Rajputi Poshaks",
-    subtitle: "Sacred Heirlooms For Wedding Pheras",
-    description:
-      "Regal ensembles crafted with authentic danka, zardozi and kiran work for timeless wedding celebrations.",
-    image: "/hero_couture.jpg",
-    badge: "Royal Bridal",
+    title: "Bridal Poshaks",
+    image: "/bridal.png",
+    imagePositionDesktop: "object-[50%_25%]",
+    imagePositionMobile: "object-[50%_20%]",
   },
   {
-    id: "festive-collection",
-    title: "Festive Collection",
-    subtitle: "Celebrations Of Teej, Gangaur & Diwali",
-    description:
-      "Vibrant Rani pinks, Kesariya tones, and graceful chiffon poshaks tailored for auspicious festivities.",
-    image: "/hero_couture.jpg",
-    badge: "Festive Grace",
+    id: "festive-poshaks",
+    title: "Festive Poshaks",
+    image: "/festive.png",
+    imagePositionDesktop: "object-[50%_25%]",
+    imagePositionMobile: "object-[50%_20%]",
   },
   {
-    id: "traditional-wear",
-    title: "Traditional Rajputi Wear",
-    subtitle: "Timeless Pure Georgette & Silk",
-    description:
-      "Classic kalidar silhouettes preserving ancestral Rajasthani court tailoring and subtle hand gota borders.",
-    image: "/hero_couture.jpg",
-    badge: "Heritage Classics",
-  },
-  {
-    id: "new-arrivals",
-    title: "New Arrivals",
-    subtitle: "The Season's Latest Poshak Creations",
-    description:
-      "Fresh interpretations of heirloom patterns with fine threadwork and bespoke unstitched sets.",
-    image: "/hero_couture.jpg",
-    badge: "Curated Edition",
+    id: "traditional-poshaks",
+    title: "Traditional Poshaks",
+    image: "/traditonal.png",
+    imagePositionDesktop: "object-[58%_45%]",
+    imagePositionMobile: "object-[58%_38%]",
   },
 ];
 
