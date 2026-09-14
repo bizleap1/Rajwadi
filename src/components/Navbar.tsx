@@ -38,7 +38,7 @@ export default function Navbar({ onOpenConsultation }: NavbarProps) {
             : "bg-gradient-to-b from-charcoal/60 via-charcoal/20 to-transparent py-4 md:py-4.5"
           }`}
       >
-        <div className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between lg:grid lg:grid-cols-3">
+        <div className="max-w-7xl mx-auto px-3.5 sm:px-6 md:px-12 flex items-center justify-between lg:grid lg:grid-cols-3">
           {/* Left Navigation: Collections, Our Story, Contact */}
           <nav className="hidden lg:flex items-center space-x-7 xl:space-x-9 text-xs tracking-[0.25em] uppercase font-medium whitespace-nowrap">
             {[
@@ -66,36 +66,36 @@ export default function Navbar({ onOpenConsultation }: NavbarProps) {
               aria-label="Toggle Menu"
               className={`${
                 isScrolled ? "text-charcoal" : "text-royal-ivory"
-              } hover:text-[#C6A15B] transition-colors duration-300 p-1.5`}
+              } hover:text-[#C6A15B] transition-colors duration-300 p-1.5 -ml-1`}
             >
               {isMobileMenuOpen ? (
-                <X className="w-6 h-6 stroke-[1.25]" />
+                <X className="w-5 h-5 sm:w-6 sm:h-6 stroke-[1.35]" />
               ) : (
-                <Menu className="w-6 h-6 stroke-[1.25]" />
+                <Menu className="w-5 h-5 sm:w-6 sm:h-6 stroke-[1.35]" />
               )}
             </button>
           </div>
 
-          {/* Center Brand Logo (Clean & Perfectly Proportioned) */}
+          {/* Center Brand Logo (Clean, Proportioned & Readable on all screens) */}
           <div className="flex justify-center items-center">
-            <Link href="/" className="flex items-center gap-3 md:gap-3.5 lg:gap-4 flex-shrink-0">
-              <div className="relative w-11 h-11 sm:w-13 sm:h-13 md:w-15 md:h-15 lg:w-[64px] lg:h-[64px] flex-shrink-0">
+            <Link href="/" className="flex items-center gap-2 sm:gap-3 md:gap-3.5 lg:gap-4 flex-shrink-0">
+              <div className="relative w-8 h-8 min-[375px]:w-9 min-[375px]:h-9 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-[64px] lg:h-[64px] flex-shrink-0">
                 <Image
                   src="/logo without bg.png"
                   alt="Rajwadi Rajputi Poshak Royal Logo"
                   fill
                   priority
-                  sizes="(max-width: 640px) 44px, (max-width: 1024px) 60px, 68px"
+                  sizes="(max-width: 640px) 36px, (max-width: 1024px) 56px, 64px"
                   className="object-contain filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.3)]"
                 />
               </div>
               <div className="flex flex-col text-left justify-center select-none">
-                <span className={`font-serif text-2xl sm:text-[28px] lg:text-[32px] tracking-[0.22em] ${
+                <span className={`font-serif text-[18px] min-[375px]:text-[20px] sm:text-[24px] lg:text-[32px] tracking-[0.2em] ${
                   isScrolled ? "text-charcoal" : "text-royal-ivory"
                 } font-light leading-none transition-colors duration-300 drop-shadow-[0_2px_6px_rgba(0,0,0,0.4)]`}>
                   RAJWADI
                 </span>
-                <span className={`text-[9.5px] sm:text-[10px] lg:text-[11px] uppercase tracking-[0.34em] font-medium mt-1 transition-colors duration-300 leading-normal whitespace-nowrap ${
+                <span className={`text-[7px] min-[375px]:text-[8px] sm:text-[9.5px] lg:text-[11px] uppercase tracking-[0.26em] min-[375px]:tracking-[0.3em] font-medium mt-0.5 sm:mt-1 transition-colors duration-300 leading-normal whitespace-nowrap ${
                   isScrolled
                     ? "text-[#855D25]"
                     : "text-[#F8F1E7]/95 drop-shadow-[0_2px_5px_rgba(0,0,0,0.7)]"
@@ -106,15 +106,15 @@ export default function Navbar({ onOpenConsultation }: NavbarProps) {
             </Link>
           </div>
 
-          {/* Right Navigation: Search | Wishlist | Bag | Account */}
-          <div className="flex items-center justify-end space-x-4 sm:space-x-5 lg:space-x-6 xl:space-x-7">
+          {/* Right Navigation: Search | Wishlist | Bag (compact & touch-friendly) */}
+          <div className="flex items-center justify-end space-x-2.5 min-[375px]:space-x-3 sm:space-x-5 lg:space-x-6 xl:space-x-7">
             {/* 1. Search Icon */}
             <button
               onClick={() => setIsSearchOpen(true)}
               aria-label="Search"
               className={`${
                 isScrolled ? "text-charcoal" : "text-royal-ivory"
-              } hover:text-[#C6A15B] transition-colors duration-300 p-1`}
+              } hover:text-[#C6A15B] transition-colors duration-300 p-1.5`}
             >
               <Search className="w-4 h-4 sm:w-[18px] sm:h-[18px] stroke-[1.35]" />
             </button>
@@ -125,7 +125,7 @@ export default function Navbar({ onOpenConsultation }: NavbarProps) {
               aria-label="Wishlist"
               className={`${
                 isScrolled ? "text-charcoal" : "text-royal-ivory"
-              } hover:text-[#C6A15B] transition-colors duration-300 p-1`}
+              } hover:text-[#C6A15B] transition-colors duration-300 p-1.5`}
             >
               <Heart className="w-4 h-4 sm:w-[18px] sm:h-[18px] stroke-[1.35]" />
             </Link>
@@ -136,23 +136,23 @@ export default function Navbar({ onOpenConsultation }: NavbarProps) {
               aria-label="Shopping Bag"
               className={`${
                 isScrolled ? "text-charcoal" : "text-royal-ivory"
-              } hover:text-[#C6A15B] transition-colors duration-300 p-1 relative`}
+              } hover:text-[#C6A15B] transition-colors duration-300 p-1.5 relative`}
             >
               <ShoppingBag className="w-4 h-4 sm:w-[18px] sm:h-[18px] stroke-[1.35]" />
               {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-antique-gold text-charcoal text-[9px] flex items-center justify-center font-sans font-semibold">
+                <span className="absolute 0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-antique-gold text-charcoal text-[9px] flex items-center justify-center font-sans font-semibold">
                   {cartCount}
                 </span>
               )}
             </Link>
 
-            {/* 4. Account Icon */}
+            {/* 4. Account Icon (Desktop & Tablet) */}
             <button
               onClick={onOpenConsultation}
               aria-label="Account"
-              className={`${
+              className={`hidden sm:block ${
                 isScrolled ? "text-charcoal" : "text-royal-ivory"
-              } hover:text-[#C6A15B] transition-colors duration-300 p-1`}
+              } hover:text-[#C6A15B] transition-colors duration-300 p-1.5`}
             >
               <User className="w-4 h-4 sm:w-[18px] sm:h-[18px] stroke-[1.35]" />
             </button>
