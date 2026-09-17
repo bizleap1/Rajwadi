@@ -26,11 +26,11 @@ export default function Lookbook() {
         {/* Editorial Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-14">
           <div className="flex items-center justify-center gap-3 mb-3">
-            <span className="h-[1px] w-6 bg-antique-gold" />
-            <span className="text-[11px] uppercase tracking-[0.3em] text-antique-gold font-medium">
+            <span className="h-[1px] w-6 bg-[#855D25]" />
+            <span className="text-[11px] uppercase tracking-[0.3em] text-[#855D25] font-semibold">
               Editorial Showcase
             </span>
-            <span className="h-[1px] w-6 bg-antique-gold" />
+            <span className="h-[1px] w-6 bg-[#855D25]" />
           </div>
 
           <h2 className="font-serif text-3xl md:text-5xl text-heritage-maroon font-light tracking-wide mb-4">

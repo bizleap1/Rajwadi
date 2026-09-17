@@ -20,7 +20,7 @@ export default function BrandStory() {
             {/* Primary Fabric Detail Image */}
             <div className="relative w-full h-[460px] md:h-[560px] border border-soft-beige shadow-[0_10px_40px_rgba(90,31,43,0.05)]">
               <Image
-                src="/hero_couture.jpg"
+                src="/hero_couture.webp"
                 alt="Rajputi Poshak Fabric and Embroidery Close-Up"
                 fill
                 sizes="(max-width: 1024px) 100vw, 50vw"
@@ -32,7 +32,7 @@ export default function BrandStory() {
             {/* Secondary Macro Inset Image: Royal poshak details */}
             <div className="hidden sm:block absolute -bottom-10 -right-8 w-52 h-64 border-4 border-royal-ivory shadow-xl overflow-hidden bg-soft-beige">
               <Image
-                src="/hero_couture.jpg"
+                src="/hero_couture.webp"
                 alt="Royal Rajputi Couture Details"
                 fill
                 sizes="200px"
@@ -57,10 +57,11 @@ export default function BrandStory() {
             className="lg:col-span-6 lg:pl-6"
           >
             <div className="flex items-center gap-3 mb-4">
-              <span className="h-[1px] w-8 bg-antique-gold" />
-              <span className="text-[11px] uppercase tracking-[0.3em] text-antique-gold font-medium">
+              <span className="h-[1px] w-6 bg-[#855D25]" />
+              <span className="text-[10.5px] sm:text-[11px] uppercase tracking-[0.3em] text-[#855D25] font-semibold font-sans">
                 The Rajwadi Heritage
               </span>
+              <span className="h-[1px] w-6 bg-[#855D25]" />
             </div>
 
             <h2 className="font-serif text-3xl md:text-5xl lg:text-5xl text-heritage-maroon font-light tracking-wide mb-8 leading-[1.15]">

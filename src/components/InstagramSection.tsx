@@ -11,19 +11,23 @@ export default function InstagramSection() {
       <div className="max-w-7xl mx-auto px-6 md:px-12">
         {/* Section Header */}
         <div className="text-center max-w-xl mx-auto mb-14">
-          <span className="text-[11px] uppercase tracking-[0.3em] text-antique-gold font-medium block mb-2">
-            Social Anthology
-          </span>
+          <div className="flex items-center justify-center gap-3 mb-2 sm:mb-2.5">
+            <span className="h-[1px] w-6 bg-[#855D25]" />
+            <span className="text-[10.5px] sm:text-[11px] uppercase tracking-[0.3em] text-[#855D25] font-semibold font-sans">
+              Social Anthology
+            </span>
+            <span className="h-[1px] w-6 bg-[#855D25]" />
+          </div>
           <h2 className="font-serif text-3xl md:text-5xl text-heritage-maroon font-light tracking-wide mb-3">
             Follow The Royal Journey
           </h2>
           <a
-            href="https://instagram.com"
+            href="https://www.instagram.com/rajwadirajputiposhak/?hl=en"
             target="_blank"
             rel="noopener noreferrer"
             className="text-xs uppercase tracking-[0.25em] text-charcoal/70 hover:text-heritage-maroon transition-colors"
           >
-            @rajwadi_poshaks
+            @rajwadirajputiposhak
           </a>
         </div>
 

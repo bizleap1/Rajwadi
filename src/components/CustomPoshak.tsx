@@ -35,7 +35,7 @@ export default function CustomPoshak({ onOpenConsultation }: CustomPoshakProps) 
       {/* Background Architectural Atmosphere */}
       <div className="absolute inset-0 opacity-10">
         <Image
-          src="/hero_couture.jpg"
+          src="/hero_couture.webp"
           alt="Palace Architecture Texture"
           fill
           sizes="100vw"
@@ -94,8 +94,7 @@ export default function CustomPoshak({ onOpenConsultation }: CustomPoshakProps) 
             onClick={onOpenConsultation}
             className="inline-flex items-center justify-center px-10 py-4 bg-antique-gold hover:bg-antique-gold-light text-charcoal text-xs uppercase tracking-[0.25em] font-semibold transition-all duration-300 shadow-[0_4px_30px_rgba(198,161,91,0.25)] hover:shadow-[0_4px_40px_rgba(198,161,91,0.4)]"
           >
-            <span>Talk To Designer</span>
-            <span className="ml-2">→</span>
+            <span>Book Bespoke Consultation</span>
           </button>
         </div>
       </div>

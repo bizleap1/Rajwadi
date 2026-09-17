@@ -11,7 +11,7 @@ interface FeaturedPoshaksProps {
 
 export default function FeaturedPoshaks({ onSelectProduct }: FeaturedPoshaksProps) {
   return (
-    <section id="featured" className="py-24 md:py-32 bg-soft-beige/30 border-y border-soft-beige">
+    <section id="featured" className="pt-8 sm:pt-12 md:pt-28 pb-16 md:pb-32 bg-soft-beige/30 border-y border-soft-beige">
       <div className="max-w-7xl mx-auto px-6 md:px-12">
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 md:mb-20">
@@ -91,7 +91,6 @@ export default function FeaturedPoshaks({ onSelectProduct }: FeaturedPoshaksProp
                     className="text-xs uppercase tracking-[0.2em] text-heritage-maroon hover:text-antique-gold transition-colors inline-flex items-center gap-1.5 font-medium"
                   >
                     <span>View Details</span>
-                    <span className="text-sm">→</span>
                   </button>
                 </div>
               </div>

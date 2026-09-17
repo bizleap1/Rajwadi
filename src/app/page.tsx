@@ -1,26 +1,26 @@
 "use client";
 
 import React, { useState } from "react";
+import dynamic from "next/dynamic";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import Collections from "@/components/Collections";
-import FeaturedPoshaks from "@/components/FeaturedPoshaks";
-import BrandStory from "@/components/BrandStory";
-import Craftsmanship from "@/components/Craftsmanship";
-import Lookbook from "@/components/Lookbook";
-import CustomPoshak from "@/components/CustomPoshak";
-import Testimonials from "@/components/Testimonials";
-import InstagramSection from "@/components/InstagramSection";
+import ThePoshakEdit from "@/components/ThePoshakEdit";
+import CraftBehindThePoshak from "@/components/CraftBehindThePoshak";
+import ThePoshakExperience from "@/components/ThePoshakExperience";
+import StitchedWithPrecision from "@/components/StitchedWithPrecision";
+import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
-import TalkToDesignerModal from "@/components/TalkToDesignerModal";
-import ProductDetailModal from "@/components/ProductDetailModal";
-import { PoshakProduct } from "@/data/products";
+const TalkToDesignerModal = dynamic(
+  () => import("@/components/TalkToDesignerModal"),
+  { ssr: false }
+);
+const CartDrawer = dynamic(() => import("@/components/CartDrawer"), {
+  ssr: false,
+});
 
 export default function Home() {
   const [isConsultationOpen, setIsConsultationOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<PoshakProduct | null>(
-    null
-  );
 
   const handleOpenConsultation = () => {
     setIsConsultationOpen(true);
@@ -30,53 +30,34 @@ export default function Home() {
     setIsConsultationOpen(false);
   };
 
-  const handleSelectProduct = (product: PoshakProduct) => {
-    setSelectedProduct(product);
-  };
-
-  const handleCloseProductModal = () => {
-    setSelectedProduct(null);
-  };
-
-  const handleInquireProduct = (product: PoshakProduct) => {
-    setSelectedProduct(null);
-    setIsConsultationOpen(true);
-  };
-
   return (
     <main className="min-h-screen flex flex-col bg-royal-ivory">
-      {/* Simple Luxury Navigation */}
+      {/* Navigation */}
       <Navbar onOpenConsultation={handleOpenConsultation} />
 
-      {/* Section 1: Hero */}
+      {/* 01 — HERO */}
       <Hero />
 
-      {/* Section 2: Royal Collections */}
+      {/* 02 — THE COLLECTION */}
       <Collections />
 
-      {/* Section 3: Featured Poshaks */}
-      <FeaturedPoshaks onSelectProduct={handleSelectProduct} />
+      {/* 03 — THE POSHAK EDIT */}
+      <ThePoshakEdit />
 
-      {/* Section 4: Brand Story */}
-      <BrandStory />
+      {/* 04 — THE CRAFT BEHIND THE POSHAK */}
+      <CraftBehindThePoshak onOpenConsultation={handleOpenConsultation} />
 
-      {/* Section 5: Craftsmanship Timeline */}
-      <Craftsmanship />
+      {/* 05 — THE POSHAK EXPERIENCE */}
+      <ThePoshakExperience onOpenConsultation={handleOpenConsultation} />
 
-      {/* Section 6: Lookbook */}
-      <Lookbook />
+      {/* 06 — STITCHED WITH PRECISION / THE ART OF STITCHING */}
+      <StitchedWithPrecision onOpenConsultation={handleOpenConsultation} />
 
-      {/* Section 7: Custom Poshak Atelier */}
-      <CustomPoshak onOpenConsultation={handleOpenConsultation} />
+      {/* 07 — CONTACT / ENQUIRY */}
+      <ContactSection onOpenConsultation={handleOpenConsultation} />
 
-      {/* Section 8: Testimonials (Customer Stories & Wedding Moments) */}
-      <Testimonials />
-
-      {/* Section 9: Instagram Section */}
-      <InstagramSection />
-
-      {/* Section 10: Footer */}
-      <Footer />
+      {/* 08 — FOOTER */}
+      <Footer onOpenConsultation={handleOpenConsultation} />
 
       {/* Interactive Modals */}
       <TalkToDesignerModal
@@ -84,11 +65,8 @@ export default function Home() {
         onClose={handleCloseConsultation}
       />
 
-      <ProductDetailModal
-        product={selectedProduct}
-        onClose={handleCloseProductModal}
-        onInquire={handleInquireProduct}
-      />
+      {/* Luxury Shopping Bag Drawer */}
+      <CartDrawer onOpenConsultation={handleOpenConsultation} />
     </main>
   );
 }
