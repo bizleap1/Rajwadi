@@ -1,0 +1,34 @@
+# Dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# Next.js build and cache outputs
+/.next/
+/.next-dev/
+/out/
+/build
+
+# TypeScript build cache
+*.tsbuildinfo
+next-env.d.ts
+
+# Misc / OS
+.DS_Store
+*.pem
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.env*.local
+.env
+
+# Root test/verification screenshots (keeps public/ assets safe)
+/*.png
+
+# Scratch scripts & temporary backups
+/scratch/
+*backup*
+capture_hero_preview.js
+take_screenshots*.js
+test_mobile_composition.js
+

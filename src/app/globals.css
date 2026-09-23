@@ -1,0 +1,244 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-cormorant: "Cormorant Garamond", Georgia, serif;
+  --font-inter: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --royal-ivory: #F8F1E7;
+  --heritage-maroon: #5A1F2B;
+  --antique-gold: #C6A15B;
+  --charcoal: #171717;
+  --soft-beige: #E8D8C4;
+}
+
+html {
+  scroll-behavior: smooth;
+  background-color: var(--royal-ivory);
+  color: var(--charcoal);
+}
+
+body {
+  background-color: #F8F1E7;
+  color: #171717;
+  overflow-x: hidden;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+}
+
+/* Custom Selection */
+::selection {
+  background-color: #5A1F2B;
+  color: #F8F1E7;
+}
+
+/* Hide Scrollbar completely across all browsers while preserving smooth scroll */
+html,
+body,
+* {
+  -ms-overflow-style: none !important; /* IE and Edge Legacy */
+  scrollbar-width: none !important; /* Firefox and Chrome 121+ */
+}
+
+*::-webkit-scrollbar,
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+::-webkit-scrollbar {
+  display: none !important;
+  width: 0px !important;
+  height: 0px !important;
+  background: transparent !important;
+  -webkit-appearance: none !important;
+}
+
+*::-webkit-scrollbar-thumb,
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb,
+::-webkit-scrollbar-thumb {
+  display: none !important;
+  background: transparent !important;
+}
+
+/* Elegant subtle scrollbar for Collection left filter sidebar */
+.filter-scrollbar {
+  scrollbar-width: thin !important;
+  scrollbar-color: rgba(133, 93, 37, 0.3) transparent !important;
+}
+
+.filter-scrollbar::-webkit-scrollbar {
+  display: block !important;
+  width: 3px !important;
+  height: 3px !important;
+  background: transparent !important;
+}
+
+.filter-scrollbar::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+.filter-scrollbar::-webkit-scrollbar-thumb {
+  display: block !important;
+  background: rgba(133, 93, 37, 0.3) !important;
+  border-radius: 9999px !important;
+}
+
+.filter-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(133, 93, 37, 0.6) !important;
+}
+
+
+*::-webkit-scrollbar-track,
+html::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track,
+::-webkit-scrollbar-track {
+  display: none !important;
+  background: transparent !important;
+}
+
+/* Custom subtle, luxury scrollbar for filter sidebar */
+.filter-scrollbar {
+  scrollbar-width: thin !important;
+  scrollbar-color: rgba(133, 93, 37, 0.3) transparent !important;
+}
+
+.filter-scrollbar::-webkit-scrollbar {
+  display: block !important;
+  width: 3px !important;
+}
+
+.filter-scrollbar::-webkit-scrollbar-track {
+  display: block !important;
+  background: transparent !important;
+}
+
+.filter-scrollbar::-webkit-scrollbar-thumb {
+  display: block !important;
+  background: rgba(133, 93, 37, 0.25) !important;
+  border-radius: 9999px !important;
+}
+
+.filter-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(133, 93, 37, 0.5) !important;
+}
+
+/* Editorial Typography utilities */
+.font-serif-luxury {
+  font-family: var(--font-cormorant), Cormorant Garamond, Georgia, serif;
+}
+
+.font-sans-luxury {
+  font-family: var(--font-inter), Inter, sans-serif;
+}
+
+/* Subtle image zoom animation */
+.luxury-image-hover {
+  transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.luxury-card:hover .luxury-image-hover {
+  transform: scale(1.06);
+}
+
+/* Gold divider line */
+.gold-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #C6A15B, transparent);
+}
+
+/* Subtle text shimmer */
+@keyframes subtleGoldShimmer {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.shimmer-gold {
+  background: linear-gradient(90deg, #C6A15B 0%, #E8D8C4 50%, #C6A15B 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: subtleGoldShimmer 8s ease infinite;
+}
+
+/* Hide Next.js dev tools floating badge circle */
+nextjs-portal,
+[data-nextjs-toast],
+[data-nextjs-dialog-overlay],
+div[data-nextjs-portal] {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Collections Cards Specific Image Framing (Guaranteed Face & Subject Visibility) */
+.poshak-img-traditional {
+  object-position: 70% 0% !important;
+}
+@media (min-width: 768px) {
+  .poshak-img-traditional {
+    object-position: center 0% !important;
+  }
+}
+
+.poshak-img-stitched {
+  object-position: center 0% !important;
+}
+
+.poshak-img-unstitched {
+  object-position: center center !important;
+}
+
+/* Bulletproof Footer Responsive Grid (Stacked on Mobile, 3-Col on Desktop) */
+.footer-main-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+@media (min-width: 1024px) {
+  .footer-main-grid {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 3.5rem;
+  }
+}
+
+.footer-brand-col {
+  width: 100%;
+  flex-shrink: 0;
+}
+
+@media (min-width: 1024px) {
+  .footer-brand-col {
+    width: 250px;
+  }
+}
+
+.footer-nav-columns {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .footer-nav-columns {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 2.5rem;
+    flex: 1;
+    width: 100%;
+  }
+}
+
+.footer-col {
+  width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .footer-col {
+    flex: 1 1 0%;
+    min-width: 0;
+  }
+}
+
