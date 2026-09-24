@@ -5,6 +5,11 @@ import { headers } from "next/headers";
 import prisma from "../db/prisma";
 import { sendOtpEmail } from "../services/email";
 
+const cleanUrl = (url?: string) => (url ? url.trim().replace(/\/+$/, "") : undefined);
+
+const appUrl = cleanUrl(process.env.NEXT_PUBLIC_APP_URL);
+const authUrl = cleanUrl(process.env.BETTER_AUTH_URL);
+
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
@@ -12,15 +17,14 @@ export const auth = betterAuth({
   secret:
     process.env.BETTER_AUTH_SECRET ||
     "fallback_rajwadi_auth_secret_minimum_32_chars_long_123456789",
-  baseURL:
-    process.env.BETTER_AUTH_URL ||
-    process.env.NEXT_PUBLIC_APP_URL ||
-    "http://localhost:3000",
+  baseURL: authUrl || appUrl || "http://localhost:3000",
   trustedOrigins: [
     "http://localhost:3000",
     "http://localhost:3001",
-    ...(process.env.NEXT_PUBLIC_APP_URL ? [process.env.NEXT_PUBLIC_APP_URL] : []),
-    ...(process.env.BETTER_AUTH_URL ? [process.env.BETTER_AUTH_URL] : []),
+    "https://rajwadi-snowy.vercel.app",
+    "https://rajwadi-snowy.vercel.app/",
+    ...(appUrl ? [appUrl, `${appUrl}/`] : []),
+    ...(authUrl ? [authUrl, `${authUrl}/`] : []),
   ],
   emailAndPassword: {
     enabled: true,
