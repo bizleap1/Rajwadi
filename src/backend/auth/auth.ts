@@ -11,8 +11,9 @@ const appUrl = cleanUrl(process.env.NEXT_PUBLIC_APP_URL);
 const authUrl = cleanUrl(process.env.BETTER_AUTH_URL);
 const vercelUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL.trim().replace(/\/+$/, "")}` : undefined;
 const vercelProjectUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL.trim().replace(/\/+$/, "")}` : undefined;
+const renderUrl = cleanUrl(process.env.RENDER_EXTERNAL_URL);
 
-const effectiveBaseUrl = authUrl || appUrl || vercelProjectUrl || vercelUrl || "http://localhost:3000";
+const effectiveBaseUrl = authUrl || appUrl || renderUrl || vercelProjectUrl || vercelUrl || "http://localhost:3000";
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -28,9 +29,12 @@ export const auth = betterAuth({
       "http://localhost:3001",
       "https://*.vercel.app",
       "*.vercel.app",
+      "https://*.onrender.com",
+      "*.onrender.com",
       "https://rajwadi-snowy.vercel.app",
       ...(appUrl ? [appUrl] : []),
       ...(authUrl ? [authUrl] : []),
+      ...(renderUrl ? [renderUrl] : []),
       ...(vercelUrl ? [vercelUrl] : []),
       ...(vercelProjectUrl ? [vercelProjectUrl] : []),
       ...(process.env.NEXT_PUBLIC_VERCEL_URL ? [`https://${process.env.NEXT_PUBLIC_VERCEL_URL.trim().replace(/\/+$/, "")}`] : []),
