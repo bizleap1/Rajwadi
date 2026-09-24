@@ -4,22 +4,17 @@ import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, User, Heart, ShoppingBag, Menu, X } from "lucide-react";
+import { Search, Heart, ShoppingBag, Menu, X } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
-import { useAuth } from "@/context/AuthContext";
 
 const SearchModal = dynamic(() => import("@/components/SearchModal"), { ssr: false });
-const AccountPopover = dynamic(() => import("@/components/AccountPopover"), { ssr: false });
-const AuthModal = dynamic(() => import("@/components/AuthModal"), { ssr: false });
 
 interface NavbarProps {
   onOpenConsultation?: () => void;
   solidOnTop?: boolean;
 }
-
-type AccountOverlayState = "none" | "popover" | "signin" | "signup";
 
 export default function Navbar({
   onOpenConsultation,
@@ -27,12 +22,10 @@ export default function Navbar({
 }: NavbarProps) {
   const { cartCount, setIsCartOpen } = useCart();
   const { wishlistCount } = useWishlist();
-  const { isAuthModalOpen, authModalMode, closeAuthModal, openAuthModal } = useAuth();
   const [isAtTop, setIsAtTop] = useState(true);
   const [isVisible, setIsVisible] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [accountOverlay, setAccountOverlay] = useState<AccountOverlayState>("none");
 
   const isScrolled = !isAtTop;
   const lastScrollY = useRef(0);
@@ -54,8 +47,8 @@ export default function Navbar({
 
       setIsAtTop(false);
 
-      // If mobile menu, search drawer, or account overlay is active, keep navbar in place
-      if (isMobileMenuOpen || isSearchOpen || accountOverlay !== "none") {
+      // If mobile menu or search drawer is active, keep navbar in place
+      if (isMobileMenuOpen || isSearchOpen) {
         setIsVisible(true);
         lastScrollY.current = currentScrollY;
         return;
@@ -81,7 +74,7 @@ export default function Navbar({
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [isMobileMenuOpen, isSearchOpen, accountOverlay]);
+  }, [isMobileMenuOpen, isSearchOpen]);
 
   // Lock background scroll when mobile menu is open
   useEffect(() => {
@@ -224,64 +217,14 @@ export default function Navbar({
               )}
             </Link>
 
-            {/* 4. Account Icon (Accessible on desktop & mobile) */}
-            <div className="relative">
-              <button
-                onClick={() =>
-                  setAccountOverlay((prev) => (prev === "popover" ? "none" : "popover"))
-                }
-                aria-label="Account"
-                className={`${
-                  useSolidStyle ? "text-charcoal" : "text-royal-ivory"
-                } hover:text-[#C6A15B] transition-colors duration-300 p-1.5 cursor-pointer flex items-center justify-center`}
-              >
-                <User className="w-4 h-4 sm:w-[18px] sm:h-[18px] stroke-[1.35]" />
-              </button>
-
-              {/* Desktop Popover (Only on desktop, anchored below User button) */}
-              <AccountPopover
-                isOpen={accountOverlay === "popover"}
-                onClose={() => setAccountOverlay("none")}
-                onOpenSignIn={() => setAccountOverlay("signin")}
-                onOpenSignUp={() => setAccountOverlay("signup")}
-                view="desktop"
-              />
-            </div>
           </div>
         </div>
       </header>
-
-      {/* Mobile Full-Screen Account Drawer (Fixed to Viewport, Outside Transformed Header) */}
-      <AccountPopover
-        isOpen={accountOverlay === "popover"}
-        onClose={() => setAccountOverlay("none")}
-        onOpenSignIn={() => setAccountOverlay("signin")}
-        onOpenSignUp={() => setAccountOverlay("signup")}
-        view="mobile"
-      />
 
       {/* Global Luxury Search Modal */}
       <SearchModal
         isOpen={isSearchOpen}
         onClose={() => setIsSearchOpen(false)}
-      />
-
-      {/* Auth Modal: Sign In & Create Account */}
-      <AuthModal
-        isOpen={isAuthModalOpen || accountOverlay === "signin" || accountOverlay === "signup"}
-        onClose={() => {
-          closeAuthModal();
-          setAccountOverlay("none");
-        }}
-        mode={isAuthModalOpen ? authModalMode : accountOverlay === "signup" ? "signup" : "signin"}
-        onSwitchMode={(nextMode) => {
-          openAuthModal(nextMode);
-          setAccountOverlay(nextMode);
-        }}
-        onBack={() => {
-          closeAuthModal();
-          setAccountOverlay("popover");
-        }}
       />
 
       {/* Mobile Drawer Navigation */}
@@ -350,16 +293,6 @@ export default function Navbar({
                   className="w-full py-3 bg-heritage-maroon text-royal-ivory text-xs uppercase tracking-widest hover:bg-[#431520] transition-colors shadow-sm"
                 >
                   Book Royal Consultation
-                </button>
-                <button
-                  onClick={() => {
-                    setIsMobileMenuOpen(false);
-                    setAccountOverlay("popover");
-                  }}
-                  className="inline-flex items-center gap-2 text-xs uppercase tracking-wider text-charcoal/70 hover:text-charcoal pt-1 transition-colors cursor-pointer"
-                >
-                  <User className="w-3.5 h-3.5 stroke-[1.5]" />
-                  <span>My Account</span>
                 </button>
               </div>
             </div>
