@@ -421,44 +421,6 @@ export default function CheckoutPage() {
     }
   };
 
-  // PATRON SIGN IN REQUIRED STATE
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-[#FDFBF7] flex flex-col justify-between text-[#171717]">
-        <Navbar />
-        <div className="pt-32 pb-20 max-w-md mx-auto px-4 text-center">
-          <div className="w-14 h-14 mx-auto bg-[#FAF5EE] border border-[#EBD9C8] rounded-full flex items-center justify-center text-[#855D25] mb-4">
-            <User className="w-6 h-6 stroke-[1.5]" />
-          </div>
-          <h1 className="text-2xl font-serif text-[#171717] uppercase tracking-wide">
-            Patron Sign In Required
-          </h1>
-          <p className="text-xs text-[#6B5E55] mt-2 mb-8 font-serif italic leading-relaxed">
-            Please sign in with your email or access code (OTP) to proceed with checkout and secure your order.
-          </p>
-          <div className="space-y-3 w-full max-w-xs mx-auto">
-            <button
-              type="button"
-              onClick={() => openAuthModal("signin", "Please sign in to proceed with checkout.")}
-              className="w-full py-3.5 px-4 bg-[#6D1A2A] hover:bg-[#581522] text-white text-xs uppercase tracking-[0.2em] font-medium flex items-center justify-center gap-2 transition-colors shadow-xs cursor-pointer"
-            >
-              <span>SIGN IN / ENTER WITH OTP</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
-            <button
-              type="button"
-              onClick={() => openAuthModal("signup", "Please sign in or create an account to proceed with checkout.")}
-              className="w-full py-3.5 px-4 bg-white hover:bg-[#FAF6F0] text-[#171717] border border-[#D9C4B0] text-xs uppercase tracking-[0.2em] font-medium transition-colors cursor-pointer"
-            >
-              CREATE PATRON ACCOUNT
-            </button>
-          </div>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
-
   if (cartItems.length === 0) {
     return (
       <div className="min-h-screen bg-[#FDFBF7] flex flex-col justify-between text-[#171717]">

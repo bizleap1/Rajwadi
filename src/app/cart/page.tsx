@@ -281,12 +281,6 @@ export default function CartPage() {
                 <div className="pt-2 space-y-2.5">
                   <Link
                     href="/checkout"
-                    onClick={(e) => {
-                      if (!isAuthenticated) {
-                        e.preventDefault();
-                        openAuthModal("signin", "Please sign in or create an account to proceed with checkout.");
-                      }
-                    }}
                     className="w-full h-[46px] sm:h-[48px] bg-[#5A1F2B] hover:bg-[#431520] text-[#FAF5EE] text-xs uppercase tracking-[0.22em] font-medium transition-colors flex items-center justify-center gap-2 shadow-2xs cursor-pointer"
                   >
                     <span>CHECKOUT</span>

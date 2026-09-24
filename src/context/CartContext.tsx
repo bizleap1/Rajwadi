@@ -65,11 +65,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     size?: string,
     quantity: number = 1
   ) => {
-    // BUSINESS RULE: Only logged-in patrons can add items to cart
-    if (!isAuthenticated) {
-      openAuthModal("signin", "Please sign in with your email or OTP to add items to your royal bag.");
-      return;
-    }
     const resolvedSize =
       size && size.trim()
         ? size.trim()

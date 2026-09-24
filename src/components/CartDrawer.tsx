@@ -184,14 +184,8 @@ export default function CartDrawer({ onOpenConsultation }: CartDrawerProps) {
                 </div>
 
                 <Link
-                  href="/cart"
-                  onClick={(e) => {
-                    setIsCartOpen(false);
-                    if (!isAuthenticated) {
-                      e.preventDefault();
-                      openAuthModal("signin", "Please sign in or create an account to proceed with checkout.");
-                    }
-                  }}
+                  href="/checkout"
+                  onClick={() => setIsCartOpen(false)}
                   className="w-full py-3.5 bg-[#5A1F2B] hover:bg-[#431520] text-[#FAF5EE] text-xs uppercase tracking-[0.22em] font-medium border border-[#C6A15B] shadow-md transition-colors text-center block"
                 >
                   VIEW BAG & CHECKOUT →
