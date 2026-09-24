@@ -62,7 +62,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (profileRes.ok) {
           const data = await profileRes.json();
           setUser(data.user);
-          setAddresses(data.addresses || []);
+          const rawAddresses: UserAddress[] = data.addresses || [];
+          const seen = new Set<string>();
+          const deduped: UserAddress[] = [];
+          for (const a of rawAddresses) {
+            const key = `${(a.address || "").trim().toLowerCase()}|${(a.pincode || "").trim()}|${(a.city || "").trim().toLowerCase()}`;
+            if (!seen.has(key)) {
+              seen.add(key);
+              deduped.push(a);
+            }
+          }
+          setAddresses(deduped);
           return data.user as UserProfile;
         } else {
           const fallbackUser: UserProfile = {
@@ -236,28 +246,91 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Save Address
+  // Normalize string for address comparison
+  const normalizeAddr = (s?: string) => (s || "").trim().toLowerCase().replace(/\s+/g, " ");
+
+  // Save Address (Intelligent deduplication - updates in place if address exists)
   const saveAddress = async (addr: Omit<UserAddress, "id"> & { id?: string }) => {
     try {
       let updatedAddresses = [...addresses];
-      if (addr.id) {
-        updatedAddresses = updatedAddresses.map((a) => (a.id === addr.id ? (addr as UserAddress) : a));
-      } else {
-        const newAddr = {
-          ...addr,
-          id: `temp-${Date.now()}`,
-          isDefault: addresses.length === 0 ? true : Boolean(addr.isDefault),
+      const incomingKey = `${normalizeAddr(addr.address)}|${normalizeAddr(addr.pincode)}|${normalizeAddr(addr.city)}`;
+
+      // Check if address already exists in patron's address book
+      const existingIndex = updatedAddresses.findIndex((a) => {
+        if (addr.id && a.id === addr.id) return true;
+        const aKey = `${normalizeAddr(a.address)}|${normalizeAddr(a.pincode)}|${normalizeAddr(a.city)}`;
+        return aKey === incomingKey;
+      });
+
+      const shouldBeDefault = addr.isDefault ?? (addresses.length === 0);
+
+      if (existingIndex >= 0) {
+        const existing = updatedAddresses[existingIndex];
+        const isIdentical =
+          existing.name.trim() === addr.name.trim() &&
+          existing.phone.trim() === addr.phone.trim() &&
+          normalizeAddr(existing.address) === normalizeAddr(addr.address) &&
+          normalizeAddr(existing.city) === normalizeAddr(addr.city) &&
+          normalizeAddr(existing.state) === normalizeAddr(addr.state) &&
+          normalizeAddr(existing.pincode) === normalizeAddr(addr.pincode) &&
+          Boolean(existing.isDefault) === Boolean(shouldBeDefault);
+
+        // If exact same record already exists and is default, no need to make duplicate API request
+        if (isIdentical && (!shouldBeDefault || updatedAddresses.filter((a) => a.isDefault).length === 1)) {
+          return;
+        }
+
+        const updatedItem: UserAddress = {
+          ...existing,
+          name: addr.name.trim() || existing.name,
+          phone: addr.phone.trim() || existing.phone,
+          address: addr.address.trim() || existing.address,
+          city: addr.city.trim() || existing.city,
+          state: addr.state.trim() || existing.state,
+          pincode: addr.pincode.trim() || existing.pincode,
+          isDefault: shouldBeDefault,
         };
-        if (newAddr.isDefault) {
+
+        if (shouldBeDefault) {
+          updatedAddresses = updatedAddresses.map((a, idx) => ({
+            ...a,
+            isDefault: idx === existingIndex,
+          }));
+        }
+        updatedAddresses[existingIndex] = updatedItem;
+      } else {
+        const newAddr: UserAddress = {
+          ...addr,
+          name: addr.name.trim(),
+          phone: addr.phone.trim(),
+          address: addr.address.trim(),
+          city: addr.city.trim(),
+          state: addr.state.trim(),
+          pincode: addr.pincode.trim(),
+          id: addr.id || `temp-${Date.now()}`,
+          isDefault: shouldBeDefault,
+        };
+        if (shouldBeDefault) {
           updatedAddresses = updatedAddresses.map((a) => ({ ...a, isDefault: false }));
         }
-        updatedAddresses.push(newAddr as UserAddress);
+        updatedAddresses.push(newAddr);
+      }
+
+      // Deduplicate the list to ensure no duplicate addresses are ever saved
+      const seen = new Set<string>();
+      const dedupedAddresses: UserAddress[] = [];
+      for (const a of updatedAddresses) {
+        const key = `${normalizeAddr(a.address)}|${normalizeAddr(a.pincode)}|${normalizeAddr(a.city)}`;
+        if (!seen.has(key)) {
+          seen.add(key);
+          dedupedAddresses.push(a);
+        }
       }
 
       const res = await fetch("/api/account/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ addresses: updatedAddresses }),
+        body: JSON.stringify({ addresses: dedupedAddresses }),
       });
 
       if (res.ok) {
