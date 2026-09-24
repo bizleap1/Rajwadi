@@ -49,6 +49,7 @@ function AccountPageContent() {
     deleteAddress,
     updateProfile,
     isLoading: authLoading,
+    openAuthModal,
   } = useAuth();
   const { wishlistCount } = useWishlist();
 
@@ -172,15 +173,45 @@ function AccountPageContent() {
         <Navbar solidOnTop={true} />
         <main className="pt-32 pb-20 max-w-lg mx-auto px-4 text-center">
           <div className="w-16 h-16 mx-auto bg-[#F8F1E7] border border-[#EBD9C8] rounded-full flex items-center justify-center text-[#855D25] mb-5 shadow-2xs">
-            <Package className="w-8 h-8 stroke-[1.5]" />
+            <User className="w-8 h-8 stroke-[1.5]" />
           </div>
           <span className="text-[11px] uppercase tracking-[0.25em] text-[#855D25] font-semibold block mb-1">
             PATRON SERVICES
           </span>
-          <h1 className="text-3xl font-serif text-[#171717]">Track Your Order</h1>
-          <p className="text-xs text-[#6B5E55] mt-2 mb-8 font-serif italic max-w-sm mx-auto leading-relaxed">
-            Enter your Rajwadi order reference number to view real-time tracking, tailoring updates, and payment status.
+          <h1 className="text-3xl font-serif text-[#171717]">Patron Sign In</h1>
+          <p className="text-xs text-[#6B5E55] mt-2 mb-6 font-serif italic max-w-sm mx-auto leading-relaxed">
+            Please sign in with your mobile number or email to view your order history, delivery addresses, and bespoke poshak details.
           </p>
+
+          {/* Action Buttons: Sign In / Create Account */}
+          <div className="bg-white p-6 border border-[#EBD9C8] rounded-sm shadow-xs space-y-3 mb-6">
+            <button
+              type="button"
+              onClick={() => openAuthModal("signin")}
+              className="w-full py-3 px-4 bg-[#6D1A2A] hover:bg-[#581522] text-white text-xs uppercase tracking-[0.16em] font-medium rounded-xs transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+            >
+              <span>Sign In with Mobile / Email</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => openAuthModal("signup")}
+              className="w-full py-2.5 px-4 bg-[#FAF5EE] hover:bg-[#F3EBE1] border border-[#D9C4B0] text-[#171717] text-xs uppercase tracking-[0.16em] font-medium rounded-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <span>Create New Account</span>
+            </button>
+          </div>
+
+          {/* Guest Order Lookup Divider */}
+          <div className="relative my-6 text-center">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-[#EBD9C8]"></div>
+            </div>
+            <span className="relative bg-[#FDFBF7] px-3 text-[11px] uppercase tracking-wider text-[#8A796B]">
+              Or Track Guest Order
+            </span>
+          </div>
 
           {/* Direct Order Lookup Form */}
           <form
@@ -191,7 +222,7 @@ function AccountPageContent() {
                 window.location.href = `/order/${encodeURIComponent(target.value.trim().toUpperCase())}`;
               }
             }}
-            className="bg-white p-5 border border-[#EBD9C8] rounded-sm shadow-xs space-y-3 text-left mb-6"
+            className="bg-white p-4 border border-[#EBD9C8] rounded-sm shadow-2xs space-y-2.5 text-left mb-6"
           >
             <label className="text-[11px] uppercase tracking-wider text-[#855D25] font-semibold block">
               Order Number (e.g. RW1024)
@@ -202,11 +233,11 @@ function AccountPageContent() {
                 name="orderId"
                 required
                 placeholder="RW..."
-                className="flex-1 bg-[#FAF5EE] border border-[#D8CCB8] focus:border-[#855D25] px-3.5 py-2.5 text-xs uppercase tracking-wider text-[#171717] outline-none rounded-xs"
+                className="flex-1 bg-[#FAF5EE] border border-[#D8CCB8] focus:border-[#855D25] px-3.5 py-2 text-xs uppercase tracking-wider text-[#171717] outline-none rounded-xs"
               />
               <button
                 type="submit"
-                className="px-5 py-2.5 bg-[#5A1F2B] hover:bg-[#431520] text-white text-xs uppercase tracking-widest font-medium rounded-xs transition-colors cursor-pointer"
+                className="px-4 py-2 bg-[#5A1F2B] hover:bg-[#431520] text-white text-xs uppercase tracking-widest font-medium rounded-xs transition-colors cursor-pointer"
               >
                 Track &rarr;
               </button>

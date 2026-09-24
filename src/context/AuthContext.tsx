@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
-import { signIn, signUp, signOut, getSession, emailOtp } from "@/lib/auth-client";
+import { signIn, signUp, signOut, getSession } from "@/lib/auth-client";
 import { UserProfile, UserAddress } from "@/types/auth";
 
 interface AuthContextType {
@@ -90,17 +90,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     refreshProfile();
   }, [refreshProfile]);
 
-  // Real Email Sign-in
-  const loginWithEmail = async (email: string, password: string = "RajwadiUser2026!"): Promise<void> => {
+  // Real Email / Mobile Sign-in with Password
+  const loginWithEmail = async (identifier: string, password?: string): Promise<void> => {
     setIsLoading(true);
     try {
+      if (!identifier.trim()) {
+        throw new Error("Please enter your email or mobile number.");
+      }
+      if (!password) {
+        throw new Error("Please enter your password.");
+      }
+
+      let emailToUse = identifier.trim().toLowerCase();
+
+      // If user provided a phone number or non-email, resolve email first
+      if (!emailToUse.includes("@")) {
+        const lookupRes = await fetch("/api/auth/lookup-identifier", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ identifier }),
+        });
+        const lookupData = await lookupRes.json();
+        if (!lookupRes.ok || !lookupData.email) {
+          throw new Error(lookupData.error || "No account found with this mobile number. Please check or create an account.");
+        }
+        emailToUse = lookupData.email;
+      }
+
       const res = await signIn.email({
-        email: email.trim().toLowerCase(),
+        email: emailToUse,
         password,
       });
 
       if (res.error) {
-        throw new Error(res.error.message || "Failed to sign in. Please verify your credentials.");
+        throw new Error(res.error.message || "Invalid credentials. Please verify your email/phone and password.");
       }
 
       await refreshProfile();
@@ -113,11 +136,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signup = async (
     name: string,
     email: string,
-    password: string = "RajwadiUser2026!",
+    password?: string,
     phone: string = ""
   ): Promise<void> => {
     setIsLoading(true);
     try {
+      if (!password) {
+        throw new Error("Please create a password with at least 6 characters.");
+      }
       const res = await signUp.email({
         name: name.trim(),
         email: email.trim().toLowerCase(),
@@ -133,7 +159,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await fetch("/api/account/profile", {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ phone }),
+          body: JSON.stringify({ phone: phone.trim() }),
         });
       }
 
@@ -143,55 +169,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Send Email OTP Code
+  // Backward-compatibility no-op stubs for OTP
   const sendOtp = async (
-    email: string,
-    type: "sign-in" | "email-verification" | "forget-password" = "sign-in"
+    _email: string,
+    _type: "sign-in" | "email-verification" | "forget-password" = "sign-in"
   ): Promise<void> => {
-    const res = await (emailOtp as any).sendVerificationOtp({
-      email: email.trim().toLowerCase(),
-      type,
-    });
-
-    if (res?.error) {
-      throw new Error(res.error.message || "Failed to send verification code.");
-    }
+    // OTP deprecated in favor of standard credentials
   };
 
-  // Verify OTP and Sign-in
   const verifyOtp = async (
-    email: string,
-    otp: string,
-    name?: string,
-    phone?: string
+    _email: string,
+    _otp: string,
+    _name?: string,
+    _phone?: string
   ): Promise<void> => {
-    setIsLoading(true);
-    try {
-      const res = await (signIn as any).emailOtp({
-        email: email.trim().toLowerCase(),
-        otp: otp.trim(),
-      });
-
-      if (res?.error) {
-        throw new Error(res.error.message || "Invalid or expired verification code. Please try again.");
-      }
-
-      // Update name/phone if provided
-      if (name || phone) {
-        await fetch("/api/account/profile", {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name: name || undefined,
-            phone: phone || undefined,
-          }),
-        });
-      }
-
-      await refreshProfile();
-    } finally {
-      setIsLoading(false);
-    }
+    // OTP deprecated in favor of standard credentials
   };
 
   // Google Sign-in

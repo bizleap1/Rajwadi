@@ -1,9 +1,7 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { emailOTP } from "better-auth/plugins";
 import { headers } from "next/headers";
 import prisma from "../db/prisma";
-import { sendOtpEmail } from "../services/email";
 
 const cleanUrl = (url?: string) => (url ? url.trim().replace(/\/+$/, "") : undefined);
 
@@ -86,15 +84,6 @@ export const auth = betterAuth({
       },
     },
   },
-  plugins: [
-    emailOTP({
-      async sendVerificationOTP({ email, otp, type }) {
-        await sendOtpEmail({ email, otp, type });
-      },
-      otpLength: 6,
-      expiresIn: 300, // 5 minutes
-    }),
-  ],
 });
 
 /**
