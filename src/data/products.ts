@@ -1278,7 +1278,10 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     fabric: "Fandy Fabric",
     craft: "Heavy Zari Multi Work Border with Diamond Work",
     color: "Maroon & Ivory",
-    image: "/products/Unstiched/Rajrani Maroon Ivory Poshak/1.webp",
+    image: "/brown.jpeg",
+    additionalImages: [
+      "/brown.jpeg",
+    ],
     imagePosition: "center 5%",
     description: "Traditional dual-tone unstitched poshak material suitable for ceremonial occasions.",
     type: "Unstitched",
