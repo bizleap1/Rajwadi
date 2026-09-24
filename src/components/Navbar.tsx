@@ -4,12 +4,13 @@ import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Heart, ShoppingBag, Menu, X } from "lucide-react";
+import { Search, Heart, ShoppingBag, Menu, X, User } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 
 const SearchModal = dynamic(() => import("@/components/SearchModal"), { ssr: false });
+const AccountPopover = dynamic(() => import("@/components/AccountPopover"), { ssr: false });
 
 interface NavbarProps {
   onOpenConsultation?: () => void;
@@ -26,6 +27,7 @@ export default function Navbar({
   const [isVisible, setIsVisible] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isAccountOpen, setIsAccountOpen] = useState(false);
 
   const isScrolled = !isAtTop;
   const lastScrollY = useRef(0);
@@ -47,8 +49,8 @@ export default function Navbar({
 
       setIsAtTop(false);
 
-      // If mobile menu or search drawer is active, keep navbar in place
-      if (isMobileMenuOpen || isSearchOpen) {
+      // If mobile menu, search drawer, or account popover is active, keep navbar in place
+      if (isMobileMenuOpen || isSearchOpen || isAccountOpen) {
         setIsVisible(true);
         lastScrollY.current = currentScrollY;
         return;
@@ -74,7 +76,7 @@ export default function Navbar({
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [isMobileMenuOpen, isSearchOpen]);
+  }, [isMobileMenuOpen, isSearchOpen, isAccountOpen]);
 
   // Lock background scroll when mobile menu is open
   useEffect(() => {
@@ -217,9 +219,35 @@ export default function Navbar({
               )}
             </Link>
 
+            {/* 4. My Account Icon (Accessible on desktop & mobile) */}
+            <div className="relative">
+              <button
+                onClick={() => setIsAccountOpen((prev) => !prev)}
+                aria-label="My Account"
+                className={`${
+                  useSolidStyle ? "text-charcoal" : "text-royal-ivory"
+                } hover:text-[#C6A15B] transition-colors duration-300 p-1.5 cursor-pointer flex items-center justify-center`}
+              >
+                <User className="w-4 h-4 sm:w-[18px] sm:h-[18px] stroke-[1.35]" />
+              </button>
+
+              {/* Desktop Popover */}
+              <AccountPopover
+                isOpen={isAccountOpen}
+                onClose={() => setIsAccountOpen(false)}
+                view="desktop"
+              />
+            </div>
           </div>
         </div>
       </header>
+
+      {/* Mobile Full-Screen Account Drawer */}
+      <AccountPopover
+        isOpen={isAccountOpen}
+        onClose={() => setIsAccountOpen(false)}
+        view="mobile"
+      />
 
       {/* Global Luxury Search Modal */}
       <SearchModal
@@ -293,6 +321,16 @@ export default function Navbar({
                   className="w-full py-3 bg-heritage-maroon text-royal-ivory text-xs uppercase tracking-widest hover:bg-[#431520] transition-colors shadow-sm"
                 >
                   Book Royal Consultation
+                </button>
+                <button
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    setIsAccountOpen(true);
+                  }}
+                  className="inline-flex items-center gap-2 text-xs uppercase tracking-wider text-charcoal/70 hover:text-charcoal pt-1 transition-colors cursor-pointer"
+                >
+                  <User className="w-3.5 h-3.5 stroke-[1.5]" />
+                  <span>My Account &amp; Services</span>
                 </button>
               </div>
             </div>
