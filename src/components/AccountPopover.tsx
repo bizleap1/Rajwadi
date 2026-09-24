@@ -15,6 +15,7 @@ import {
   MapPin,
   Lock,
   UserPlus,
+  ShieldCheck,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useWishlist } from "@/context/WishlistContext";
@@ -112,14 +113,14 @@ export default function AccountPopover({
               {isAuthenticated && user ? (
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-[#6D1A2A] text-white flex items-center justify-center font-serif text-sm font-semibold tracking-wider">
-                    {user.name ? user.name.slice(0, 2).toUpperCase() : "PA"}
+                    {user.role === "ADMIN" ? "👑" : user.name ? user.name.slice(0, 2).toUpperCase() : "PA"}
                   </div>
                   <div className="min-w-0 flex-1">
                     <span className="text-[10px] uppercase tracking-[0.24em] text-[#855D25] font-semibold font-sans block">
-                      PATRON MEMBER
+                      {user.role === "ADMIN" ? "👑 ATELIER OWNER" : "PATRON MEMBER"}
                     </span>
                     <h3 className="font-serif text-base text-[#171717] truncate font-medium">
-                      {user.name || "Royal Patron"}
+                      {user.name || (user.role === "ADMIN" ? "Admin Owner" : "Royal Patron")}
                     </h3>
                     <p className="text-[11px] text-[#6B635B] truncate font-sans">
                       {user.phone ? `+91 ${user.phone}` : user.email}
@@ -169,6 +170,30 @@ export default function AccountPopover({
 
               {/* Menu items */}
               <div className="space-y-1 font-sans text-xs">
+                {/* 👑 Atelier Owner Portal (Only for ADMIN role) */}
+                {user?.role === "ADMIN" && (
+                  <button
+                    type="button"
+                    onClick={() => handleNavigate("/admin/products")}
+                    className="w-full text-left group py-2.5 px-3 bg-[#FAF0E1] hover:bg-[#F5E6D0] border border-[#D9C4B0] rounded-xs flex items-center justify-between cursor-pointer transition-colors shadow-2xs mb-2"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-7 h-7 rounded-full bg-[#6D1A2A] text-white flex items-center justify-center text-xs flex-shrink-0">
+                        👑
+                      </div>
+                      <div>
+                        <span className="font-semibold uppercase tracking-wider text-[#6D1A2A] block text-xs">
+                          ATELIER OWNER PORTAL
+                        </span>
+                        <span className="text-[11px] text-[#855D25]">
+                          Catalog, Orders &amp; Analytics
+                        </span>
+                      </div>
+                    </div>
+                    <span className="text-xs text-[#6D1A2A] font-bold">&rarr;</span>
+                  </button>
+                )}
+
                 {/* 1. My Orders */}
                 <button
                   type="button"
@@ -320,14 +345,14 @@ export default function AccountPopover({
               {isAuthenticated && user ? (
                 <div className="flex items-center gap-3.5 pb-2">
                   <div className="w-12 h-12 rounded-full bg-[#6D1A2A] text-white flex items-center justify-center font-serif text-base font-semibold tracking-wider">
-                    {user.name ? user.name.slice(0, 2).toUpperCase() : "PA"}
+                    {user.role === "ADMIN" ? "👑" : user.name ? user.name.slice(0, 2).toUpperCase() : "PA"}
                   </div>
                   <div className="min-w-0 flex-1">
                     <span className="text-[10px] uppercase tracking-[0.22em] text-[#855D25] font-semibold font-sans block">
-                      PATRON MEMBER
+                      {user.role === "ADMIN" ? "👑 ATELIER OWNER" : "PATRON MEMBER"}
                     </span>
                     <h3 className="font-serif text-xl text-[#171717] truncate font-medium">
-                      {user.name || "Royal Patron"}
+                      {user.name || (user.role === "ADMIN" ? "Admin Owner" : "Royal Patron")}
                     </h3>
                     <p className="text-xs text-[#6B635B] truncate font-sans">
                       {user.phone ? `+91 ${user.phone}` : user.email}
@@ -372,6 +397,30 @@ export default function AccountPopover({
 
               {/* Hairline Divider */}
               <div className="w-full h-[1px] bg-[#E6DCB8]" />
+
+              {/* 👑 Atelier Owner Portal (Only for ADMIN role) */}
+              {user?.role === "ADMIN" && (
+                <button
+                  type="button"
+                  onClick={() => handleNavigate("/admin/products")}
+                  className="w-full py-3.5 px-4 bg-[#FAF0E1] active:bg-[#F5E6D0] border border-[#D9C4B0] rounded-xs flex items-center justify-between text-left group cursor-pointer shadow-xs mb-3"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-[#6D1A2A] text-white flex items-center justify-center text-sm flex-shrink-0">
+                      👑
+                    </div>
+                    <div>
+                      <span className="font-semibold uppercase tracking-[0.16em] text-[#6D1A2A] block text-xs">
+                        ATELIER OWNER PORTAL
+                      </span>
+                      <span className="text-[11px] text-[#855D25]">
+                        Full Admin Catalog, Orders &amp; Analytics
+                      </span>
+                    </div>
+                  </div>
+                  <ArrowRight className="w-4 h-4 text-[#6D1A2A]" />
+                </button>
+              )}
 
               {/* Vertical Links */}
               <div className="divide-y divide-[#E6DCB8]/60 font-sans text-xs">

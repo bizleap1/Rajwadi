@@ -8,7 +8,22 @@ import { OrderProvider } from "@/context/OrderContext";
 import AuthModal from "@/components/AuthModal";
 
 function GlobalAuthModal() {
-  const { isAuthModalOpen, closeAuthModal, authModalMode, authModalMessage } = useAuth();
+  const { isAuthModalOpen, closeAuthModal, authModalMode, authModalMessage, openAuthModal } = useAuth();
+
+  React.useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("auth") === "signin") {
+      const isDenied = params.get("denied") === "admin";
+      openAuthModal(
+        "signin",
+        isDenied
+          ? "Owner authentication required to access Admin Atelier."
+          : undefined
+      );
+    }
+  }, [openAuthModal]);
+
   return (
     <AuthModal
       isOpen={isAuthModalOpen}

@@ -10,7 +10,7 @@ interface AuthContextType {
   addresses: UserAddress[];
   isLoading: boolean;
   loginWithGoogle: () => Promise<void>;
-  loginWithEmail: (email: string, password?: string) => Promise<void>;
+  loginWithEmail: (email: string, password?: string) => Promise<UserProfile | null>;
   signup: (name: string, email: string, password?: string, phone?: string) => Promise<void>;
   sendOtp: (email: string, type?: "sign-in" | "email-verification" | "forget-password") => Promise<void>;
   verifyOtp: (email: string, otp: string, name?: string, phone?: string) => Promise<void>;
@@ -19,7 +19,7 @@ interface AuthContextType {
   saveAddress: (address: Omit<UserAddress, "id"> & { id?: string }) => Promise<void>;
   deleteAddress: (id: string) => Promise<void>;
   setDefaultAddress: (id: string) => Promise<void>;
-  refreshProfile: () => Promise<void>;
+  refreshProfile: () => Promise<UserProfile | null>;
   isAuthModalOpen: boolean;
   authModalMode: "signin" | "signup";
   authModalMessage?: string;
@@ -51,7 +51,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   // Fetch current authenticated user and profile from server
-  const refreshProfile = useCallback(async () => {
+  const refreshProfile = useCallback(async (): Promise<UserProfile | null> => {
     try {
       const sessionRes = await getSession();
       if (sessionRes?.data?.user) {
@@ -63,24 +63,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const data = await profileRes.json();
           setUser(data.user);
           setAddresses(data.addresses || []);
+          return data.user as UserProfile;
         } else {
-          setUser({
+          const fallbackUser: UserProfile = {
             id: sessionRes.data.user.id,
             name: sessionRes.data.user.name || "Customer",
             email: sessionRes.data.user.email,
             phone: (sessionRes.data.user as any).phone || "",
             role: (sessionRes.data.user as any).role || "CUSTOMER",
             createdAt: sessionRes.data.user.createdAt?.toISOString() || new Date().toISOString(),
-          });
+          };
+          setUser(fallbackUser);
+          return fallbackUser;
         }
       } else {
         setUser(null);
         setAddresses([]);
+        return null;
       }
     } catch (e) {
       console.warn("Auth check error:", e);
       setUser(null);
       setAddresses([]);
+      return null;
     } finally {
       setIsLoading(false);
     }
@@ -91,7 +96,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [refreshProfile]);
 
   // Real Email / Mobile Sign-in with Password
-  const loginWithEmail = async (identifier: string, password?: string): Promise<void> => {
+  const loginWithEmail = async (identifier: string, password?: string): Promise<UserProfile | null> => {
     setIsLoading(true);
     try {
       if (!identifier.trim()) {
@@ -126,7 +131,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw new Error(res.error.message || "Invalid credentials. Please verify your email/phone and password.");
       }
 
-      await refreshProfile();
+      return await refreshProfile();
     } finally {
       setIsLoading(false);
     }

@@ -21,20 +21,15 @@ export default function AdminNav({ user }: { user: { name?: string; email: strin
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // If on login page, don't render navigation bar contents
-  if (pathname === "/admin/login") {
-    return null;
-  }
-
   const handleLogout = async () => {
     setIsLoggingOut(true);
     try {
       await signOut();
-      router.push("/admin/login");
+      router.push("/");
       router.refresh();
     } catch (e) {
       console.error("Logout error:", e);
-      window.location.href = "/admin/login";
+      window.location.href = "/";
     }
   };
 

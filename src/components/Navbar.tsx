@@ -8,6 +8,7 @@ import { Search, Heart, ShoppingBag, Menu, X, User } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
+import { useAuth } from "@/context/AuthContext";
 
 const SearchModal = dynamic(() => import("@/components/SearchModal"), { ssr: false });
 const AccountPopover = dynamic(() => import("@/components/AccountPopover"), { ssr: false });
@@ -23,6 +24,7 @@ export default function Navbar({
 }: NavbarProps) {
   const { cartCount, setIsCartOpen } = useCart();
   const { wishlistCount } = useWishlist();
+  const { user } = useAuth();
   const [isAtTop, setIsAtTop] = useState(true);
   const [isVisible, setIsVisible] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -219,6 +221,17 @@ export default function Navbar({
               )}
             </Link>
 
+            {/* 👑 Atelier Owner Portal Direct Link (Only when signed in as ADMIN) */}
+            {user?.role === "ADMIN" && (
+              <Link
+                href="/admin/products"
+                className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#6D1A2A] text-white text-[10px] uppercase tracking-wider font-semibold rounded-xs hover:bg-[#581522] transition-colors shadow-2xs mr-0.5"
+                title="Atelier Owner Portal"
+              >
+                <span>👑 Owner Portal</span>
+              </Link>
+            )}
+
             {/* 4. My Account Icon (Accessible on desktop & mobile) */}
             <div className="relative">
               <button
@@ -226,9 +239,14 @@ export default function Navbar({
                 aria-label="My Account"
                 className={`${
                   useSolidStyle ? "text-charcoal" : "text-royal-ivory"
-                } hover:text-[#C6A15B] transition-colors duration-300 p-1.5 cursor-pointer flex items-center justify-center`}
+                } hover:text-[#C6A15B] transition-colors duration-300 p-1.5 cursor-pointer flex items-center justify-center relative`}
               >
                 <User className="w-4 h-4 sm:w-[18px] sm:h-[18px] stroke-[1.35]" />
+                {user?.role === "ADMIN" && (
+                  <span className="absolute -top-1 -right-0.5 text-[9px] leading-none select-none" title="Owner Admin Active">
+                    👑
+                  </span>
+                )}
               </button>
 
               {/* Desktop Popover */}
@@ -313,6 +331,15 @@ export default function Navbar({
 
               {/* Actions: Book Consultation + Account */}
               <div className="pt-4 border-t border-soft-beige flex flex-col items-center gap-3">
+                {user?.role === "ADMIN" && (
+                  <Link
+                    href="/admin/products"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="w-full py-3 bg-[#FAF0E1] border border-[#D9C4B0] text-[#6D1A2A] text-xs uppercase tracking-widest font-semibold flex items-center justify-center gap-2 hover:bg-[#F5E6D0] transition-colors shadow-2xs"
+                  >
+                    <span>👑 Atelier Owner Portal</span>
+                  </Link>
+                )}
                 <button
                   onClick={() => {
                     setIsMobileMenuOpen(false);

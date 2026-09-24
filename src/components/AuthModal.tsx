@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   X,
   ArrowRight,
@@ -36,6 +37,7 @@ export default function AuthModal({
   onSwitchMode,
   onSuccess,
 }: AuthModalProps) {
+  const router = useRouter();
   const { loginWithEmail, signup, authModalMessage } = useAuth();
 
   const [internalMode, setInternalMode] = useState<"signin" | "signup">(
@@ -116,9 +118,19 @@ export default function AuthModal({
 
     setIsSubmitting(true);
     try {
-      await loginWithEmail(trimmedId, password);
+      const loggedUser = await loginWithEmail(trimmedId, password);
       onSuccess?.();
       onClose();
+
+      // If user has ADMIN role, route immediately to Atelier Owner Portal
+      if (loggedUser?.role === "ADMIN") {
+        const searchParams =
+          typeof window !== "undefined"
+            ? new URLSearchParams(window.location.search)
+            : null;
+        const returnUrl = searchParams?.get("returnUrl") || "/admin/products";
+        router.push(returnUrl);
+      }
     } catch (err: any) {
       console.error("Sign in error:", err);
       setError(err.message || "Invalid credentials. Please verify your details.");
