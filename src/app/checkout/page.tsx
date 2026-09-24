@@ -76,7 +76,7 @@ export default function CheckoutPage() {
   const router = useRouter();
   const { cartItems, cartCount, cartTotal, clearCart } = useCart();
   const { createOrder } = useOrders();
-  const { user, isAuthenticated, addresses, openAuthModal } = useAuth();
+  const { user, isAuthenticated, addresses, openAuthModal, saveAddress } = useAuth();
 
   // Multi-step state: "address" | "payment" (matching old folder stage design)
   const [currentStep, setCurrentStep] = useState<"address" | "payment">("address");
@@ -131,32 +131,55 @@ export default function CheckoutPage() {
   // Load and pre-fill saved address from database (if logged in) or localStorage (for repeat patrons)
   useEffect(() => {
     if (user) {
-      const defaultAddr = addresses && addresses.length > 0
-        ? addresses.find((a) => a.isDefault) || addresses[0]
-        : null;
+      const defaultAddr =
+        addresses && addresses.length > 0
+          ? addresses.find((a) => a.isDefault) || addresses[0]
+          : null;
 
-      const addrData = {
-        email: user.email || "",
-        fullName: defaultAddr?.name || user.name || "",
-        phone: defaultAddr?.phone || user.phone || "",
-        address: defaultAddr?.address || "",
-        city: defaultAddr?.city || "",
-        state: defaultAddr?.state || "Rajasthan",
-        pincode: defaultAddr?.pincode || "",
-      };
-
-      if (addrData.fullName && addrData.address && addrData.pincode) {
+      if (defaultAddr && defaultAddr.address && defaultAddr.pincode) {
+        const addrData = {
+          email: user.email || "",
+          fullName: defaultAddr.name || user.name || "",
+          phone: defaultAddr.phone || user.phone || "",
+          address: defaultAddr.address || "",
+          city: defaultAddr.city || "",
+          state: defaultAddr.state || "Rajasthan",
+          pincode: defaultAddr.pincode || "",
+        };
         setSavedAddress(addrData);
         setFormData(addrData);
         setUseSavedAddress(true);
-      } else {
-        setFormData((prev) => ({
-          ...prev,
-          email: addrData.email || prev.email,
-          fullName: addrData.fullName || prev.fullName,
-          phone: addrData.phone || prev.phone,
-        }));
+        return;
       }
+
+      // Check localStorage for previously entered address if Neon addresses list is empty
+      try {
+        const localSaved = localStorage.getItem("rajwadi_saved_delivery_address");
+        if (localSaved) {
+          const parsed = JSON.parse(localSaved);
+          if (parsed && parsed.address && parsed.pincode) {
+            const merged = {
+              ...parsed,
+              email: user.email || parsed.email || "",
+              fullName: parsed.fullName || user.name || "",
+              phone: parsed.phone || user.phone || "",
+            };
+            setSavedAddress(merged);
+            setFormData(merged);
+            setUseSavedAddress(true);
+            return;
+          }
+        }
+      } catch {
+        // ignore
+      }
+
+      setFormData((prev) => ({
+        ...prev,
+        email: user.email || prev.email,
+        fullName: user.name || prev.fullName,
+        phone: user.phone || prev.phone,
+      }));
       return;
     }
 
@@ -174,6 +197,28 @@ export default function CheckoutPage() {
       // ignore
     }
   }, [user, addresses]);
+
+  const handleSelectSavedAddress = (addr: {
+    name?: string;
+    phone?: string;
+    address: string;
+    city: string;
+    state?: string;
+    pincode: string;
+  }) => {
+    const updated = {
+      email: user?.email || formData.email || "",
+      fullName: addr.name || user?.name || formData.fullName || "",
+      phone: addr.phone || user?.phone || formData.phone || "",
+      address: addr.address,
+      city: addr.city,
+      state: addr.state || "Rajasthan",
+      pincode: addr.pincode,
+    };
+    setSavedAddress(updated);
+    setFormData(updated);
+    setUseSavedAddress(true);
+  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -223,7 +268,7 @@ export default function CheckoutPage() {
   };
 
   // Step 1 -> Step 2 transition
-  const handleProceedToPayment = (e?: React.FormEvent) => {
+  const handleProceedToPayment = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     setErrorMessage("");
 
@@ -237,7 +282,7 @@ export default function CheckoutPage() {
       return;
     }
 
-    // Persist delivery address locally
+    // Persist delivery address locally for instant prefill on next visit
     try {
       localStorage.setItem(
         "rajwadi_saved_delivery_address",
@@ -247,6 +292,25 @@ export default function CheckoutPage() {
       // ignore
     }
 
+    // If patron is logged in, automatically save address to their Neon database account profile
+    if (user && saveAddress) {
+      try {
+        await saveAddress({
+          name: formData.fullName.trim(),
+          phone: formData.phone.trim(),
+          address: formData.address.trim(),
+          city: formData.city.trim(),
+          state: formData.state.trim(),
+          pincode: formData.pincode.trim(),
+          isDefault: true,
+        });
+      } catch (e) {
+        console.error("Failed to sync address to user profile:", e);
+      }
+    }
+
+    setSavedAddress(formData);
+    setUseSavedAddress(true);
     setCurrentStep("payment");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -597,6 +661,48 @@ export default function CheckoutPage() {
                 {savedAddress && useSavedAddress ? (
                   /* Saved Address Card */
                   <div className="space-y-5">
+                    {/* Multiple saved address selector if customer has more than 1 address */}
+                    {addresses && addresses.length > 1 && (
+                      <div className="space-y-2">
+                        <span className="text-[11px] uppercase tracking-wider text-[#855D25] font-semibold block">
+                          Choose from Your Saved Addresses ({addresses.length}):
+                        </span>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                          {addresses.map((a) => {
+                            const isSelected =
+                              savedAddress.address.trim().toLowerCase() ===
+                                a.address.trim().toLowerCase() &&
+                              savedAddress.pincode.trim() === a.pincode.trim();
+                            return (
+                              <button
+                                key={a.id}
+                                type="button"
+                                onClick={() => handleSelectSavedAddress(a)}
+                                className={`p-3 text-left border rounded-sm transition-all text-xs cursor-pointer ${
+                                  isSelected
+                                    ? "border-[#855D25] bg-[#FAF5EE] ring-1 ring-[#855D25]"
+                                    : "border-[#EBD9C8] bg-white hover:border-[#855D25] hover:bg-[#FDFBF7]"
+                                }`}
+                              >
+                                <div className="flex items-center justify-between font-semibold text-[#171717] mb-0.5">
+                                  <span>{a.name}</span>
+                                  {isSelected && (
+                                    <span className="text-[9px] bg-[#047857] text-white px-1.5 py-0.5 rounded-xs uppercase tracking-wider font-semibold">
+                                      Active
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="text-[#4A3E37] text-[11px] line-clamp-1">{a.address}</p>
+                                <p className="text-[#8A796B] text-[10.5px]">
+                                  {a.city}, {a.pincode} &bull; {a.phone}
+                                </p>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
                     <div className="bg-[#FAF5EE] border-2 border-[#855D25] p-5 rounded-sm shadow-xs relative">
                       <div className="flex items-center justify-between pb-3 border-b border-[#EBD9C8]">
                         <div className="flex items-center gap-2">

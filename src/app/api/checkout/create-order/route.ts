@@ -333,6 +333,42 @@ export async function POST(req: NextRequest) {
           await Promise.all(reservationPromises);
         }
 
+        // Save delivery address to user account for future checkouts ONLY if it is a genuinely new address
+        if (userId) {
+          const cleanAddr = deliveryAddress.address.trim().toLowerCase();
+          const cleanCity = deliveryAddress.city.trim().toLowerCase();
+          const cleanPin = deliveryAddress.pincode.trim();
+
+          const existingAddresses = await tx.address.findMany({
+            where: { userId },
+          });
+
+          const isDuplicate = existingAddresses.some(
+            (a: any) =>
+              a.address.trim().toLowerCase() === cleanAddr &&
+              a.city.trim().toLowerCase() === cleanCity &&
+              a.pincode.trim() === cleanPin
+          );
+
+          if (!isDuplicate) {
+            const isFirst = existingAddresses.length === 0;
+            await tx.address
+              .create({
+                data: {
+                  userId,
+                  name: deliveryAddress.fullName.trim(),
+                  phone: deliveryAddress.phone.trim(),
+                  address: deliveryAddress.address.trim(),
+                  city: deliveryAddress.city.trim(),
+                  state: deliveryAddress.state.trim(),
+                  pincode: deliveryAddress.pincode.trim(),
+                  isDefault: isFirst,
+                },
+              })
+              .catch(() => {});
+          }
+        }
+
         return order;
       },
       {
