@@ -25,6 +25,7 @@ import {
   Smartphone,
   ExternalLink,
   User,
+  Lock,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -443,6 +444,53 @@ export default function CheckoutPage() {
             Explore Collection
           </Link>
         </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-[#FDFBF7] flex flex-col justify-between text-[#171717]">
+        <Navbar />
+        <main className="pt-32 pb-20 max-w-md mx-auto px-4 text-center">
+          <div className="w-16 h-16 mx-auto bg-[#F8F1E7] border border-[#EBD9C8] rounded-full flex items-center justify-center text-[#855D25] mb-5 shadow-2xs">
+            <Lock className="w-8 h-8 stroke-[1.5]" />
+          </div>
+          <span className="text-[10.5px] uppercase tracking-[0.25em] text-[#855D25] font-semibold block mb-1">
+            PATRON CHECKOUT
+          </span>
+          <h1 className="text-2xl sm:text-3xl font-serif text-[#171717]">Sign In Required</h1>
+          <p className="text-xs text-[#6B5E55] mt-2 mb-8 font-serif italic max-w-sm mx-auto leading-relaxed">
+            Please sign in with your mobile number or email to complete your bespoke poshak order and receive tailoring updates.
+          </p>
+
+          <div className="space-y-3 bg-white p-6 border border-[#EBD9C8] rounded-sm shadow-xs mb-6">
+            <button
+              type="button"
+              onClick={() => openAuthModal("signin", "Sign in to complete your checkout.")}
+              className="w-full py-3 px-4 bg-[#6D1A2A] hover:bg-[#581522] text-white text-xs uppercase tracking-[0.16em] font-medium rounded-xs transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+            >
+              <span>Sign In to Checkout</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => openAuthModal("signup", "Create an account to complete your checkout.")}
+              className="w-full py-2.5 px-4 bg-[#FAF5EE] hover:bg-[#F3EBE1] border border-[#D9C4B0] text-[#171717] text-xs uppercase tracking-[0.16em] font-medium rounded-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <span>Create New Account</span>
+            </button>
+          </div>
+
+          <Link
+            href="/cart"
+            className="text-xs text-[#6D1A2A] hover:underline font-medium uppercase tracking-wider inline-flex items-center gap-1"
+          >
+            &larr; Return to Shopping Bag
+          </Link>
+        </main>
         <Footer />
       </div>
     );

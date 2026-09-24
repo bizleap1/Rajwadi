@@ -65,6 +65,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     size?: string,
     quantity: number = 1
   ) => {
+    if (!isAuthenticated) {
+      openAuthModal("signin", "Please sign in to add royal pieces to your bag.");
+      return;
+    }
+
     const resolvedSize =
       size && size.trim()
         ? size.trim()

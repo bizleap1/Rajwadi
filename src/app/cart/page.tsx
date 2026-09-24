@@ -279,13 +279,20 @@ export default function CartPage() {
 
                 {/* Checkout Button */}
                 <div className="pt-2 space-y-2.5">
-                  <Link
-                    href="/checkout"
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!isAuthenticated) {
+                        openAuthModal("signin", "Please sign in to proceed to checkout.");
+                        return;
+                      }
+                      window.location.href = "/checkout";
+                    }}
                     className="w-full h-[46px] sm:h-[48px] bg-[#5A1F2B] hover:bg-[#431520] text-[#FAF5EE] text-xs uppercase tracking-[0.22em] font-medium transition-colors flex items-center justify-center gap-2 shadow-2xs cursor-pointer"
                   >
                     <span>CHECKOUT</span>
                     <ArrowRight className="w-3.5 h-3.5" />
-                  </Link>
+                  </button>
 
                   {/* WhatsApp Secondary Link (Understated text link below CTA, not equal-size button) */}
                   <div className="text-center pt-1">

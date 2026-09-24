@@ -24,6 +24,7 @@ import {
 } from "@/data/products";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
+import { useAuth } from "@/context/AuthContext";
 import dynamic from "next/dynamic";
 import Navbar from "@/components/Navbar";
 import ProductCard from "@/components/ProductCard";
@@ -57,6 +58,7 @@ function ProductDetailInner({
   relatedProducts: PoshakProduct[];
 }) {
   const { addToCart, setIsCartOpen } = useCart();
+  const { isAuthenticated, openAuthModal } = useAuth();
   const { isInWishlist, toggleWishlist } = useWishlist();
   const isWishlisted = isInWishlist(product.id);
 
@@ -194,6 +196,10 @@ function ProductDetailInner({
   };
 
   const handleBuyNow = () => {
+    if (!isAuthenticated) {
+      openAuthModal("signin", "Please sign in to proceed with your order.");
+      return;
+    }
     if (availableSizes.length > 0 && !selectedSize) {
       setSizeError(true);
       return;

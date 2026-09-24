@@ -183,13 +183,20 @@ export default function CartDrawer({ onOpenConsultation }: CartDrawerProps) {
                   <span>Complimentary Royal Insured Shipping Across India</span>
                 </div>
 
-                <Link
-                  href="/checkout"
-                  onClick={() => setIsCartOpen(false)}
-                  className="w-full py-3.5 bg-[#5A1F2B] hover:bg-[#431520] text-[#FAF5EE] text-xs uppercase tracking-[0.22em] font-medium border border-[#C6A15B] shadow-md transition-colors text-center block"
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!isAuthenticated) {
+                      openAuthModal("signin", "Please sign in to proceed to checkout.");
+                      return;
+                    }
+                    setIsCartOpen(false);
+                    window.location.href = "/checkout";
+                  }}
+                  className="w-full py-3.5 bg-[#5A1F2B] hover:bg-[#431520] text-[#FAF5EE] text-xs uppercase tracking-[0.22em] font-medium border border-[#C6A15B] shadow-md transition-colors text-center block cursor-pointer"
                 >
                   VIEW BAG & CHECKOUT →
-                </Link>
+                </button>
 
                 <div className="text-center pt-1">
                   <button
