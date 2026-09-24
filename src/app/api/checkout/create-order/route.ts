@@ -142,14 +142,14 @@ export async function POST(req: NextRequest) {
     const guestAccessToken = crypto.randomBytes(32).toString("hex");
     const reservationExpiry = new Date(Date.now() + 15 * 60 * 1000); // 15-minute stock reservation
 
+    const defaultDelivery = new Date();
+    defaultDelivery.setDate(defaultDelivery.getDate() + 7);
+
     // ── RAZORPAY PAUSE MODE ──
     // Set RAZORPAY_PAUSED=false in .env to enable live Razorpay gateway
     const isRazorpayPaused = process.env.RAZORPAY_PAUSED !== "false";
 
     if (isRazorpayPaused) {
-      const defaultDelivery = new Date();
-      defaultDelivery.setDate(defaultDelivery.getDate() + 7);
-
       const savedOrder = await prisma.$transaction(
         async (tx: any) => {
           const order = await tx.order.create({
@@ -304,6 +304,7 @@ export async function POST(req: NextRequest) {
             fulfilmentStatus: "PENDING",
             paymentMethod: "RAZORPAY",
             razorpayOrderId: razorpayOrder.id,
+            estimatedDeliveryDate: defaultDelivery,
             shippingAddress: deliveryAddress as any,
             notes: notes || null,
             items: {

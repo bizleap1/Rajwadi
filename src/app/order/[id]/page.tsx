@@ -151,14 +151,18 @@ function OrderTrackingContent() {
     year: "numeric",
   });
 
-  const estimatedDeliveryStr = order.estimatedDeliveryDate
-    ? new Date(order.estimatedDeliveryDate).toLocaleDateString("en-IN", {
-        weekday: "short",
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-      })
-    : null;
+  const fallbackDeliveryDate = new Date(order.createdAt);
+  fallbackDeliveryDate.setDate(fallbackDeliveryDate.getDate() + 7);
+  const deliveryDateObj = order.estimatedDeliveryDate
+    ? new Date(order.estimatedDeliveryDate)
+    : fallbackDeliveryDate;
+
+  const estimatedDeliveryStr = deliveryDateObj.toLocaleDateString("en-IN", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
 
   const currentStageIndex = STAGES.findIndex((s) => s.key === order.fulfilmentStatus);
   const exchangeRequests = order.exchangeRequests || [];

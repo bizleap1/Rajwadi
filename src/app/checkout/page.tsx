@@ -108,7 +108,7 @@ export default function CheckoutPage() {
 
   const formRef = useRef<HTMLFormElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const deliveryRange = getEstimatedDeliveryRange(7);
+  const deliveryRange = getEstimatedDeliveryRange(5, 7);
 
   const storeUpiId =
     process.env.NEXT_PUBLIC_STORE_UPI_ID || "vyasshalu03@oksbi";
@@ -1211,7 +1211,7 @@ export default function CheckoutPage() {
               <div className="p-3 bg-[#FAF5EE] border border-[#EBD9C8] rounded text-[11px] text-[#855D25] flex items-center gap-2">
                 <Clock className="w-4 h-4 flex-shrink-0" />
                 <span>
-                  Estimated delivery: <strong>{deliveryRange.rangeString}</strong>
+                  Estimated delivery: <strong>Within 5–7 Days ({deliveryRange.rangeString})</strong>
                 </span>
               </div>
 

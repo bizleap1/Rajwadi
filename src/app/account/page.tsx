@@ -375,17 +375,16 @@ function AccountPageContent() {
                     year: "numeric",
                   });
 
-                  const deliveryDateStr = order.estimatedDeliveryDate
-                    ? new Date(order.estimatedDeliveryDate).toLocaleDateString("en-IN", {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
-                      })
-                    : new Date(order.updatedAt || order.createdAt).toLocaleDateString("en-IN", {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
-                      });
+                  const fallbackDeliveryDate = new Date(order.createdAt);
+                  fallbackDeliveryDate.setDate(fallbackDeliveryDate.getDate() + 7);
+                  const deliveryDateStr = (order.estimatedDeliveryDate
+                    ? new Date(order.estimatedDeliveryDate)
+                    : fallbackDeliveryDate
+                  ).toLocaleDateString("en-IN", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                  });
 
                   const activeExchange =
                     order.exchangeRequests && order.exchangeRequests.length > 0
