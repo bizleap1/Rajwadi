@@ -185,21 +185,6 @@ export default function AccountPopover({
                   <span className="text-xs text-[#8C827A] group-hover:text-emerald-800">&rarr;</span>
                 </a>
               </div>
-
-              {/* Hairline Divider */}
-              <div className="w-full h-[1px] bg-[#E6DCB8] pt-1" />
-
-              {/* Store Admin Link */}
-              <div className="pt-1 flex items-center justify-between text-[11px]">
-                <button
-                  type="button"
-                  onClick={() => handleNavigate("/admin/login")}
-                  className="text-[#855D25] hover:text-[#5A1F2B] uppercase tracking-wider font-semibold transition-colors cursor-pointer flex items-center gap-1.5"
-                >
-                  <ShieldCheck className="w-3.5 h-3.5" />
-                  <span>Store Owner Portal &rarr;</span>
-                </button>
-              </div>
             </div>
           </div>
         </div>
@@ -318,23 +303,6 @@ export default function AccountPopover({
                   </div>
                   <ArrowRight className="w-4 h-4 text-[#8C827A] group-active:text-emerald-800" />
                 </a>
-
-                <button
-                  type="button"
-                  onClick={() => handleNavigate("/admin/login")}
-                  className="w-full py-4.5 flex items-center justify-between text-left group cursor-pointer"
-                >
-                  <div className="flex items-center gap-3.5">
-                    <ShieldCheck className="w-4 h-4 text-[#855D25]" />
-                    <div>
-                      <span className="font-semibold uppercase tracking-[0.16em] text-[#855D25] group-active:text-[#5A1F2B] block">
-                        STORE OWNER PORTAL
-                      </span>
-                      <span className="text-[11px] text-[#8C827A]">Manage products &amp; inventory</span>
-                    </div>
-                  </div>
-                  <ArrowRight className="w-4 h-4 text-[#8C827A]" />
-                </button>
               </div>
             </div>
           </div>
