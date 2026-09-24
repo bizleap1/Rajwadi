@@ -40,22 +40,30 @@ export function getPoshakDisplayName(product: { name: string; type?: string; cat
 
   const isUnstitched =
     (product.type || "").toLowerCase() === "unstitched" ||
-    (product.category || "").toLowerCase() === "unstitched";
+    (product.category || "").toLowerCase() === "unstitched" ||
+    (product.type || "").toLowerCase() === "semi stitched" ||
+    (product.type || "").toLowerCase() === "semi-stitched";
   const trimmed = product.name.trim();
 
   if (isUnstitched) {
+    if (/semi[- ]?stitched(s+poshak)?$/i.test(trimmed)) {
+      return trimmed.replace(/semi[- ]?stitched(s+poshak)?$/i, "Semi Stitched Poshak").trim();
+    }
     if (/poshak material$/i.test(trimmed)) {
-      return trimmed;
+      return trimmed.replace(/poshak material$/i, "Semi Stitched Poshak").trim();
     }
     if (/poshak$/i.test(trimmed)) {
-      return trimmed.replace(/poshak$/i, "Poshak Material").trim();
+      return trimmed.replace(/poshak$/i, "Semi Stitched Poshak").trim();
     }
-    return `${trimmed} Poshak Material`;
+    return `${trimmed} Semi Stitched Poshak`;
   }
 
   // Stitched poshak rule: [Design Name] Poshak
   if (/poshak material$/i.test(trimmed)) {
     return trimmed.replace(/poshak material$/i, "Poshak").trim();
+  }
+  if (/semi[- ]?stitched(s+poshak)?$/i.test(trimmed)) {
+    return trimmed.replace(/semi[- ]?stitched(s+poshak)?$/i, "Poshak").trim();
   }
   if (/poshak$/i.test(trimmed)) {
     return trimmed;
@@ -79,10 +87,12 @@ export function getCategoryEyebrow(product: { category?: string; type?: string }
   const categoryUpper = (product.category || "FESTIVE").toUpperCase();
   const isUnstitched =
     (product.type || "").toLowerCase() === "unstitched" ||
-    (product.category || "").toLowerCase() === "unstitched";
+    (product.category || "").toLowerCase() === "unstitched" ||
+    (product.type || "").toLowerCase() === "semi stitched" ||
+    (product.type || "").toLowerCase() === "semi-stitched";
 
   if (isUnstitched) {
-    return `${categoryUpper} / POSHAK MATERIAL`;
+    return `${categoryUpper} / SEMI STITCHED`;
   }
   return `${categoryUpper} / STITCHED POSHAK`;
 }
@@ -1193,7 +1203,7 @@ export const REAL_POSHAKS: PoshakProduct[] = [
   },
   {
     id: "kesari-noor-poshak-material",
-    name: "Kesari Noor Poshak Material",
+    name: "Kesari Noor Semi Stitched Poshak",
     category: "Festive",
     subCategory: "Festive",
     originalPrice: "₹ 5,590",
@@ -1204,7 +1214,7 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     image: "/yellow.jpeg",
     additionalImages: ["/products/Unstiched/Kesari Noor Rajputi Poshak/1.webp"],
     imagePosition: "center",
-    description: "Lustrous saffron unstitched poshak material with delicate golden dabka and zari jaal.",
+    description: "Lustrous saffron semi-stitched poshak with delicate golden dabka and zari jaal.",
     type: "Unstitched",
     quality: "Premium Quality",
     work: "Heavy Zari Multi Work Border with Diamond Work",
@@ -1212,7 +1222,7 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     bestFor: "Festive",
     stitchingAvailable: true,
     details: [
-      "Type — Poshak Material",
+      "Type — Semi-Stitched",
       "Fabric — Fandy Fabric",
       "Quality — Premium Quality",
       "Odhna — Half-Pure Odhna",
@@ -1223,15 +1233,15 @@ export const REAL_POSHAKS: PoshakProduct[] = [
       "Best For — Festive",
     ],
     includes: [
-      "Unstitched Ghagra Fabric (Kalidar Cut)",
-      "Kurti & Kanchali Unstitched Fabric",
+      "Semi-Stitched Ghagra Fabric (Kalidar Cut)",
+      "Semi-Stitched Kurti & Kanchali Fabric",
       "Full Size Odhna with Kiran Border",
       "Lining & Magji Bundle",
     ],
   },
   {
     id: "laal-mahal-poshak-material",
-    name: "Laal Mahal Poshak Material",
+    name: "Laal Mahal Semi Stitched Poshak",
     category: "Festive",
     subCategory: "Festive",
     originalPrice: "₹ 5,590",
@@ -1242,7 +1252,7 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     image: "https://res.cloudinary.com/i4irbhvz/image/upload/v1790252236/rajwadi/products/oewtbhxcrc6kzj4gubte.jpg",
     additionalImages: ["/products/Unstiched/Laal Mahal Rajputi Poshak/1.webp","/red.jpeg"],
     imagePosition: "center",
-    description: "Regal crimson unstitched bridal poshak material with intricate royal danka and kundan work.",
+    description: "Regal crimson semi-stitched bridal poshak with intricate royal danka and kundan work.",
     type: "Unstitched",
     quality: "Premium Quality",
     work: "Heavy Zari Multi Work Border with Diamond Work",
@@ -1250,7 +1260,7 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     bestFor: "Festive",
     stitchingAvailable: true,
     details: [
-      "Type — Poshak Material",
+      "Type — Semi-Stitched",
       "Fabric — Fandy Fabric",
       "Quality — Premium Quality",
       "Odhna — Half-Pure Odhna",
@@ -1261,7 +1271,7 @@ export const REAL_POSHAKS: PoshakProduct[] = [
       "Best For — Festive",
     ],
     includes: [
-      "Heavy Unstitched Ghagra Panels",
+      "Semi-Stitched Ghagra Panels",
       "Embroidered Kurti & Kanchali Fabric",
       "Heavy Bridal Odhna with Kiran Fringe",
       "Astar Lining & Magji Package",
@@ -1269,7 +1279,7 @@ export const REAL_POSHAKS: PoshakProduct[] = [
   },
   {
     id: "rajrani-maroon-ivory-poshak-material",
-    name: "Rajrani Maroon Ivory Poshak Material",
+    name: "Rajrani Maroon Ivory Semi Stitched Poshak",
     category: "Festive",
     subCategory: "Festive",
     originalPrice: "₹ 5,590",
@@ -1280,7 +1290,7 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     image: "/brown.jpeg",
     additionalImages: ["/products/Unstiched/Rajrani Maroon Ivory Poshak/1.webp"],
     imagePosition: "center",
-    description: "Traditional dual-tone unstitched poshak material suitable for ceremonial occasions.",
+    description: "Traditional dual-tone semi-stitched poshak suitable for ceremonial occasions.",
     type: "Unstitched",
     quality: "Premium Quality",
     work: "Heavy Zari Multi Work Border with Diamond Work",
@@ -1288,7 +1298,7 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     bestFor: "Festive",
     stitchingAvailable: true,
     details: [
-      "Type — Poshak Material",
+      "Type — Semi-Stitched",
       "Fabric — Fandy Fabric",
       "Quality — Premium Quality",
       "Odhna — Half-Pure Odhna",
@@ -1307,7 +1317,7 @@ export const REAL_POSHAKS: PoshakProduct[] = [
   },
   {
     id: "rani-sa-gulabi-poshak-material",
-    name: "Rani Sa Gulabi Poshak Material",
+    name: "Rani Sa Gulabi Semi Stitched Poshak",
     category: "Festive",
     subCategory: "Festive",
     originalPrice: "₹ 5,590",
@@ -1318,7 +1328,7 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     image: "/pink3.jpeg",
     additionalImages: ["/products/Unstiched/Rani Sa Gulabi Poshak/1.webp"],
     imagePosition: "center",
-    description: "Graceful daily and puja wear unstitched poshak material with subtle gotapatti borders.",
+    description: "Graceful daily and puja wear semi-stitched poshak with subtle gotapatti borders.",
     type: "Unstitched",
     quality: "Premium Quality",
     work: "Heavy Zari Multi Work Border with Diamond Work",
@@ -1326,7 +1336,7 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     bestFor: "Festive",
     stitchingAvailable: true,
     details: [
-      "Type — Poshak Material",
+      "Type — Semi-Stitched",
       "Fabric — Fandy Fabric",
       "Quality — Premium Quality",
       "Odhna — Half-Pure Odhna",
@@ -1337,15 +1347,15 @@ export const REAL_POSHAKS: PoshakProduct[] = [
       "Best For — Festive",
     ],
     includes: [
-      "Unstitched Ghagra Material",
-      "Unstitched Kurti-Kanchali",
+      "Semi-Stitched Ghagra Material",
+      "Semi-Stitched Kurti-Kanchali",
       "Matching Odhna with Kiran",
       "Magji & Cotton Lining",
     ],
   },
   {
     id: "gulnaar-rajsi-poshak-material",
-    name: "Red Rani Special Poshak Material",
+    name: "Red Rani Special Semi Stitched Poshak",
     category: "Bridal",
     subCategory: "Bridal",
     originalPrice: "₹ 5,190",
@@ -1356,7 +1366,7 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     image: "/red.jpeg",
     additionalImages: ["/products/Unstiched/Gulnaar Rajsi Poshak Material/1.webp"],
     imagePosition: "center",
-    description: "Bridal Red Rani Special Poshak Material with Heavy Border Work.",
+    description: "Bridal Red Rani Special Semi Stitched Poshak with Heavy Border Work.",
     type: "Unstitched",
     quality: "Heavy Quality",
     work: "Heavy Border Work",
@@ -1364,7 +1374,7 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     bestFor: "Bridal",
     stitchingAvailable: true,
     details: [
-      "Type — Poshak Material",
+      "Type — Semi-Stitched",
       "Quality — Heavy Quality",
       "Work — Heavy Border Work",
       "Kurti Work — Heavy Kurti Work with Gala Work",
@@ -1373,12 +1383,12 @@ export const REAL_POSHAKS: PoshakProduct[] = [
       "Best For — Bridal",
     ],
     includes: [
-      "Poshak Material"
+      "Semi-Stitched Poshak Set"
     ],
   },
   {
     id: "rajkumari-gulnaar-poshak-material",
-    name: "Red Rani Special Poshak Material",
+    name: "Red Rani Special Semi Stitched Poshak",
     category: "Bridal",
     subCategory: "Bridal",
     originalPrice: "₹ 5,190",
@@ -1389,7 +1399,7 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     image: "/pink5.jpeg",
     additionalImages: ["/products/Unstiched/Rajkumari Gulnaar Poshak/1.webp"],
     imagePosition: "center",
-    description: "Bridal Red Rani Special Poshak Material with Heavy Border Work.",
+    description: "Bridal Red Rani Special Semi Stitched Poshak with Heavy Border Work.",
     type: "Unstitched",
     quality: "Heavy Quality",
     work: "Heavy Border Work",
@@ -1397,7 +1407,7 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     bestFor: "Bridal",
     stitchingAvailable: true,
     details: [
-      "Type — Poshak Material",
+      "Type — Semi-Stitched",
       "Quality — Heavy Quality",
       "Work — Heavy Border Work",
       "Kurti Work — Heavy Kurti Work with Gala Work",
@@ -1406,12 +1416,12 @@ export const REAL_POSHAKS: PoshakProduct[] = [
       "Best For — Bridal",
     ],
     includes: [
-      "Poshak Material"
+      "Semi-Stitched Poshak Set"
     ],
   },
   {
     id: "raktima-zari-poshak-material",
-    name: "Red Rani Special Poshak Material",
+    name: "Red Rani Special Semi Stitched Poshak",
     category: "Bridal",
     subCategory: "Bridal",
     originalPrice: "₹ 5,190",
@@ -1422,7 +1432,7 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     image: "https://res.cloudinary.com/i4irbhvz/image/upload/v1790252883/rajwadi/products/b5bpen8eztzn22fux9xe.png",
     additionalImages: ["/products/Unstiched/Raktima Zari Poshak Material/1.webp","/red2.jpeg"],
     imagePosition: "center",
-    description: "Bridal Red Rani Special Poshak Material with Heavy Border Work.",
+    description: "Bridal Red Rani Special Semi Stitched Poshak with Heavy Border Work.",
     type: "Unstitched",
     quality: "Heavy Quality",
     work: "Heavy Border Work",
@@ -1430,7 +1440,7 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     bestFor: "Bridal",
     stitchingAvailable: true,
     details: [
-      "Type — Poshak Material",
+      "Type — Semi-Stitched",
       "Quality — Heavy Quality",
       "Work — Heavy Border Work",
       "Kurti Work — Heavy Kurti Work with Gala Work",
@@ -1439,12 +1449,12 @@ export const REAL_POSHAKS: PoshakProduct[] = [
       "Best For — Bridal",
     ],
     includes: [
-      "Poshak Material"
+      "Semi-Stitched Poshak Set"
     ],
   },
   {
     id: "surkh-rajsi-poshak-material",
-    name: "Red Rani Special Poshak Material",
+    name: "Red Rani Special Semi Stitched Poshak",
     category: "Bridal",
     subCategory: "Bridal",
     originalPrice: "₹ 5,190",
@@ -1455,7 +1465,7 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     image: "https://res.cloudinary.com/i4irbhvz/image/upload/v1790252384/rajwadi/products/zglpytqufj3qn2rpzpom.jpg",
     additionalImages: ["/products/Unstiched/Surkh Rajsi Poshak Material/1.webp","/red3.jpeg"],
     imagePosition: "center",
-    description: "Bridal Red Rani Special Poshak Material with Heavy Border Work.",
+    description: "Bridal Red Rani Special Semi Stitched Poshak with Heavy Border Work.",
     type: "Unstitched",
     quality: "Heavy Quality",
     work: "Heavy Border Work",
@@ -1463,7 +1473,7 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     bestFor: "Bridal",
     stitchingAvailable: true,
     details: [
-      "Type — Poshak Material",
+      "Type — Semi-Stitched",
       "Quality — Heavy Quality",
       "Work — Heavy Border Work",
       "Kurti Work — Heavy Kurti Work with Gala Work",
@@ -1472,12 +1482,12 @@ export const REAL_POSHAKS: PoshakProduct[] = [
       "Best For — Bridal",
     ],
     includes: [
-      "Poshak Material"
+      "Semi-Stitched Poshak Set"
     ],
   },
   {
     id: "baingani-gulnaar-leheriya-poshak-material",
-    name: "Baingani Gulnaar Leheriya Poshak Material",
+    name: "Baingani Gulnaar Leheriya Semi Stitched Poshak",
     category: "Festive",
     subCategory: "Festive",
     originalPrice: "₹ 4,550",
@@ -1488,7 +1498,7 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     image: "https://res.cloudinary.com/i4irbhvz/image/upload/v1790252345/rajwadi/products/wfstpy8teujacwouoq6w.jpg",
     additionalImages: ["/products/Unstiched/Baingani Gulnaar Leheriya Poshak Material/1.webp"],
     imagePosition: "center",
-    description: "Festive Baingani Gulnaar Leheriya Poshak Material with Heavy Fancy Barik Zari Work.",
+    description: "Festive Baingani Gulnaar Leheriya Semi Stitched Poshak with Heavy Fancy Barik Zari Work.",
     type: "Unstitched",
     quality: "Premium Royal Pure Fabric",
     work: "Heavy Fancy Barik Zari Work with Stone Work",
@@ -1496,7 +1506,7 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     bestFor: "Festive",
     stitchingAvailable: false,
     details: [
-      "Type — Poshak Material",
+      "Type — Semi-Stitched",
       "Fabric — Premium Royal Pure Fabric",
       "Work — Heavy Fancy Barik Zari Work with Stone Work",
       "Odhna — Heavy Four-side Work",
@@ -1507,14 +1517,14 @@ export const REAL_POSHAKS: PoshakProduct[] = [
       "Best For — Festive",
     ],
     includes: [
-      "Poshak Material",
+      "Semi-Stitched Poshak Set",
       "Astar",
       "Aari Magji"
     ],
   },
   {
     id: "gulnaar-leheriya-poshak-material",
-    name: "Gulnaar Leheriya Poshak Material",
+    name: "Gulnaar Leheriya Semi Stitched Poshak",
     category: "Festive",
     subCategory: "Festive",
     originalPrice: "₹ 4,550",
@@ -1525,7 +1535,7 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     image: "https://res.cloudinary.com/i4irbhvz/image/upload/v1790252081/rajwadi/products/n4kv4jcsehfshvxxmysy.jpg",
     additionalImages: ["/products/Unstiched/Gulnaar Leheriya Poshak Material/1.webp"],
     imagePosition: "center",
-    description: "Festive Gulnaar Leheriya Poshak Material with Heavy Fancy Barik Zari Work.",
+    description: "Festive Gulnaar Leheriya Semi Stitched Poshak with Heavy Fancy Barik Zari Work.",
     type: "Unstitched",
     quality: "Premium Royal Pure Fabric",
     work: "Heavy Fancy Barik Zari Work with Stone Work",
@@ -1533,7 +1543,7 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     bestFor: "Festive",
     stitchingAvailable: false,
     details: [
-      "Type — Poshak Material",
+      "Type — Semi-Stitched",
       "Fabric — Premium Royal Pure Fabric",
       "Work — Heavy Fancy Barik Zari Work with Stone Work",
       "Odhna — Heavy Four-side Work",
@@ -1544,14 +1554,14 @@ export const REAL_POSHAKS: PoshakProduct[] = [
       "Best For — Festive",
     ],
     includes: [
-      "Poshak Material",
+      "Semi-Stitched Poshak Set",
       "Astar",
       "Aari Magji"
     ],
   },
   {
     id: "hari-kesariya-leheriya-poshak-material",
-    name: "Hari Kesariya Leheriya Poshak Material",
+    name: "Hari Kesariya Leheriya Semi Stitched Poshak",
     category: "Festive",
     subCategory: "Festive",
     originalPrice: "₹ 4,550",
@@ -1562,7 +1572,7 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     image: "https://res.cloudinary.com/i4irbhvz/image/upload/v1790252034/rajwadi/products/jpaqszjaafob0bck3o6v.jpg",
     additionalImages: ["/products/Unstiched/Hari Kesariya Leheriya Poshak Material/1.webp"],
     imagePosition: "center",
-    description: "Festive Hari Kesariya Leheriya Poshak Material with Heavy Fancy Barik Zari Work.",
+    description: "Festive Hari Kesariya Leheriya Semi Stitched Poshak with Heavy Fancy Barik Zari Work.",
     type: "Unstitched",
     quality: "Premium Royal Pure Fabric",
     work: "Heavy Fancy Barik Zari Work with Stone Work",
@@ -1570,7 +1580,7 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     bestFor: "Festive",
     stitchingAvailable: false,
     details: [
-      "Type — Poshak Material",
+      "Type — Semi-Stitched",
       "Fabric — Premium Royal Pure Fabric",
       "Work — Heavy Fancy Barik Zari Work with Stone Work",
       "Odhna — Heavy Four-side Work",
@@ -1581,14 +1591,14 @@ export const REAL_POSHAKS: PoshakProduct[] = [
       "Best For — Festive",
     ],
     includes: [
-      "Poshak Material",
+      "Semi-Stitched Poshak Set",
       "Astar",
       "Aari Magji"
     ],
   },
   {
     id: "panna-leheriya-poshak-material",
-    name: "Panna Leheriya Poshak Material",
+    name: "Panna Leheriya Semi Stitched Poshak",
     category: "Festive",
     subCategory: "Festive",
     originalPrice: "₹ 4,550",
@@ -1599,7 +1609,7 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     image: "https://res.cloudinary.com/i4irbhvz/image/upload/v1790252004/rajwadi/products/tkyuv3qdk384ijj0zjl6.jpg",
     additionalImages: ["/products/Unstiched/Panna Leheriya Poshak Material/1.webp"],
     imagePosition: "center",
-    description: "Festive Panna Leheriya Poshak Material with Heavy Fancy Barik Zari Work.",
+    description: "Festive Panna Leheriya Semi Stitched Poshak with Heavy Fancy Barik Zari Work.",
     type: "Unstitched",
     quality: "Premium Royal Pure Fabric",
     work: "Heavy Fancy Barik Zari Work with Stone Work",
@@ -1607,7 +1617,7 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     bestFor: "Festive",
     stitchingAvailable: false,
     details: [
-      "Type — Poshak Material",
+      "Type — Semi-Stitched",
       "Fabric — Premium Royal Pure Fabric",
       "Work — Heavy Fancy Barik Zari Work with Stone Work",
       "Odhna — Heavy Four-side Work",
@@ -1618,14 +1628,14 @@ export const REAL_POSHAKS: PoshakProduct[] = [
       "Best For — Festive",
     ],
     includes: [
-      "Poshak Material",
+      "Semi-Stitched Poshak Set",
       "Astar",
       "Aari Magji"
     ],
   },
   {
     id: "rani-gulabi-leheriya-poshak-material",
-    name: "Rani Gulabi Leheriya Poshak Material",
+    name: "Rani Gulabi Leheriya Semi Stitched Poshak",
     category: "Festive",
     subCategory: "Festive",
     originalPrice: "₹ 4,550",
@@ -1636,7 +1646,7 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     image: "https://res.cloudinary.com/i4irbhvz/image/upload/v1790251892/rajwadi/products/fe9zbnxeqxwa7tfbpv1g.jpg",
     additionalImages: ["/products/Unstiched/Rani Gulabi Leheriya Poshak Material/1.webp"],
     imagePosition: "center",
-    description: "Festive Rani Gulabi Leheriya Poshak Material with Heavy Fancy Barik Zari Work.",
+    description: "Festive Rani Gulabi Leheriya Semi Stitched Poshak with Heavy Fancy Barik Zari Work.",
     type: "Unstitched",
     quality: "Premium Royal Pure Fabric",
     work: "Heavy Fancy Barik Zari Work with Stone Work",
@@ -1644,7 +1654,7 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     bestFor: "Festive",
     stitchingAvailable: false,
     details: [
-      "Type — Poshak Material",
+      "Type — Semi-Stitched",
       "Fabric — Premium Royal Pure Fabric",
       "Work — Heavy Fancy Barik Zari Work with Stone Work",
       "Odhna — Heavy Four-side Work",
@@ -1655,14 +1665,14 @@ export const REAL_POSHAKS: PoshakProduct[] = [
       "Best For — Festive",
     ],
     includes: [
-      "Poshak Material",
+      "Semi-Stitched Poshak Set",
       "Astar",
       "Aari Magji"
     ],
   },
   {
     id: "surkh-kesariya-leheriya-poshak-material",
-    name: "Surkh Kesariya Leheriya Poshak Material",
+    name: "Surkh Kesariya Leheriya Semi Stitched Poshak",
     category: "Festive",
     subCategory: "Festive",
     originalPrice: "₹ 4,550",
@@ -1673,7 +1683,7 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     image: "https://res.cloudinary.com/i4irbhvz/image/upload/v1790252298/rajwadi/products/skdi574kzwqnciuz1xvb.jpg",
     additionalImages: ["/products/Unstiched/Surkh Kesariya Leheriya Poshak Material/1.webp"],
     imagePosition: "center",
-    description: "Festive Surkh Kesariya Leheriya Poshak Material with Heavy Fancy Barik Zari Work.",
+    description: "Festive Surkh Kesariya Leheriya Semi Stitched Poshak with Heavy Fancy Barik Zari Work.",
     type: "Unstitched",
     quality: "Premium Royal Pure Fabric",
     work: "Heavy Fancy Barik Zari Work with Stone Work",
@@ -1681,7 +1691,7 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     bestFor: "Festive",
     stitchingAvailable: false,
     details: [
-      "Type — Poshak Material",
+      "Type — Semi-Stitched",
       "Fabric — Premium Royal Pure Fabric",
       "Work — Heavy Fancy Barik Zari Work with Stone Work",
       "Odhna — Heavy Four-side Work",
@@ -1692,14 +1702,14 @@ export const REAL_POSHAKS: PoshakProduct[] = [
       "Best For — Festive",
     ],
     includes: [
-      "Poshak Material",
+      "Semi-Stitched Poshak Set",
       "Astar",
       "Aari Magji"
     ],
   },
   {
     id: "laal-mor-poshak-material",
-    name: "Laal Mor Poshak Material",
+    name: "Laal Mor Semi Stitched Poshak",
     category: "Festive",
     subCategory: "Festive",
     price: "₹ 4,126",
@@ -1709,7 +1719,7 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     image: "https://res.cloudinary.com/i4irbhvz/image/upload/v1790252185/rajwadi/products/eftdkkxmayzs2kzatdau.jpg",
     additionalImages: ["/products/Unstiched/Laal Mor Poshak Material/1.webp"],
     imagePosition: "center",
-    description: "Festive Laal Mor Poshak Material featuring Heavy Zari Work with Stone Touch.",
+    description: "Festive Laal Mor Semi Stitched Poshak featuring Heavy Zari Work with Stone Touch.",
     type: "Unstitched",
     quality: "Good Quality",
     work: "Heavy Zari Work with Stone Touch",
@@ -1717,7 +1727,7 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     bestFor: "Festive",
     stitchingAvailable: false,
     details: [
-      "Type — Poshak Material",
+      "Type — Semi-Stitched",
       "Fabric — Half-Pure Fabric",
       "Quality — Good Quality",
       "Work — Heavy Zari Work with Stone Touch",
@@ -1727,14 +1737,14 @@ export const REAL_POSHAKS: PoshakProduct[] = [
       "Best For — Festive",
     ],
     includes: [
-      "Poshak Material",
+      "Semi-Stitched Poshak Set",
       "Astar",
       "Magji"
     ],
   },
   {
     id: "jamuni-mor-poshak-material",
-    name: "Jamuni Mor Poshak Material",
+    name: "Jamuni Mor Semi Stitched Poshak",
     category: "Festive",
     subCategory: "Festive",
     price: "₹ 4,126",
@@ -1744,7 +1754,7 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     image: "https://res.cloudinary.com/i4irbhvz/image/upload/v1790252124/rajwadi/products/al7g3kadcvp5gs0r3srb.jpg",
     additionalImages: ["/products/Unstiched/Jamuni Mor Poshak Material/1.webp"],
     imagePosition: "center",
-    description: "Festive Jamuni Mor Poshak Material featuring Heavy Zari Work with Stone Touch.",
+    description: "Festive Jamuni Mor Semi Stitched Poshak featuring Heavy Zari Work with Stone Touch.",
     type: "Unstitched",
     quality: "Good Quality",
     work: "Heavy Zari Work with Stone Touch",
@@ -1752,7 +1762,7 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     bestFor: "Festive",
     stitchingAvailable: false,
     details: [
-      "Type — Poshak Material",
+      "Type — Semi-Stitched",
       "Fabric — Half-Pure Fabric",
       "Quality — Good Quality",
       "Work — Heavy Zari Work with Stone Touch",
@@ -1762,14 +1772,14 @@ export const REAL_POSHAKS: PoshakProduct[] = [
       "Best For — Festive",
     ],
     includes: [
-      "Poshak Material",
+      "Semi-Stitched Poshak Set",
       "Astar",
       "Magji"
     ],
   },
   {
     id: "panna-mor-poshak-material",
-    name: "Panna Mor Poshak Material",
+    name: "Panna Mor Semi Stitched Poshak",
     category: "Festive",
     subCategory: "Festive",
     price: "₹ 4,126",
@@ -1779,7 +1789,7 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     image: "https://res.cloudinary.com/i4irbhvz/image/upload/v1790251722/rajwadi/products/oa0zfmfp1cnuxmbyndpg.jpg",
     additionalImages: ["/products/Unstiched/Panna Mor Poshak Material/1.webp"],
     imagePosition: "center",
-    description: "Festive Panna Mor Poshak Material featuring Heavy Zari Work with Stone Touch.",
+    description: "Festive Panna Mor Semi Stitched Poshak featuring Heavy Zari Work with Stone Touch.",
     type: "Unstitched",
     quality: "Good Quality",
     work: "Heavy Zari Work with Stone Touch",
@@ -1787,7 +1797,7 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     bestFor: "Festive",
     stitchingAvailable: false,
     details: [
-      "Type — Poshak Material",
+      "Type — Semi-Stitched",
       "Fabric — Half-Pure Fabric",
       "Quality — Good Quality",
       "Work — Heavy Zari Work with Stone Touch",
@@ -1797,7 +1807,7 @@ export const REAL_POSHAKS: PoshakProduct[] = [
       "Best For — Festive",
     ],
     includes: [
-      "Poshak Material",
+      "Semi-Stitched Poshak Set",
       "Astar",
       "Magji"
     ],
@@ -1828,7 +1838,7 @@ export const COLLECTIONS_DATA: CollectionItem[] = [
     imagePositionMobile: "object-top",
     subCategories: [
       { id: "stitched", title: "Stitched", href: "/collection?category=bridal&type=stitched" },
-      { id: "poshak-material", title: "Poshak Material", href: "/collection?category=bridal&type=unstitched" },
+      { id: "poshak-material", title: "Semi-Stitched Poshak Set", href: "/collection?category=bridal&type=unstitched" },
     ],
   },
   {
@@ -1839,7 +1849,7 @@ export const COLLECTIONS_DATA: CollectionItem[] = [
     imagePositionMobile: "object-top",
     subCategories: [
       { id: "stitched", title: "Stitched", href: "/collection?category=everyday&type=stitched" },
-      { id: "poshak-material", title: "Poshak Material", href: "/collection?category=everyday&type=unstitched" },
+      { id: "poshak-material", title: "Semi-Stitched Poshak Set", href: "/collection?category=everyday&type=unstitched" },
     ],
   },
   {
@@ -1850,7 +1860,7 @@ export const COLLECTIONS_DATA: CollectionItem[] = [
     imagePositionMobile: "object-top",
     subCategories: [
       { id: "stitched", title: "Stitched", href: "/collection?category=festive&type=stitched" },
-      { id: "poshak-material", title: "Poshak Material", href: "/collection?category=festive&type=unstitched" },
+      { id: "poshak-material", title: "Semi-Stitched Poshak Set", href: "/collection?category=festive&type=unstitched" },
     ],
   },
   {

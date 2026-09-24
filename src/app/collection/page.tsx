@@ -268,7 +268,7 @@ function CollectionContent() {
         },
         {
           key: "UNSTITCHED",
-          label: "Poshak Material",
+          label: "Semi-Stitched",
           count: baseList.filter((p) => p.type.toUpperCase() === "UNSTITCHED").length,
         },
         {
@@ -813,7 +813,7 @@ function CollectionContent() {
 
             {/* Right Product Grid Area (~82-84% width) */}
             <div className="flex-1 min-w-0 w-full">
-              {/* Product Type Quick Filter Tabs (Stitched, Poshak Material) */}
+              {/* Product Type Quick Filter Tabs (Stitched, Semi-Stitched) */}
               {activeCategory !== "JEWELLERY" && (
                 <div className="mb-5 sm:mb-6 pb-3 border-b border-[#E6DCB8]/60 flex flex-wrap items-center gap-2">
                   <span className="text-[10px] uppercase tracking-[0.24em] text-[#855D25] font-semibold font-sans mr-1 sm:mr-2">
@@ -822,7 +822,7 @@ function CollectionContent() {
                   {[
                     { key: "ALL", label: "All" },
                     { key: "STITCHED", label: "Stitched" },
-                    { key: "UNSTITCHED", label: "Poshak Material" },
+                    { key: "UNSTITCHED", label: "Semi-Stitched" },
                   ].map((t) => {
                     const isTypeActive = activeType === t.key;
                     return (

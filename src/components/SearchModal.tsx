@@ -97,7 +97,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
           name.includes(term) ||
           category.includes(term) ||
           type.includes(term) ||
-          (term === "material" && type === "unstitched") ||
+          ((term === "material" || term === "semi" || term === "semi-stitched") && type === "unstitched") ||
           subCategory.includes(term) ||
           color.includes(term) ||
           craft.includes(term)
@@ -240,7 +240,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                       </button>
                     ))}
                     <span className="text-[#8C827A]">·</span>
-                    {["Stitched", "Poshak Material"].map((sub) => (
+                    {["Stitched", "Semi-Stitched"].map((sub) => (
                       <button
                         key={sub}
                         type="button"
@@ -479,7 +479,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                     <span className="text-[9.5px] uppercase tracking-[0.2em] text-[#855D25] font-semibold block font-sans">
                       Product Types
                     </span>
-                    {["Stitched", "Poshak Material"].map((type) => (
+                    {["Stitched", "Semi-Stitched"].map((type) => (
                       <button
                         key={type}
                         type="button"

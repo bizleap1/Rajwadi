@@ -248,7 +248,7 @@ export default function Footer({ onOpenConsultation }: FooterProps) {
                           href="/collection?type=unstitched"
                           className="text-xs text-[#C6A15B] hover:text-white transition-colors duration-200 block"
                         >
-                          Poshak Material (Unstitched)
+                          Semi-Stitched Poshaks
                         </Link>
                       </li>
                     </ul>
@@ -416,7 +416,7 @@ export default function Footer({ onOpenConsultation }: FooterProps) {
                         href="/collection?type=unstitched"
                         className="hover:text-[#C6A15B] transition-colors duration-200 block"
                       >
-                        Poshak Material (Unstitched)
+                        Semi-Stitched Poshaks
                       </Link>
                     </li>
                   </ul>

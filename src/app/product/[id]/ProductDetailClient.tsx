@@ -102,11 +102,11 @@ function ProductDetailInner({
 
   // Initial stitching option based strictly on verified business model
   const [selectedStitching, setSelectedStitching] = useState<string>(
-    isStitchedPoshak ? "Stitched" : "Unstitched"
+    isStitchedPoshak ? "Stitched" : "Semi-Stitched"
   );
 
   useEffect(() => {
-    setSelectedStitching(isStitchedPoshak ? "Stitched" : "Unstitched");
+    setSelectedStitching(isStitchedPoshak ? "Stitched" : "Semi-Stitched");
   }, [isStitchedPoshak, product.id]);
 
   // Keep selected image and size in sync if product changes
@@ -156,7 +156,7 @@ function ProductDetailInner({
     const bestForVal = product.bestFor || product.category;
 
     return [
-      { label: "Type", value: isUnstitched ? "Unstitched" : "Stitched" },
+      { label: "Type", value: isUnstitched ? "Semi-Stitched" : "Stitched" },
       { label: "Fabric", value: product.fabric || "Pure Georgette & Satin Magji" },
       { label: "Quality", value: product.quality || "Pure Poshak" },
       { label: "Work", value: product.work || product.craft || "Handcrafted Gotapatti & Kasab Zari" },
@@ -682,12 +682,12 @@ function ProductDetailInner({
                     </button>
                   </div>
 
-                  {/* Note for unstitched products */}
+                  {/* Note for semi-stitched products */}
                   {isUnstitched && (
                     <div className="flex items-center gap-2 py-0.5 px-0.5">
                       <span className="w-1.5 h-1.5 rounded-full bg-[#C6A15B] flex-shrink-0" />
                       <span className="text-[11px] sm:text-xs text-[#855D25] font-sans font-medium tracking-wide">
-                        Stitching service available on request.
+                        Semi-stitched poshak — Custom stitching service available on request.
                       </span>
                     </div>
                   )}
