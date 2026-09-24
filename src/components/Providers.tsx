@@ -28,7 +28,7 @@ function GlobalAuthModal() {
     <AuthModal
       isOpen={isAuthModalOpen}
       onClose={closeAuthModal}
-      mode={authModalMode}
+      initialMode={authModalMode}
       promptMessage={authModalMessage}
     />
   );

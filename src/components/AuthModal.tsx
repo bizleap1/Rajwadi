@@ -40,8 +40,8 @@ export default function AuthModal({
   const router = useRouter();
   const { loginWithEmail, signup, authModalMessage } = useAuth();
 
-  const [internalMode, setInternalMode] = useState<"signin" | "signup">(
-    controlledMode || initialMode
+  const [activeMode, setActiveMode] = useState<"signin" | "signup">(
+    controlledMode || initialMode || "signin"
   );
 
   // Form Fields
@@ -60,15 +60,13 @@ export default function AuthModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
 
-  const activeMode = controlledMode || internalMode;
-
-  // Sync mode when prop changes
+  // Sync mode when modal opens or controlledMode changes
   useEffect(() => {
-    if (controlledMode) {
-      setInternalMode(controlledMode);
+    if (isOpen) {
+      setActiveMode(controlledMode || initialMode || "signin");
       setError("");
     }
-  }, [controlledMode]);
+  }, [isOpen, controlledMode, initialMode]);
 
   // Handle escape key
   useEffect(() => {
@@ -96,7 +94,7 @@ export default function AuthModal({
 
   const handleSwitchMode = (newMode: "signin" | "signup") => {
     setError("");
-    setInternalMode(newMode);
+    setActiveMode(newMode);
     onSwitchMode?.(newMode);
   };
 
