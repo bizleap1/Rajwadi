@@ -1201,7 +1201,10 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     fabric: "Fandy Fabric",
     craft: "Heavy Zari Multi Work Border with Diamond Work",
     color: "Kesari Saffron",
-    image: "/products/Unstiched/Kesari Noor Rajputi Poshak/1.webp",
+    image: "/yellow.jpeg",
+    additionalImages: [
+      "/yellow.jpeg",
+    ],
     imagePosition: "center 5%",
     description: "Lustrous saffron unstitched poshak material with delicate golden dabka and zari jaal.",
     type: "Unstitched",
@@ -1349,7 +1352,10 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     fabric: "Heavy Quality",
     craft: "Heavy Border Work",
     color: "Red",
-    image: "/products/Unstiched/Gulnaar Rajsi Poshak Material/1.webp",
+    image: "/red.jpeg",
+    additionalImages: [
+      "/red.jpeg",
+    ],
     imagePosition: "center 5%",
     description: "Bridal Red Rani Special Poshak Material with Heavy Border Work.",
     type: "Unstitched",
