@@ -368,6 +368,12 @@ function AccountPageContent() {
                   const isDispatched = order.fulfilmentStatus === "DISPATCHED";
                   const isInAtelier = order.fulfilmentStatus === "IN_ATELIER" || order.fulfilmentStatus === "READY_TO_DISPATCH";
                   const isCancelled = order.fulfilmentStatus === "CANCELLED";
+                  const isCancellable =
+                    !isDispatched &&
+                    !isDelivered &&
+                    !isCancelled &&
+                    order.paymentStatus !== "CANCELLED" &&
+                    order.paymentStatus !== "REFUNDED";
 
                   const dateStr = new Date(order.createdAt).toLocaleDateString("en-IN", {
                     day: "numeric",
@@ -468,8 +474,8 @@ function AccountPageContent() {
                             </span>
                           )}
 
-                          {/* Cancel Order (before dispatch) */}
-                          {order.fulfilmentStatus === "PENDING" && order.paymentStatus !== "CANCELLED" && (
+                          {/* Cancel Order (Available before Stage 4 Dispatched) */}
+                          {isCancellable && (
                             <button
                               type="button"
                               onClick={() => setCancellingOrder(order)}

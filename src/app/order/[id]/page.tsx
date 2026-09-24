@@ -167,6 +167,15 @@ function OrderTrackingContent() {
   const currentStageIndex = STAGES.findIndex((s) => s.key === order.fulfilmentStatus);
   const exchangeRequests = order.exchangeRequests || [];
 
+  // Check if order can be cancelled (Only permitted before Stage 4 Dispatched)
+  const isCancellable =
+    order &&
+    order.fulfilmentStatus !== "DISPATCHED" &&
+    order.fulfilmentStatus !== "DELIVERED" &&
+    order.fulfilmentStatus !== "CANCELLED" &&
+    order.paymentStatus !== "CANCELLED" &&
+    order.paymentStatus !== "REFUNDED";
+
   return (
     <main className="pt-24 sm:pt-28 md:pt-32 pb-20 max-w-4xl mx-auto w-full px-4 sm:px-6 space-y-6">
       <div>
@@ -205,8 +214,8 @@ function OrderTrackingContent() {
               <span>Download Receipt</span>
             </button>
 
-            {/* Cancel Order Action (Available before dispatch) */}
-            {order.fulfilmentStatus === "PENDING" && order.paymentStatus !== "CANCELLED" && (
+            {/* Cancel Order Action (Only available before Stage 4 Dispatched) */}
+            {isCancellable && (
               <button
                 type="button"
                 onClick={() => setIsCancelModalOpen(true)}
@@ -696,18 +705,18 @@ function OrderTrackingContent() {
             Need to manage or cancel this order?
           </h3>
           <p className="text-xs text-[#6B5E55] mt-0.5">
-            {order.fulfilmentStatus === "PENDING"
-              ? "You can cancel your order free of charge before it is dispatched to our atelier."
+            {isCancellable
+              ? "You can cancel your order free of charge before it reaches Stage 4 (Dispatched)."
               : order.fulfilmentStatus === "CANCELLED"
               ? "This order has been cancelled and closed."
               : order.fulfilmentStatus === "DELIVERED"
               ? "Order delivered. You are eligible for a 7-day size & fit exchange."
-              : "This order is being handcrafted / in transit and cannot be cancelled directly."}
+              : "This order has been dispatched with courier and cannot be cancelled directly."}
           </p>
         </div>
 
         <div className="flex items-center gap-2 flex-shrink-0">
-          {order.fulfilmentStatus === "PENDING" && order.paymentStatus !== "CANCELLED" && (
+          {isCancellable && (
             <button
               type="button"
               onClick={() => setIsCancelModalOpen(true)}
