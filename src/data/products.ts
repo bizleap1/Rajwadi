@@ -84,7 +84,11 @@ export function getCategoryEyebrow(product: { category?: string; type?: string }
     return "JEWELLERY";
   }
 
-  const categoryUpper = (product.category || "FESTIVE").toUpperCase();
+  const rawCat = (product.category || "FESTIVE").toUpperCase();
+  let categoryUpper = rawCat;
+  if (rawCat === "BRIDAL") categoryUpper = "HEAVY";
+  else if (rawCat === "EVERYDAY") categoryUpper = "CLASSIC";
+
   const isUnstitched =
     (product.type || "").toLowerCase() === "unstitched" ||
     (product.category || "").toLowerCase() === "unstitched" ||
@@ -1832,24 +1836,24 @@ export interface CollectionItem {
 export const COLLECTIONS_DATA: CollectionItem[] = [
   {
     id: "bridal-poshaks",
-    title: "Bridal Poshak",
+    title: "Heavy Poshak",
     image: "/bridal.webp",
     imagePositionDesktop: "md:object-top",
     imagePositionMobile: "object-top",
     subCategories: [
       { id: "stitched", title: "Stitched", href: "/collection?category=bridal&type=stitched" },
-      { id: "poshak-material", title: "Semi-Stitched Poshak Set", href: "/collection?category=bridal&type=unstitched" },
+      { id: "poshak-material", title: "Semi-Stitched", href: "/collection?category=bridal&type=unstitched" },
     ],
   },
   {
     id: "everyday-poshaks",
-    title: "Everyday Poshak",
+    title: "Classic Poshak",
     image: "/stiched.webp",
     imagePositionDesktop: "md:object-top",
     imagePositionMobile: "object-top",
     subCategories: [
       { id: "stitched", title: "Stitched", href: "/collection?category=everyday&type=stitched" },
-      { id: "poshak-material", title: "Semi-Stitched Poshak Set", href: "/collection?category=everyday&type=unstitched" },
+      { id: "poshak-material", title: "Semi-Stitched", href: "/collection?category=everyday&type=unstitched" },
     ],
   },
   {
@@ -1860,7 +1864,7 @@ export const COLLECTIONS_DATA: CollectionItem[] = [
     imagePositionMobile: "object-top",
     subCategories: [
       { id: "stitched", title: "Stitched", href: "/collection?category=festive&type=stitched" },
-      { id: "poshak-material", title: "Semi-Stitched Poshak Set", href: "/collection?category=festive&type=unstitched" },
+      { id: "poshak-material", title: "Semi-Stitched", href: "/collection?category=festive&type=unstitched" },
     ],
   },
   {

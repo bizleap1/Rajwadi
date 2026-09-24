@@ -16,14 +16,14 @@ interface OccasionItem {
 const OCCASIONS: OccasionItem[] = [
   {
     id: "bridal",
-    title: "Bridal",
+    title: "Heavy Poshak",
     subtitle: "For the most cherished beginnings.",
     image: "/bridal.webp",
     link: "/collection?category=bridal",
   },
   {
     id: "everyday",
-    title: "Everyday",
+    title: "Classic Poshak",
     subtitle: "For timeless grace and effortless poise.",
     image: "/traditonal.webp",
     link: "/collection?category=everyday",

@@ -208,7 +208,7 @@ export default function Footer({ onOpenConsultation }: FooterProps) {
                           href="/collection?category=bridal"
                           className="hover:text-[#C6A15B] transition-colors duration-200 block"
                         >
-                          Bridal
+                          Heavy Poshaks
                         </Link>
                       </li>
                       <li>
@@ -216,7 +216,7 @@ export default function Footer({ onOpenConsultation }: FooterProps) {
                           href="/collection?category=everyday"
                           className="hover:text-[#C6A15B] transition-colors duration-200 block"
                         >
-                          Everyday
+                          Classic Poshaks
                         </Link>
                       </li>
                       <li>
@@ -371,7 +371,7 @@ export default function Footer({ onOpenConsultation }: FooterProps) {
                     href="/collection?category=bridal"
                     className="hover:text-[#C6A15B] transition-colors duration-200 block"
                   >
-                    Bridal
+                    Heavy Poshaks
                   </Link>
                 </li>
                 <li>
@@ -379,7 +379,7 @@ export default function Footer({ onOpenConsultation }: FooterProps) {
                     href="/collection?category=everyday"
                     className="hover:text-[#C6A15B] transition-colors duration-200 block"
                   >
-                    Everyday
+                    Classic Poshaks
                   </Link>
                 </li>
                 <li>

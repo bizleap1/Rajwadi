@@ -133,6 +133,10 @@ function CollectionContent() {
       const upper = categoryQuery.toUpperCase();
       if (["BRIDAL", "FESTIVE", "EVERYDAY", "JEWELLERY"].includes(upper)) {
         setActiveCategory(upper as CategoryFilter);
+      } else if (upper === "HEAVY" || upper === "HEAVY-POSHAK" || upper === "HEAVY_POSHAK" || upper === "HEAVY-POSHAKS") {
+        setActiveCategory("BRIDAL");
+      } else if (upper === "CLASSIC" || upper === "CLASSIC-POSHAK" || upper === "CLASSIC_POSHAK" || upper === "CLASSIC-POSHAKS") {
+        setActiveCategory("EVERYDAY");
       } else if (upper === "STITCHED") {
         setActiveType("STITCHED");
       } else if (upper === "UNSTITCHED") {
@@ -144,6 +148,10 @@ function CollectionContent() {
       const upperSub = subQuery.toUpperCase();
       if (["BRIDAL", "FESTIVE", "EVERYDAY"].includes(upperSub)) {
         setActiveCategory(upperSub as CategoryFilter);
+      } else if (upperSub === "HEAVY" || upperSub === "HEAVY-POSHAK") {
+        setActiveCategory("BRIDAL");
+      } else if (upperSub === "CLASSIC" || upperSub === "CLASSIC-POSHAK") {
+        setActiveCategory("EVERYDAY");
       }
       setTimeout(() => window.scrollTo({ top: 0, behavior: 'instant' }), 50);
     }
@@ -215,21 +223,21 @@ function CollectionContent() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Primary Categories: Bridal, Festive, Everyday, Jewellery
+  // Primary Categories: Heavy Poshak, Festive, Classic Poshak, Jewellery
   const categories: { key: CategoryFilter; label: string; count: number }[] =
     useMemo(
       () => [
         { key: "ALL", label: "All", count: REAL_POSHAKS.length },
         {
           key: "BRIDAL",
-          label: "Bridal",
+          label: "Heavy Poshak",
           count: REAL_POSHAKS.filter(
             (p) => p.category.toUpperCase() === "BRIDAL"
           ).length,
         },
         {
           key: "EVERYDAY",
-          label: "Everyday",
+          label: "Classic Poshak",
           count: REAL_POSHAKS.filter(
             (p) => p.category.toUpperCase() === "EVERYDAY"
           ).length,

@@ -98,6 +98,8 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
           category.includes(term) ||
           type.includes(term) ||
           ((term === "material" || term === "semi" || term === "semi-stitched") && type === "unstitched") ||
+          ((term === "heavy" || term === "bridal") && (category === "bridal" || name.includes("bridal") || name.includes("heavy"))) ||
+          ((term === "classic" || term === "everyday") && (category === "everyday" || name.includes("everyday") || name.includes("classic"))) ||
           subCategory.includes(term) ||
           color.includes(term) ||
           craft.includes(term)
@@ -229,7 +231,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                     CATEGORIES & TYPES
                   </h3>
                   <div className="flex flex-wrap items-center gap-2 text-xs font-sans text-[#171717]/85">
-                    {["Bridal", "Everyday", "Festive", "Jewellery"].map((cat) => (
+                    {["Heavy Poshak", "Classic Poshak", "Festive", "Jewellery"].map((cat) => (
                       <button
                         key={cat}
                         type="button"
@@ -465,7 +467,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                   EXPLORE BY CATEGORY & TYPE
                 </h3>
                 <div className="space-y-2 font-serif text-base text-[#171717]">
-                  {["Bridal", "Everyday", "Festive", "Jewellery"].map((cat) => (
+                  {["Heavy Poshak", "Classic Poshak", "Festive", "Jewellery"].map((cat) => (
                     <button
                       key={cat}
                       type="button"
