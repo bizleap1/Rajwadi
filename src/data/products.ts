@@ -1318,7 +1318,10 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     fabric: "Fandy Fabric",
     craft: "Heavy Zari Multi Work Border with Diamond Work",
     color: "Rani Sa Gulabi",
-    image: "/products/Unstiched/Rani Sa Gulabi Poshak/1.webp",
+    image: "/pink3.jpeg",
+    additionalImages: [
+      "/pink3.jpeg",
+    ],
     imagePosition: "center 5%",
     description: "Graceful daily and puja wear unstitched poshak material with subtle gotapatti borders.",
     type: "Unstitched",
