@@ -91,6 +91,15 @@ function ProductDetailInner({
     return !isJewellery && !isUnstitched;
   }, [isJewellery, isUnstitched]);
 
+  // Check if product is sold out
+  const isSoldOut = useMemo(() => {
+    return Boolean(
+      product.soldOut ||
+      product.price === "Sold Out" ||
+      (typeof product.price === "string" && product.price.toLowerCase().includes("sold"))
+    );
+  }, [product.soldOut, product.price]);
+
   // Initial stitching option based strictly on verified business model
   const [selectedStitching, setSelectedStitching] = useState<string>(
     isStitchedPoshak ? "Stitched" : "Unstitched"
@@ -320,6 +329,15 @@ function ProductDetailInner({
 
               {/* Main Large Product Image (Consistent 3:4 ratio, clean cream backdrop, full poshak visible) */}
               <div className="relative flex-1 aspect-[3/4] overflow-hidden bg-[#FAF6F0] border border-[#E6DCB8]/20 flex items-center justify-center">
+                {/* Sold Out Luxury Badge */}
+                {isSoldOut && (
+                  <div className="absolute top-3.5 left-3.5 z-20 pointer-events-none">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#4A1520]/95 text-[#FFF6E9] text-[10px] sm:text-[11px] font-sans font-bold uppercase tracking-[0.22em] rounded-xs shadow-md border border-[#D4AF37]/60 backdrop-blur-xs">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#E5A93C] animate-pulse" />
+                      Sold Out
+                    </span>
+                  </div>
+                )}
                 <Image
                   src={selectedImage}
                   alt={product.name}
@@ -329,13 +347,28 @@ function ProductDetailInner({
                   style={{
                     objectPosition: product.imagePosition || "center center",
                   }}
-                  className="object-contain p-1 sm:p-2.5 transition-all duration-500 ease-out"
+                  className={`object-contain p-1 sm:p-2.5 transition-all duration-500 ease-out ${
+                    isSoldOut ? "opacity-90" : ""
+                  }`}
                 />
+                {isSoldOut && (
+                  <div className="absolute inset-0 bg-black/10 pointer-events-none" />
+                )}
               </div>
             </div>
 
             {/* 2. Mobile Full-Width Swipeable Gallery (Visible only on mobile) */}
             <div className="sm:hidden w-full relative">
+              {/* Sold Out Luxury Badge (Mobile) */}
+              {isSoldOut && (
+                <div className="absolute top-3.5 left-3.5 z-20 pointer-events-none">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#4A1520]/95 text-[#FFF6E9] text-[9.5px] font-sans font-bold uppercase tracking-[0.2em] rounded-xs shadow-md border border-[#D4AF37]/60 backdrop-blur-xs">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#E5A93C] animate-pulse" />
+                    Sold Out
+                  </span>
+                </div>
+              )}
+
               {/* Floating Wishlist Heart at Top-Right of Image */}
               <button
                 type="button"
@@ -422,6 +455,22 @@ function ProductDetailInner({
                     Enquire on WhatsApp
                   </span>
                 </div>
+              ) : isSoldOut ? (
+                <div>
+                  <div className="flex items-baseline gap-3">
+                    {product.originalPrice && (
+                      <span className="font-sans text-base sm:text-lg text-[#8C827A] line-through font-normal">
+                        {product.originalPrice}
+                      </span>
+                    )}
+                    <span className="font-sans text-2xl sm:text-3xl tracking-wide text-[#7A1D2E] font-bold uppercase">
+                      Sold Out
+                    </span>
+                  </div>
+                  <p className="text-xs text-[#855D25] font-sans tracking-wide font-medium mt-1">
+                    This exclusive handcrafted piece is currently archived / sold out.
+                  </p>
+                </div>
               ) : (
                 <>
                   <div className="flex items-baseline gap-3">
@@ -474,7 +523,7 @@ function ProductDetailInner({
             </div>
 
             {/* 5. SIZE SELECTOR */}
-            {!isJewellery && availableSizes.length > 0 && (
+            {!isJewellery && !isSoldOut && availableSizes.length > 0 && (
               <div className="mb-7">
                 <div className="flex items-center justify-between mb-2.5">
                   <span className="text-[11px] uppercase tracking-[0.26em] font-medium text-[#855D25] font-sans">
@@ -527,6 +576,53 @@ function ProductDetailInner({
                   <MessageCircle className="w-4 h-4 text-[#C6A15B]" />
                   <span>WHATSAPP TO ENQUIRE →</span>
                 </button>
+              ) : isSoldOut ? (
+                <div className="space-y-3">
+                  <div className="p-3.5 bg-[#4A1520]/5 border border-[#4A1520]/20 rounded-xs">
+                    <p className="text-xs text-[#4A1520] font-sans font-semibold mb-0.5">
+                      Artisanal Piece Currently Sold Out
+                    </p>
+                    <p className="text-[11px] text-[#7A7268] font-sans">
+                      Our master karigars can handcraft a bespoke commission or notify you if restocked.
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-2 sm:gap-2.5">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const message = encodeURIComponent(
+                          `Pranam Rajwadi! I am inquiring about bespoke recreation / custom order for the sold out poshak: "${product.name}". Please let me know the availability and timeframe.`
+                        );
+                        window.open(`https://wa.me/918766667101?text=${message}`, "_blank");
+                      }}
+                      className="flex-1 h-[48px] sm:h-[50px] px-3 bg-[#2E5A36] hover:bg-[#23472a] text-white text-[11px] sm:text-xs uppercase tracking-[0.16em] font-semibold transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer font-sans shadow-xs"
+                    >
+                      <MessageCircle className="w-4 h-4 text-[#A8D5BA] flex-shrink-0" />
+                      <span className="truncate">Enquire Bespoke Order →</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => toggleWishlist(product.id)}
+                      aria-label={
+                        isWishlisted
+                          ? `Remove ${product.name} from wishlist`
+                          : `Add ${product.name} to wishlist`
+                      }
+                      title={isWishlisted ? "In Wishlist" : "Save to Wishlist"}
+                      className="w-[48px] h-[48px] sm:w-[50px] sm:h-[50px] flex-shrink-0 flex items-center justify-center border border-[#E6DCB8] hover:border-[#855D25] bg-white transition-colors cursor-pointer"
+                    >
+                      <Heart
+                        className={`w-4 h-4 sm:w-5 sm:h-5 stroke-[1.3] transition-colors ${
+                          isWishlisted
+                            ? "fill-[#5A1F2B] text-[#5A1F2B]"
+                            : "text-[#171717]/70 hover:text-[#5A1F2B]"
+                        }`}
+                      />
+                    </button>
+                  </div>
+                </div>
               ) : (
                 <>
                   {/* Single Row: Add to Bag + Buy Now + Wishlist */}
@@ -535,8 +631,7 @@ function ProductDetailInner({
                     <button
                       type="button"
                       onClick={handleAddToBag}
-                      disabled={Boolean(product.soldOut)}
-                      className={`flex-1 h-[48px] sm:h-[50px] px-2 sm:px-3 text-[11px] sm:text-xs uppercase tracking-[0.14em] sm:tracking-[0.18em] font-medium transition-all duration-300 flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer font-sans shadow-xs disabled:opacity-50 disabled:cursor-not-allowed ${
+                      className={`flex-1 h-[48px] sm:h-[50px] px-2 sm:px-3 text-[11px] sm:text-xs uppercase tracking-[0.14em] sm:tracking-[0.18em] font-medium transition-all duration-300 flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer font-sans shadow-xs ${
                         isAdded
                           ? "bg-[#2E5A36] text-white"
                           : "bg-[#5A1F2B] hover:bg-[#481822] text-[#FAF6F0]"
@@ -547,8 +642,6 @@ function ProductDetailInner({
                           <Check className="w-3.5 h-3.5" />
                           <span className="truncate">Added to Bag</span>
                         </>
-                      ) : product.soldOut ? (
-                        <span className="truncate">Out of Stock</span>
                       ) : (
                         <>
                           <ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
@@ -561,8 +654,7 @@ function ProductDetailInner({
                     <button
                       type="button"
                       onClick={handleBuyNow}
-                      disabled={Boolean(product.soldOut)}
-                      className="flex-1 h-[48px] sm:h-[50px] px-2 sm:px-3 text-[11px] sm:text-xs uppercase tracking-[0.14em] sm:tracking-[0.18em] font-semibold bg-[#855D25] hover:bg-[#6D1A2A] text-white transition-all duration-300 flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer font-sans shadow-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex-1 h-[48px] sm:h-[50px] px-2 sm:px-3 text-[11px] sm:text-xs uppercase tracking-[0.14em] sm:tracking-[0.18em] font-semibold bg-[#855D25] hover:bg-[#6D1A2A] text-white transition-all duration-300 flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer font-sans shadow-xs"
                     >
                       <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-white text-white flex-shrink-0" />
                       <span className="truncate">Buy Now</span>

@@ -269,51 +269,71 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
                 {/* Compact Results List */}
                 <div className="divide-y divide-[#E6DCB8]/60 max-h-[320px] overflow-y-auto overscroll-contain pr-1">
-                  {filteredResults.slice(0, 5).map((item) => (
-                    <div
-                      key={item.id}
-                      onClick={() => handleSelectProduct(item.id)}
-                      className="py-3 flex items-center justify-between gap-3 group cursor-pointer hover:bg-white/50 px-2 transition-colors"
-                    >
-                      <div className="flex items-center gap-3 min-w-0">
-                        {/* 3:4 Thumbnail */}
-                        <div className="relative w-12 aspect-[3/4] flex-shrink-0 bg-[#F4ECE1] border border-[#E6DCB8]/60 overflow-hidden shadow-2xs">
-                          <Image
-                            src={item.image}
-                            alt={item.name}
-                            fill
-                            sizes="50px"
-                            style={{
-                              objectPosition: item.imagePosition || "center 5%",
-                            }}
-                            className="object-cover transition-transform duration-300 group-hover:scale-105"
-                          />
+                  {filteredResults.slice(0, 5).map((item) => {
+                    const isItemSoldOut = Boolean(
+                      item.soldOut ||
+                        item.price === "Sold Out" ||
+                        (typeof item.price === "string" &&
+                          item.price.toLowerCase().includes("sold"))
+                    );
+
+                    return (
+                      <div
+                        key={item.id}
+                        onClick={() => handleSelectProduct(item.id)}
+                        className="py-3 flex items-center justify-between gap-3 group cursor-pointer hover:bg-white/50 px-2 transition-colors"
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          {/* 3:4 Thumbnail */}
+                          <div className="relative w-12 aspect-[3/4] flex-shrink-0 bg-[#F4ECE1] border border-[#E6DCB8]/60 overflow-hidden shadow-2xs">
+                            <Image
+                              src={item.image}
+                              alt={item.name}
+                              fill
+                              sizes="50px"
+                              style={{
+                                objectPosition: item.imagePosition || "center 5%",
+                              }}
+                              className={`object-cover transition-transform duration-300 group-hover:scale-105 ${
+                                isItemSoldOut ? "grayscale-[15%]" : ""
+                              }`}
+                            />
+                            {isItemSoldOut && (
+                              <div className="absolute inset-x-0 bottom-0 bg-[#4A1520]/95 text-white text-[7.5px] uppercase font-bold tracking-wider text-center py-0.5">
+                                Sold Out
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Product Info */}
+                          <div className="min-w-0">
+                            <h4 className="font-serif text-sm text-[#171717] group-hover:text-[#5A1F2B] font-normal leading-snug line-clamp-1 transition-colors">
+                              {getPoshakDisplayName(item)}
+                            </h4>
+                            <span className="text-[10px] uppercase tracking-wider text-[#8C827A] block mt-0.5">
+                              {getCategoryEyebrow(item)}
+                            </span>
+                          </div>
                         </div>
 
-                        {/* Product Info */}
-                        <div className="min-w-0">
-                          <h4 className="font-serif text-sm text-[#171717] group-hover:text-[#5A1F2B] font-normal leading-snug line-clamp-1 transition-colors">
-                            {getPoshakDisplayName(item)}
-                          </h4>
-                          <span className="text-[10px] uppercase tracking-wider text-[#8C827A] block mt-0.5">
-                            {getCategoryEyebrow(item)}
+                        {/* Price / Enquiry */}
+                        {isItemSoldOut ? (
+                          <span className="font-sans font-bold text-xs text-[#8B263E] uppercase tracking-wider flex-shrink-0">
+                            Sold Out
                           </span>
-                        </div>
+                        ) : (item.category || "").toUpperCase() === "JEWELLERY" ? (
+                          <span className="inline-flex items-center gap-1 text-[11px] text-[#2E5A36] font-medium font-sans flex-shrink-0">
+                            <MessageCircle className="w-3.5 h-3.5 stroke-[1.8]" />
+                            <span>Enquire</span>
+                          </span>
+                        ) : (
+                          <span className="font-sans font-medium text-xs text-[#171717] flex-shrink-0">
+                            {item.price}
+                          </span>
+                        )}
                       </div>
-
-                      {/* Price / Enquiry */}
-                      {(item.category || "").toUpperCase() === "JEWELLERY" ? (
-                        <span className="inline-flex items-center gap-1 text-[11px] text-[#2E5A36] font-medium font-sans flex-shrink-0">
-                          <MessageCircle className="w-3.5 h-3.5 stroke-[1.8]" />
-                          <span>Enquire</span>
-                        </span>
-                      ) : (
-                        <span className="font-sans font-medium text-xs text-[#171717] flex-shrink-0">
-                          {item.price}
-                        </span>
-                      )}
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
 
                 {/* View All Results Action */}
@@ -489,47 +509,65 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
               {/* Compact List */}
               <div className="divide-y divide-[#E6DCB8]/60">
-                {filteredResults.map((item) => (
-                  <div
-                    key={item.id}
-                    onClick={() => handleSelectProduct(item.id)}
-                    className="py-3 flex items-center gap-3.5 active:bg-[#FAF5EE] cursor-pointer"
-                  >
-                    {/* Small Image Thumbnail */}
-                    <div className="relative w-12 aspect-[3/4] flex-shrink-0 bg-[#F4ECE1] border border-[#E6DCB8]/60 overflow-hidden shadow-2xs">
-                      <Image
-                        src={item.image}
-                        alt={item.name}
-                        fill
-                        sizes="50px"
-                        style={{
-                          objectPosition: item.imagePosition || "center 5%",
-                        }}
-                        className="object-cover"
-                      />
-                    </div>
+                {filteredResults.map((item) => {
+                  const isItemSoldOut = Boolean(
+                    item.soldOut ||
+                      item.price === "Sold Out" ||
+                      (typeof item.price === "string" &&
+                        item.price.toLowerCase().includes("sold"))
+                  );
 
-                    {/* Product Meta */}
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-serif text-sm text-[#171717] font-normal leading-snug line-clamp-1">
-                        {getPoshakDisplayName(item)}
-                      </h4>
-                      <span className="text-[10px] uppercase tracking-wider text-[#8C827A] block mt-0.5">
-                        {getCategoryEyebrow(item)}
-                      </span>
-                      {(item.category || "").toUpperCase() === "JEWELLERY" ? (
-                        <span className="inline-flex items-center gap-1 text-[11px] text-[#2E5A36] font-medium font-sans mt-0.5">
-                          <MessageCircle className="w-3 h-3 stroke-[1.8]" />
-                          <span>Enquire on WhatsApp</span>
+                  return (
+                    <div
+                      key={item.id}
+                      onClick={() => handleSelectProduct(item.id)}
+                      className="py-3 flex items-center gap-3.5 active:bg-[#FAF5EE] cursor-pointer"
+                    >
+                      {/* Small Image Thumbnail */}
+                      <div className="relative w-12 aspect-[3/4] flex-shrink-0 bg-[#F4ECE1] border border-[#E6DCB8]/60 overflow-hidden shadow-2xs">
+                        <Image
+                          src={item.image}
+                          alt={item.name}
+                          fill
+                          sizes="50px"
+                          style={{
+                            objectPosition: item.imagePosition || "center 5%",
+                          }}
+                          className={`object-cover ${isItemSoldOut ? "grayscale-[15%]" : ""}`}
+                        />
+                        {isItemSoldOut && (
+                          <div className="absolute inset-x-0 bottom-0 bg-[#4A1520]/95 text-white text-[7.5px] uppercase font-bold tracking-wider text-center py-0.5">
+                            Sold Out
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Product Meta */}
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-serif text-sm text-[#171717] font-normal leading-snug line-clamp-1">
+                          {getPoshakDisplayName(item)}
+                        </h4>
+                        <span className="text-[10px] uppercase tracking-wider text-[#8C827A] block mt-0.5">
+                          {getCategoryEyebrow(item)}
                         </span>
-                      ) : (
-                        <span className="font-sans font-medium text-xs text-[#171717] block mt-0.5">
-                          {item.price}
-                        </span>
-                      )}
+                        {isItemSoldOut ? (
+                          <span className="font-sans font-bold text-xs text-[#8B263E] uppercase tracking-wider block mt-0.5">
+                            Sold Out
+                          </span>
+                        ) : (item.category || "").toUpperCase() === "JEWELLERY" ? (
+                          <span className="inline-flex items-center gap-1 text-[11px] text-[#2E5A36] font-medium font-sans mt-0.5">
+                            <MessageCircle className="w-3 h-3 stroke-[1.8]" />
+                            <span>Enquire on WhatsApp</span>
+                          </span>
+                        ) : (
+                          <span className="font-sans font-medium text-xs text-[#171717] block mt-0.5">
+                            {item.price}
+                          </span>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               {/* View All Results Button */}

@@ -43,6 +43,15 @@ export default function ProductCard({
     return getCategoryEyebrow(product);
   }, [product]);
 
+  const isSoldOut = React.useMemo(() => {
+    return Boolean(
+      product.soldOut ||
+        product.price === "Sold Out" ||
+        (typeof product.price === "string" &&
+          product.price.toLowerCase().includes("sold"))
+    );
+  }, [product.soldOut, product.price]);
+
   const secondaryImage =
     product.additionalImages && product.additionalImages.length > 1
       ? product.additionalImages[1]
@@ -51,7 +60,7 @@ export default function ProductCard({
   const handleWishlistClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (product.soldOut) return;
+    if (isSoldOut) return;
     if (isWishlisted && onRemove) {
       onRemove(product);
     }
@@ -61,7 +70,7 @@ export default function ProductCard({
   const handleAddToCartClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (product.soldOut) return;
+    if (isSoldOut) return;
     addToCart(product);
     setIsCartOpen(true);
   };
@@ -100,11 +109,26 @@ export default function ProductCard({
             style={{
               objectPosition: product.imagePosition || "center 5%",
             }}
-            className={`object-cover transition-opacity duration-700 ease-out`}
+            className={`object-cover transition-opacity duration-700 ease-out ${
+              isSoldOut ? "grayscale-[15%]" : ""
+            }`}
           />
-
-
         </div>
+
+        {/* Top-Left Sold Out Badge */}
+        {isSoldOut && (
+          <div className="absolute top-2 left-2 sm:top-2.5 sm:left-2.5 z-20 pointer-events-none">
+            <span className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 bg-[#4A1520]/95 text-[#FFF6E9] text-[9.5px] sm:text-[10.5px] font-sans font-bold uppercase tracking-[0.2em] rounded-xs shadow-md border border-[#D4AF37]/60 backdrop-blur-xs">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#E5A93C] animate-pulse" />
+              Sold Out
+            </span>
+          </div>
+        )}
+
+        {/* Soft dark tint for sold out piece */}
+        {isSoldOut && (
+          <div className="absolute inset-0 bg-black/15 pointer-events-none z-10" />
+        )}
 
         {/* Top-Right Heart Icon if heartPosition === "top-right" */}
         {heartPosition === "top-right" && (
@@ -116,17 +140,17 @@ export default function ProductCard({
                 ? `Remove ${product.name} from wishlist`
                 : `Add ${product.name} to wishlist`
             }
-            title={product.soldOut ? "Sold Out" : isWishlisted ? "In Wishlist (Click to remove)" : "Save to Wishlist"}
-            disabled={product.soldOut}
+            title={isSoldOut ? "Sold Out" : isWishlisted ? "In Wishlist (Click to remove)" : "Save to Wishlist"}
+            disabled={isSoldOut}
             className={`absolute top-2 right-2 sm:top-2.5 sm:right-2.5 z-20 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/85 backdrop-blur-xs border border-[#E6DCB8]/70 flex items-center justify-center shadow-xs transition-all ${
-              product.soldOut ? "cursor-not-allowed opacity-50" : "cursor-pointer active:scale-90 text-[#171717] hover:text-[#5A1F2B]"
+              isSoldOut ? "cursor-not-allowed opacity-50" : "cursor-pointer active:scale-90 text-[#171717] hover:text-[#5A1F2B]"
             }`}
           >
             <Heart
               className={`w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[1.35] transition-colors duration-300 ${
                 isWishlisted
                   ? "fill-[#5A1F2B] text-[#5A1F2B]"
-                  : product.soldOut ? "text-gray-400" : "text-[#171717]/75 hover:text-[#5A1F2B]"
+                  : isSoldOut ? "text-gray-400" : "text-[#171717]/75 hover:text-[#5A1F2B]"
               }`}
             />
           </button>
@@ -136,7 +160,11 @@ export default function ProductCard({
         {showOverlayCTA && (
           <div className="absolute inset-x-0 bottom-0 py-2 sm:py-2.5 px-2.5 bg-gradient-to-t from-black/75 via-black/35 to-transparent flex items-center justify-center gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10">
             <span className="text-[9.5px] sm:text-[10.5px] uppercase tracking-[0.2em] text-[#FAF6F0] font-sans font-medium">
-              {isJewellery ? "ENQUIRE ON WHATSAPP" : "VIEW POSHAK"}
+              {isSoldOut
+                ? "SOLD OUT · VIEW PIECE"
+                : isJewellery
+                ? "ENQUIRE ON WHATSAPP"
+                : "VIEW POSHAK"}
             </span>
             <span className="text-[10px] sm:text-[11px] text-[#FAF6F0] transition-transform duration-300 group-hover:translate-x-0.5">
               →
@@ -200,11 +228,11 @@ export default function ProductCard({
                 <button
                   type="button"
                   onClick={handleAddToCartClick}
-                  disabled={product.soldOut}
-                  aria-label={product.soldOut ? "Sold Out" : `Add ${product.name} to royal bag`}
-                  title={product.soldOut ? "Sold Out" : "Add to Royal Bag"}
+                  disabled={isSoldOut}
+                  aria-label={isSoldOut ? "Sold Out" : `Add ${product.name} to royal bag`}
+                  title={isSoldOut ? "Sold Out" : "Add to Royal Bag"}
                   className={`p-1 transition-colors ${
-                    product.soldOut ? "text-gray-300 cursor-not-allowed" : "text-[#333333] hover:text-[#5A1F2B] cursor-pointer"
+                    isSoldOut ? "text-gray-300 cursor-not-allowed" : "text-[#333333] hover:text-[#5A1F2B] cursor-pointer"
                   }`}
                 >
                   <ShoppingBag className="w-[17px] h-[17px] stroke-[1.25]" />
@@ -236,10 +264,12 @@ export default function ProductCard({
                   </span>
                 )}
                 <span
-                  className={`text-[13.5px] sm:text-[14.5px] font-sans font-semibold tracking-wide ${
-                    isUnstitched || product.originalPrice
-                      ? "text-[#5A1F2B]"
-                      : "text-[#2B2723]"
+                  className={`text-[13.5px] sm:text-[14.5px] font-sans tracking-wide ${
+                    isSoldOut
+                      ? "text-[#8B263E] font-bold uppercase tracking-wider"
+                      : isUnstitched || product.originalPrice
+                      ? "text-[#5A1F2B] font-semibold"
+                      : "text-[#2B2723] font-semibold"
                   }`}
                 >
                   {product.price}
@@ -251,11 +281,11 @@ export default function ProductCard({
                 <button
                   type="button"
                   onClick={handleAddToCartClick}
-                  disabled={product.soldOut}
-                  aria-label={product.soldOut ? "Sold Out" : `Add ${product.name} to royal bag`}
-                  title={product.soldOut ? "Sold Out" : "Add to Royal Bag"}
+                  disabled={isSoldOut}
+                  aria-label={isSoldOut ? "Sold Out" : `Add ${product.name} to royal bag`}
+                  title={isSoldOut ? "Sold Out" : "Add to Royal Bag"}
                   className={`p-1 -mr-1 transition-colors ${
-                    product.soldOut ? "text-gray-300 cursor-not-allowed" : "text-[#333333] hover:text-[#5A1F2B] cursor-pointer active:scale-95"
+                    isSoldOut ? "text-gray-300 cursor-not-allowed" : "text-[#333333] hover:text-[#5A1F2B] cursor-pointer active:scale-95"
                   }`}
                 >
                   <ShoppingBag className="w-[17px] h-[17px] stroke-[1.25]" />

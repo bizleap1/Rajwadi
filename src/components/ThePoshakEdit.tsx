@@ -57,6 +57,12 @@ export default function ThePoshakEdit({ onSelectProduct }: ThePoshakEditProps) {
             <AnimatePresence mode="popLayout">
               {featuredProducts.map((product, index) => {
                 const isWishlisted = isInWishlist(product.id);
+                const isSoldOut = Boolean(
+                  product.soldOut ||
+                    product.price === "Sold Out" ||
+                    (typeof product.price === "string" &&
+                      product.price.toLowerCase().includes("sold"))
+                );
                 const secondImage =
                   product.additionalImages && product.additionalImages.length > 1
                     ? product.additionalImages[1]
@@ -73,7 +79,7 @@ export default function ThePoshakEdit({ onSelectProduct }: ThePoshakEditProps) {
                   >
                     <Link
                       href={`/product/${product.id}`}
-                      className="group flex flex-col cursor-pointer select-none"
+                      className="group flex flex-col cursor-pointer select-none relative"
                     >
                       {/* Image Container: Consistent 2:3 Aspect Ratio Across Mobile & Desktop */}
                       <div className="relative w-full aspect-[2/3] overflow-hidden bg-[#EAE0D2] shadow-sm">
@@ -86,6 +92,8 @@ export default function ThePoshakEdit({ onSelectProduct }: ThePoshakEditProps) {
                             fill
                             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 25vw"
                             className={`object-cover object-top transition-opacity duration-500 ease-in-out ${
+                              isSoldOut ? "grayscale-[15%]" : ""
+                            } ${
                               secondImage ? "sm:group-hover:opacity-0" : ""
                             }`}
                           />
@@ -103,13 +111,28 @@ export default function ThePoshakEdit({ onSelectProduct }: ThePoshakEditProps) {
                           )}
                         </div>
 
+                        {/* Top-Left Sold Out Badge */}
+                        {isSoldOut && (
+                          <div className="absolute top-2.5 left-2.5 sm:top-3 sm:left-3 z-20 pointer-events-none">
+                            <span className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 bg-[#4A1520]/95 text-[#FFF6E9] text-[9.5px] sm:text-[10.5px] font-sans font-bold uppercase tracking-[0.2em] rounded-xs shadow-md border border-[#D4AF37]/60 backdrop-blur-xs">
+                              <span className="w-1.5 h-1.5 rounded-full bg-[#E5A93C] animate-pulse" />
+                              Sold Out
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Soft dark tint for sold out piece */}
+                        {isSoldOut && (
+                          <div className="absolute inset-0 bg-black/15 pointer-events-none z-10" />
+                        )}
+
                         {/* Subtle Lower Image Gradient for Button Contrast */}
                         <div className="absolute inset-x-0 bottom-0 h-24 sm:h-28 bg-gradient-to-t from-black/45 via-black/15 to-transparent pointer-events-none transition-opacity duration-300" />
 
                         {/* VIEW SET → CTA: Refined dark black overlay CTA */}
                         <div className="absolute inset-x-0 bottom-3.5 sm:bottom-4 flex justify-center px-3 pointer-events-none z-10">
                           <div className="pointer-events-auto px-4 sm:px-5 py-2 sm:py-2.5 bg-[#222222] hover:bg-black text-white text-[10px] sm:text-[10.5px] uppercase tracking-[0.2em] font-medium font-sans shadow-md backdrop-blur-xs transition-all duration-300 flex items-center justify-center gap-1.5 sm:opacity-0 sm:translate-y-1 sm:group-hover:opacity-100 sm:group-hover:translate-y-0 active:scale-[0.98]">
-                            <span>VIEW SET</span>
+                            <span>{isSoldOut ? "VIEW ARCHIVED PIECE" : "VIEW SET"}</span>
                             <span className="transition-transform duration-300 group-hover:translate-x-0.5">
                               →
                             </span>
@@ -138,8 +161,12 @@ export default function ThePoshakEdit({ onSelectProduct }: ThePoshakEditProps) {
                               </span>
                             )}
                             <span
-                              className={`text-[13px] sm:text-[14px] font-sans font-semibold tracking-wide ${
-                                product.originalPrice ? "text-[#5A1F2B]" : "text-[#2B2723]"
+                              className={`text-[13px] sm:text-[14px] font-sans tracking-wide ${
+                                isSoldOut
+                                  ? "text-[#8B263E] font-bold uppercase tracking-wider"
+                                  : product.originalPrice
+                                  ? "text-[#5A1F2B] font-semibold"
+                                  : "text-[#2B2723] font-semibold"
                               }`}
                             >
                               {product.price}
@@ -155,21 +182,25 @@ export default function ThePoshakEdit({ onSelectProduct }: ThePoshakEditProps) {
                             onClick={(e) => {
                               e.preventDefault();
                               e.stopPropagation();
+                              if (isSoldOut) return;
                               toggleWishlist(product.id);
                             }}
+                            disabled={isSoldOut}
                             aria-label={
                               isWishlisted
                                 ? `Remove ${product.name} from wishlist`
                                 : `Add ${product.name} to wishlist`
                             }
-                            title={isWishlisted ? "In Wishlist" : "Save to Wishlist"}
-                            className="p-1 text-[#333333] hover:text-[#5A1F2B] transition-colors cursor-pointer"
+                            title={isSoldOut ? "Sold Out" : isWishlisted ? "In Wishlist" : "Save to Wishlist"}
+                            className={`p-1 transition-colors ${
+                              isSoldOut ? "text-gray-300 cursor-not-allowed" : "text-[#333333] hover:text-[#5A1F2B] cursor-pointer"
+                            }`}
                           >
                             <Heart
                               className={`w-[18px] h-[18px] stroke-[1.25] transition-colors duration-300 ${
                                 isWishlisted
                                   ? "fill-[#5A1F2B] text-[#5A1F2B]"
-                                  : "text-[#333333] hover:text-[#5A1F2B]"
+                                  : isSoldOut ? "text-gray-300" : "text-[#333333] hover:text-[#5A1F2B]"
                               }`}
                             />
                           </button>
@@ -180,12 +211,16 @@ export default function ThePoshakEdit({ onSelectProduct }: ThePoshakEditProps) {
                             onClick={(e) => {
                               e.preventDefault();
                               e.stopPropagation();
+                              if (isSoldOut) return;
                               addToCart(product);
                               setIsCartOpen(true);
                             }}
-                            aria-label={`Add ${product.name} to royal bag`}
-                            title="Add to Royal Bag"
-                            className="p-1 text-[#333333] hover:text-[#5A1F2B] transition-colors cursor-pointer"
+                            disabled={isSoldOut}
+                            aria-label={isSoldOut ? "Sold Out" : `Add ${product.name} to royal bag`}
+                            title={isSoldOut ? "Sold Out" : "Add to Royal Bag"}
+                            className={`p-1 transition-colors ${
+                              isSoldOut ? "text-gray-300 cursor-not-allowed" : "text-[#333333] hover:text-[#5A1F2B] cursor-pointer"
+                            }`}
                           >
                             <ShoppingBag className="w-[18px] h-[18px] stroke-[1.25]" />
                           </button>
