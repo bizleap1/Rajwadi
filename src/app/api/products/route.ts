@@ -21,26 +21,9 @@ export async function GET(req: NextRequest) {
       where.isFeatured = true;
     }
 
-    const type = searchParams.get("type");
-    const subCategory = searchParams.get("subCategory");
-
     if (category && category !== "ALL") {
       where.category = {
         equals: category,
-        mode: "insensitive",
-      };
-    }
-
-    if (type && type !== "ALL") {
-      where.type = {
-        equals: type,
-        mode: "insensitive",
-      };
-    }
-
-    if (subCategory && subCategory !== "ALL") {
-      where.subCategory = {
-        equals: subCategory,
         mode: "insensitive",
       };
     }
@@ -80,8 +63,8 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    const formatted = (products as any[]).map((p: any) => {
-      const images = (p.images as any[]).map((img: any) => img.secureUrl);
+    const formatted = products.map((p) => {
+      const images = p.images.map((img) => img.secureUrl);
       const mainImage = images[0] || "/placeholder.webp";
       return {
         id: p.slug, // Keep slug as id for frontend routing compatibility
@@ -89,34 +72,20 @@ export async function GET(req: NextRequest) {
         slug: p.slug,
         name: p.name,
         category: p.category,
-        type: p.type || "Stitched",
-        subCategory: p.subCategory || p.category,
         priceInPaise: p.priceInPaise,
-        compareAtPriceInPaise: p.compareAtPriceInPaise,
         priceFormatted: `₹ ${(p.priceInPaise / 100).toLocaleString("en-IN")}`,
         price: `₹ ${(p.priceInPaise / 100).toLocaleString("en-IN")}`, // Legacy string field
-        originalPrice: p.compareAtPriceInPaise
-          ? `₹ ${(p.compareAtPriceInPaise / 100).toLocaleString("en-IN")}`
-          : undefined,
-        priceNote: p.priceNote || undefined,
         fabric: p.fabric,
         craft: p.craft,
         color: p.color,
-        quality: p.quality || undefined,
-        work: p.work || undefined,
-        odhna: p.odhna || undefined,
-        bestFor: p.bestFor || undefined,
         description: p.description,
         details: Array.isArray(p.details) ? p.details : [],
         includes: Array.isArray(p.includes) ? p.includes : [],
-        size: p.size || undefined,
-        sizes: Array.isArray(p.sizes) ? p.sizes : undefined,
-        soldOut: p.soldOut || false,
         image: mainImage,
         additionalImages: images,
         imagePosition: p.imagePosition,
         imageScale: p.imageScale,
-        inStock: p.inStock && p.stock > 0 && !p.soldOut,
+        inStock: p.inStock && p.stock > 0,
         stock: p.stock,
         stitchingAvailable: p.stitchingAvailable,
         stitchingPriceInPaise: p.stitchingPriceInPaise,

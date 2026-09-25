@@ -44,36 +44,6 @@ export async function GET() {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Deduplicate addresses before returning to client
-    const seenAddresses = new Set<string>();
-    const dedupedAddresses: Array<{
-      id: string;
-      name: string;
-      phone: string;
-      address: string;
-      city: string;
-      state: string;
-      pincode: string;
-      isDefault: boolean;
-    }> = [];
-
-    for (const a of user.addresses) {
-      const key = `${(a.address || "").trim().toLowerCase()}|${(a.pincode || "").trim()}|${(a.city || "").trim().toLowerCase()}`;
-      if (!seenAddresses.has(key)) {
-        seenAddresses.add(key);
-        dedupedAddresses.push({
-          id: a.id,
-          name: a.name,
-          phone: a.phone,
-          address: a.address,
-          city: a.city,
-          state: a.state,
-          pincode: a.pincode,
-          isDefault: a.isDefault,
-        });
-      }
-    }
-
     return NextResponse.json({
       user: {
         id: user.id,
@@ -83,7 +53,16 @@ export async function GET() {
         role: user.role,
         createdAt: user.createdAt.toISOString(),
       },
-      addresses: dedupedAddresses,
+      addresses: user.addresses.map((a) => ({
+        id: a.id,
+        name: a.name,
+        phone: a.phone,
+        address: a.address,
+        city: a.city,
+        state: a.state,
+        pincode: a.pincode,
+        isDefault: a.isDefault,
+      })),
     });
   } catch (error) {
     console.error("GET /api/account/profile error:", error);
@@ -123,38 +102,21 @@ export async function PUT(req: NextRequest) {
       });
 
       if (addresses) {
-        // Deduplicate incoming addresses based on address + pincode + city
-        const seen = new Set<string>();
-        const uniqueAddresses: typeof addresses = [];
-        for (const a of addresses) {
-          const key = `${(a.address || "").trim().toLowerCase()}|${(a.pincode || "").trim()}|${(a.city || "").trim().toLowerCase()}`;
-          if (!seen.has(key)) {
-            seen.add(key);
-            uniqueAddresses.push(a);
-          }
-        }
-
-        // Ensure at least one default if list is not empty
-        const hasDefault = uniqueAddresses.some((a) => a.isDefault);
-        if (!hasDefault && uniqueAddresses.length > 0) {
-          uniqueAddresses[0].isDefault = true;
-        }
-
-        // Remove existing addresses and replace with clean deduplicated list
+        // Remove existing addresses and replace
         await tx.address.deleteMany({
           where: { userId: session.user.id },
         });
 
-        if (uniqueAddresses.length > 0) {
+        if (addresses.length > 0) {
           await tx.address.createMany({
-            data: uniqueAddresses.map((a) => ({
+            data: addresses.map((a) => ({
               userId: session.user.id,
-              name: a.name.trim(),
-              phone: a.phone.trim(),
-              address: a.address.trim(),
-              city: a.city.trim(),
-              state: a.state.trim(),
-              pincode: a.pincode.trim(),
+              name: a.name,
+              phone: a.phone,
+              address: a.address,
+              city: a.city,
+              state: a.state,
+              pincode: a.pincode,
               isDefault: a.isDefault,
             })),
           });

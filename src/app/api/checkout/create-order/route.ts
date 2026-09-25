@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { items, deliveryAddress, notes, paymentScreenshotUrl, utrNumber } = validated.data;
+    const { items, deliveryAddress, notes, paymentScreenshotUrl, utrNumber, couponCode } = validated.data;
     const session = await getServerSession();
     const userId = session?.user?.id || null;
 
@@ -136,22 +136,114 @@ export async function POST(req: NextRequest) {
     }
 
     const shippingInPaise = 0; // Explicit free shipping
-    const totalInPaise = subtotalInPaise + stitchingInPaise + shippingInPaise;
+
+    // ── COUPON DISCOUNT VALIDATION & CALCULATION ──
+    let appliedCoupon: any = null;
+    let discountInPaise = 0;
+    let discountDetails: any = null;
+
+    if (couponCode && couponCode.trim()) {
+      const cleanCode = couponCode.trim().toUpperCase();
+      const couponRecord = await prisma.coupon.findUnique({
+        where: { code: cleanCode },
+      });
+
+      const now = new Date();
+      if (
+        couponRecord &&
+        couponRecord.isActive &&
+        (!couponRecord.startDate || new Date(couponRecord.startDate) <= now) &&
+        (!couponRecord.endDate || new Date(couponRecord.endDate) >= now) &&
+        (!couponRecord.usageLimit || couponRecord.usedCount < couponRecord.usageLimit) &&
+        (couponRecord.minOrderValueInPaise === 0 || subtotalInPaise >= couponRecord.minOrderValueInPaise)
+      ) {
+        const isSpecificProductScope =
+          couponRecord.applicableScope === "SPECIFIC_PRODUCTS" ||
+          (Array.isArray(couponRecord.applicableProducts) && (couponRecord.applicableProducts as string[]).length > 0);
+
+        const isSpecificCategoryScope =
+          couponRecord.applicableScope === "SPECIFIC_CATEGORIES" ||
+          (Array.isArray(couponRecord.applicableCategories) && (couponRecord.applicableCategories as string[]).length > 0);
+
+        let eligibleSubtotalInPaise = subtotalInPaise;
+        let isEligible = true;
+
+        if (isSpecificProductScope) {
+          const targetProducts = (couponRecord.applicableProducts as string[]) || [];
+          const eligibleItems = orderItemsData.filter((item) => {
+            const itemPId = (item.productId || "").toLowerCase();
+            const itemSlug = (item.productSlug || "").toLowerCase();
+            const itemName = (item.productName || "").toLowerCase();
+            return targetProducts.some((t) => {
+              const target = t.toLowerCase();
+              return target === itemPId || target === itemSlug || target === itemName;
+            });
+          });
+
+          if (eligibleItems.length === 0) {
+            isEligible = false;
+          } else {
+            eligibleSubtotalInPaise = eligibleItems.reduce((acc, it) => acc + it.unitPriceInPaise * it.quantity, 0);
+          }
+        } else if (isSpecificCategoryScope) {
+          const allowedCategories = (couponRecord.applicableCategories as string[]) || [];
+          const eligibleItems = orderItemsData.filter((item) => {
+            const itemCat = (item.category || "").toLowerCase();
+            return allowedCategories.some((ac) => ac.toLowerCase() === itemCat);
+          });
+
+          if (eligibleItems.length === 0) {
+            isEligible = false;
+          } else {
+            eligibleSubtotalInPaise = eligibleItems.reduce((acc, it) => acc + it.unitPriceInPaise * it.quantity, 0);
+          }
+        }
+
+        if (isEligible) {
+          appliedCoupon = couponRecord;
+
+          if (couponRecord.discountType === "PERCENTAGE") {
+            const rawDiscount = Math.round((eligibleSubtotalInPaise * couponRecord.discountValue) / 100);
+            discountInPaise = couponRecord.maxDiscountInPaise
+              ? Math.min(rawDiscount, couponRecord.maxDiscountInPaise)
+              : rawDiscount;
+          } else if (couponRecord.discountType === "FIXED_AMOUNT") {
+            discountInPaise = Math.min(couponRecord.discountValue, eligibleSubtotalInPaise);
+          } else if (couponRecord.discountType === "FREE_SHIPPING") {
+            discountInPaise = shippingInPaise;
+          }
+
+          discountInPaise = Math.min(discountInPaise, subtotalInPaise + stitchingInPaise + shippingInPaise);
+
+          discountDetails = {
+            couponId: couponRecord.id,
+            code: couponRecord.code,
+            discountType: couponRecord.discountType,
+            discountValue: couponRecord.discountValue,
+            discountInPaise,
+            applicableScope: couponRecord.applicableScope,
+          };
+        }
+      }
+    }
+
+    const totalBeforeDiscount = subtotalInPaise + stitchingInPaise + shippingInPaise;
+    const totalInPaise = Math.max(0, totalBeforeDiscount - discountInPaise);
 
     const orderNumber = await generateUniqueOrderNumber();
     const guestAccessToken = crypto.randomBytes(32).toString("hex");
     const reservationExpiry = new Date(Date.now() + 15 * 60 * 1000); // 15-minute stock reservation
 
-    const defaultDelivery = new Date();
-    defaultDelivery.setDate(defaultDelivery.getDate() + 7);
-
     // ── RAZORPAY PAUSE MODE ──
-    // Set RAZORPAY_PAUSED=false in .env to enable live Razorpay gateway
-    const isRazorpayPaused = process.env.RAZORPAY_PAUSED !== "false";
+    // When paused, orders are confirmed directly without opening the payment gateway modal
+    const isRazorpayPaused = true;
 
     if (isRazorpayPaused) {
+      const defaultDelivery = new Date();
+      defaultDelivery.setDate(defaultDelivery.getDate() + 7);
+
       const savedOrder = await prisma.$transaction(
-        async (tx: any) => {
+        async (tx) => {
           const order = await tx.order.create({
             data: {
               orderNumber,
@@ -161,6 +253,10 @@ export async function POST(req: NextRequest) {
               subtotalInPaise,
               shippingInPaise,
               stitchingInPaise,
+              discountInPaise,
+              couponId: appliedCoupon ? appliedCoupon.id : null,
+              couponCode: appliedCoupon ? appliedCoupon.code : null,
+              discountDetails: discountDetails || undefined,
               totalInPaise,
               paymentStatus: "VERIFICATION_PENDING",
               fulfilmentStatus: "PENDING",
@@ -175,6 +271,14 @@ export async function POST(req: NextRequest) {
               },
             },
           });
+
+          // Increment coupon usedCount if coupon applied
+          if (appliedCoupon) {
+            await tx.coupon.update({
+              where: { id: appliedCoupon.id },
+              data: { usedCount: { increment: 1 } },
+            }).catch(() => {});
+          }
 
           // Deduct product stock concurrently
           const stockUpdates = orderItemsData
@@ -194,41 +298,22 @@ export async function POST(req: NextRequest) {
             await Promise.all(stockUpdates);
           }
 
-          // Save delivery address to user account for future checkouts ONLY if it is a genuinely new address
+          // Save delivery address to user account for future checkouts
           if (userId) {
-            const cleanAddr = deliveryAddress.address.trim().toLowerCase();
-            const cleanCity = deliveryAddress.city.trim().toLowerCase();
-            const cleanPin = deliveryAddress.pincode.trim();
-
-            const existingAddresses = await tx.address.findMany({
-              where: { userId },
-            });
-
-            const isDuplicate = existingAddresses.some(
-              (a: any) =>
-                a.address.trim().toLowerCase() === cleanAddr &&
-                a.city.trim().toLowerCase() === cleanCity &&
-                a.pincode.trim() === cleanPin
-            );
-
-            // Only insert into Address book if not already existing
-            if (!isDuplicate) {
-              const isFirst = existingAddresses.length === 0;
-              await tx.address
-                .create({
-                  data: {
-                    userId,
-                    name: deliveryAddress.fullName.trim(),
-                    phone: deliveryAddress.phone.trim(),
-                    address: deliveryAddress.address.trim(),
-                    city: deliveryAddress.city.trim(),
-                    state: deliveryAddress.state.trim(),
-                    pincode: deliveryAddress.pincode.trim(),
-                    isDefault: isFirst,
-                  },
-                })
-                .catch(() => {});
-            }
+            await tx.address
+              .create({
+                data: {
+                  userId,
+                  name: deliveryAddress.fullName,
+                  phone: deliveryAddress.phone,
+                  address: deliveryAddress.address,
+                  city: deliveryAddress.city,
+                  state: deliveryAddress.state,
+                  pincode: deliveryAddress.pincode,
+                  isDefault: true,
+                },
+              })
+              .catch(() => {});
           }
 
           return order;
@@ -245,6 +330,8 @@ export async function POST(req: NextRequest) {
         orderId: savedOrder.id,
         orderNumber: savedOrder.orderNumber,
         guestAccessToken,
+        discountInPaise,
+        totalInPaise,
         paymentStatus: "VERIFICATION_PENDING",
       });
     }
@@ -289,7 +376,7 @@ export async function POST(req: NextRequest) {
 
     // Persist pending Order and Stock Reservation in database transaction
     const savedOrder = await prisma.$transaction(
-      async (tx: any) => {
+      async (tx) => {
         const order = await tx.order.create({
           data: {
             orderNumber,
@@ -304,7 +391,6 @@ export async function POST(req: NextRequest) {
             fulfilmentStatus: "PENDING",
             paymentMethod: "RAZORPAY",
             razorpayOrderId: razorpayOrder.id,
-            estimatedDeliveryDate: defaultDelivery,
             shippingAddress: deliveryAddress as any,
             notes: notes || null,
             items: {
@@ -331,42 +417,6 @@ export async function POST(req: NextRequest) {
 
         if (reservationPromises.length > 0) {
           await Promise.all(reservationPromises);
-        }
-
-        // Save delivery address to user account for future checkouts ONLY if it is a genuinely new address
-        if (userId) {
-          const cleanAddr = deliveryAddress.address.trim().toLowerCase();
-          const cleanCity = deliveryAddress.city.trim().toLowerCase();
-          const cleanPin = deliveryAddress.pincode.trim();
-
-          const existingAddresses = await tx.address.findMany({
-            where: { userId },
-          });
-
-          const isDuplicate = existingAddresses.some(
-            (a: any) =>
-              a.address.trim().toLowerCase() === cleanAddr &&
-              a.city.trim().toLowerCase() === cleanCity &&
-              a.pincode.trim() === cleanPin
-          );
-
-          if (!isDuplicate) {
-            const isFirst = existingAddresses.length === 0;
-            await tx.address
-              .create({
-                data: {
-                  userId,
-                  name: deliveryAddress.fullName.trim(),
-                  phone: deliveryAddress.phone.trim(),
-                  address: deliveryAddress.address.trim(),
-                  city: deliveryAddress.city.trim(),
-                  state: deliveryAddress.state.trim(),
-                  pincode: deliveryAddress.pincode.trim(),
-                  isDefault: isFirst,
-                },
-              })
-              .catch(() => {});
-          }
         }
 
         return order;

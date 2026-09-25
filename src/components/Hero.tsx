@@ -11,7 +11,7 @@ export default function Hero() {
       {/* Background Image: Mobile focuses vertically on model at center-right with full poshak flare and palace background */}
       <div className="absolute inset-0 w-full h-full overflow-hidden">
         <Image
-          src="/hero_couture.webp"
+          src="/hero_bg.webp"
           alt="Royal Indian Rajputi Poshak Couture Campaign"
           fill
           priority

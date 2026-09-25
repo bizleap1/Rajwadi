@@ -31,7 +31,6 @@ import Footer from "@/components/Footer";
 import { useAuth } from "@/context/AuthContext";
 import { useWishlist } from "@/context/WishlistContext";
 import AuthModal from "@/components/AuthModal";
-import CancelOrderModal from "@/components/CancelOrderModal";
 import { downloadReceipt } from "@/lib/receiptGenerator";
 
 type AccountTab = "orders" | "addresses" | "profile";
@@ -49,7 +48,6 @@ function AccountPageContent() {
     deleteAddress,
     updateProfile,
     isLoading: authLoading,
-    openAuthModal,
   } = useAuth();
   const { wishlistCount } = useWishlist();
 
@@ -57,10 +55,9 @@ function AccountPageContent() {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<"signin" | "signup">("signin");
 
-  // Orders from real database API
+  // Orders from real API
   const [orders, setOrders] = useState<any[]>([]);
   const [isOrdersLoading, setIsOrdersLoading] = useState(true);
-  const [cancellingOrder, setCancellingOrder] = useState<any | null>(null);
 
   // Profile Form state
   const [profileName, setProfileName] = useState("");
@@ -170,108 +167,50 @@ function AccountPageContent() {
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-[#FDFBF7] flex flex-col justify-between text-[#171717]">
-        <Navbar solidOnTop={true} />
-        <main className="pt-32 pb-20 max-w-lg mx-auto px-4 text-center">
-          <div className="w-16 h-16 mx-auto bg-[#F8F1E7] border border-[#EBD9C8] rounded-full flex items-center justify-center text-[#855D25] mb-5 shadow-2xs">
-            <User className="w-8 h-8 stroke-[1.5]" />
+        <Navbar />
+        <main className="pt-32 pb-20 max-w-md mx-auto px-4 text-center">
+          <div className="w-14 h-14 mx-auto bg-[#F8F1E7] rounded-full flex items-center justify-center text-[#855D25] mb-4">
+            <User className="w-7 h-7" />
           </div>
-          <span className="text-[11px] uppercase tracking-[0.25em] text-[#855D25] font-semibold block mb-1">
-            PATRON SERVICES
-          </span>
-          <h1 className="text-3xl font-serif text-[#171717]">Patron Sign In</h1>
-          <p className="text-xs text-[#6B5E55] mt-2 mb-6 font-serif italic max-w-sm mx-auto leading-relaxed">
-            Please sign in with your mobile number or email to view your order history, delivery addresses, and bespoke poshak details.
+          <h1 className="text-2xl font-serif text-[#171717]">Patron Sign In</h1>
+          <p className="text-xs text-[#6B5E55] mt-1.5 mb-6 font-serif italic">
+            Please log in or create an account to view your order receipts and manage saved delivery addresses.
           </p>
-
-          {/* Action Buttons: Sign In / Create Account */}
-          <div className="bg-white p-6 border border-[#EBD9C8] rounded-sm shadow-xs space-y-3 mb-6">
+          <div className="space-y-3">
             <button
-              type="button"
-              onClick={() => openAuthModal("signin")}
-              className="w-full py-3 px-4 bg-[#6D1A2A] hover:bg-[#581522] text-white text-xs uppercase tracking-[0.16em] font-medium rounded-xs transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+              onClick={() => {
+                setAuthModalMode("signin");
+                setAuthModalOpen(true);
+              }}
+              className="w-full py-3 bg-[#6D1A2A] text-white text-xs uppercase tracking-wider font-medium hover:bg-[#581522] transition-colors shadow-sm"
             >
-              <span>Sign In with Mobile / Email</span>
-              <ArrowRight className="w-4 h-4" />
+              Sign In with Email
             </button>
-
             <button
-              type="button"
-              onClick={() => openAuthModal("signup")}
-              className="w-full py-2.5 px-4 bg-[#FAF5EE] hover:bg-[#F3EBE1] border border-[#D9C4B0] text-[#171717] text-xs uppercase tracking-[0.16em] font-medium rounded-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
+              onClick={() => {
+                setAuthModalMode("signup");
+                setAuthModalOpen(true);
+              }}
+              className="w-full py-3 bg-white border border-[#D9C4B0] text-[#171717] text-xs uppercase tracking-wider font-medium hover:bg-[#FAF6F0] transition-colors"
             >
-              <span>Create New Account</span>
+              Create Account
             </button>
-          </div>
-
-          {/* Guest Order Lookup Divider */}
-          <div className="relative my-6 text-center">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-[#EBD9C8]"></div>
-            </div>
-            <span className="relative bg-[#FDFBF7] px-3 text-[11px] uppercase tracking-wider text-[#8A796B]">
-              Or Track Guest Order
-            </span>
-          </div>
-
-          {/* Direct Order Lookup Form */}
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              const target = e.currentTarget.elements.namedItem("orderId") as HTMLInputElement;
-              if (target?.value?.trim()) {
-                window.location.href = `/order/${encodeURIComponent(target.value.trim().toUpperCase())}`;
-              }
-            }}
-            className="bg-white p-4 border border-[#EBD9C8] rounded-sm shadow-2xs space-y-2.5 text-left mb-6"
-          >
-            <label className="text-[11px] uppercase tracking-wider text-[#855D25] font-semibold block">
-              Order Number (e.g. RW1024)
-            </label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                name="orderId"
-                required
-                placeholder="RW..."
-                className="flex-1 bg-[#FAF5EE] border border-[#D8CCB8] focus:border-[#855D25] px-3.5 py-2 text-xs uppercase tracking-wider text-[#171717] outline-none rounded-xs"
-              />
-              <button
-                type="submit"
-                className="px-4 py-2 bg-[#5A1F2B] hover:bg-[#431520] text-white text-xs uppercase tracking-widest font-medium rounded-xs transition-colors cursor-pointer"
-              >
-                Track &rarr;
-              </button>
-            </div>
-          </form>
-
-          {/* Quick Shortcuts */}
-          <div className="grid grid-cols-2 gap-3 text-xs font-sans">
-            <Link
-              href="/wishlist"
-              className="p-3 bg-white border border-[#EBD9C8] hover:border-[#855D25] rounded-xs text-center transition-colors block"
-            >
-              <Heart className="w-4 h-4 text-[#855D25] mx-auto mb-1" />
-              <span className="font-semibold uppercase tracking-wider block text-[11px]">Wishlist</span>
-              <span className="text-[10px] text-[#8C827A]">Saved pieces</span>
-            </Link>
-            <Link
-              href="/cart"
-              className="p-3 bg-white border border-[#EBD9C8] hover:border-[#855D25] rounded-xs text-center transition-colors block"
-            >
-              <ShoppingBag className="w-4 h-4 text-[#855D25] mx-auto mb-1" />
-              <span className="font-semibold uppercase tracking-wider block text-[11px]">Shopping Bag</span>
-              <span className="text-[10px] text-[#8C827A]">Ready to checkout</span>
-            </Link>
           </div>
         </main>
         <Footer />
+        <AuthModal
+          isOpen={authModalOpen}
+          onClose={() => setAuthModalOpen(false)}
+          mode={authModalMode}
+          onSwitchMode={(m) => setAuthModalMode(m)}
+        />
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-[#FDFBF7] text-[#171717] font-sans selection:bg-[#6D1A2A] selection:text-white flex flex-col justify-between">
-      <Navbar solidOnTop={true} />
+      <Navbar />
 
       <main className="pt-24 sm:pt-28 md:pt-32 pb-16 max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8">
         {/* Header Banner */}
@@ -291,7 +230,7 @@ function AccountPageContent() {
 
           <button
             onClick={() => logout()}
-            className="inline-flex items-center gap-2 px-4 py-2 border border-[#D9C4B0] hover:bg-red-50 hover:text-red-700 text-xs uppercase tracking-wider font-medium text-[#4A3E37] transition-colors rounded-sm cursor-pointer"
+            className="inline-flex items-center gap-2 px-4 py-2 border border-[#D9C4B0] hover:bg-red-50 hover:text-red-700 text-xs uppercase tracking-wider font-medium text-[#4A3E37] transition-colors rounded-sm"
           >
             <LogOut className="w-3.5 h-3.5" />
             <span>Sign Out</span>
@@ -302,7 +241,7 @@ function AccountPageContent() {
         <div className="flex border-b border-[#EBD9C8] gap-4 sm:gap-8 mb-8 text-xs uppercase tracking-wider font-medium">
           <button
             onClick={() => setActiveTab("orders")}
-            className={`pb-3 border-b-2 transition-colors flex items-center gap-2 cursor-pointer ${
+            className={`pb-3 border-b-2 transition-colors flex items-center gap-2 ${
               activeTab === "orders"
                 ? "border-[#6D1A2A] text-[#6D1A2A] font-semibold"
                 : "border-transparent text-[#8A796B] hover:text-[#171717]"
@@ -314,7 +253,7 @@ function AccountPageContent() {
 
           <button
             onClick={() => setActiveTab("addresses")}
-            className={`pb-3 border-b-2 transition-colors flex items-center gap-2 cursor-pointer ${
+            className={`pb-3 border-b-2 transition-colors flex items-center gap-2 ${
               activeTab === "addresses"
                 ? "border-[#6D1A2A] text-[#6D1A2A] font-semibold"
                 : "border-transparent text-[#8A796B] hover:text-[#171717]"
@@ -326,7 +265,7 @@ function AccountPageContent() {
 
           <button
             onClick={() => setActiveTab("profile")}
-            className={`pb-3 border-b-2 transition-colors flex items-center gap-2 cursor-pointer ${
+            className={`pb-3 border-b-2 transition-colors flex items-center gap-2 ${
               activeTab === "profile"
                 ? "border-[#6D1A2A] text-[#6D1A2A] font-semibold"
                 : "border-transparent text-[#8A796B] hover:text-[#171717]"
@@ -368,12 +307,6 @@ function AccountPageContent() {
                   const isDispatched = order.fulfilmentStatus === "DISPATCHED";
                   const isInAtelier = order.fulfilmentStatus === "IN_ATELIER" || order.fulfilmentStatus === "READY_TO_DISPATCH";
                   const isCancelled = order.fulfilmentStatus === "CANCELLED";
-                  const isCancellable =
-                    !isDispatched &&
-                    !isDelivered &&
-                    !isCancelled &&
-                    order.paymentStatus !== "CANCELLED" &&
-                    order.paymentStatus !== "REFUNDED";
 
                   const dateStr = new Date(order.createdAt).toLocaleDateString("en-IN", {
                     day: "numeric",
@@ -381,16 +314,17 @@ function AccountPageContent() {
                     year: "numeric",
                   });
 
-                  const fallbackDeliveryDate = new Date(order.createdAt);
-                  fallbackDeliveryDate.setDate(fallbackDeliveryDate.getDate() + 7);
-                  const deliveryDateStr = (order.estimatedDeliveryDate
-                    ? new Date(order.estimatedDeliveryDate)
-                    : fallbackDeliveryDate
-                  ).toLocaleDateString("en-IN", {
-                    day: "numeric",
-                    month: "short",
-                    year: "numeric",
-                  });
+                  const deliveryDateStr = order.estimatedDeliveryDate
+                    ? new Date(order.estimatedDeliveryDate).toLocaleDateString("en-IN", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      })
+                    : new Date(order.updatedAt || order.createdAt).toLocaleDateString("en-IN", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      });
 
                   const activeExchange =
                     order.exchangeRequests && order.exchangeRequests.length > 0
@@ -423,16 +357,8 @@ function AccountPageContent() {
 
                         {/* Status Pills & Action Buttons */}
                         <div className="flex flex-wrap items-center gap-2">
-                          <span
-                            className={`px-2.5 py-0.5 text-[10.5px] uppercase tracking-wider font-semibold rounded border ${
-                              order.paymentStatus === "PAID"
-                                ? "bg-emerald-50 text-emerald-800 border-emerald-200"
-                                : order.paymentStatus === "VERIFICATION_PENDING"
-                                ? "bg-amber-50 text-amber-800 border-amber-200"
-                                : "bg-red-50 text-red-800 border-red-200"
-                            }`}
-                          >
-                            {order.paymentStatus.replace(/_/g, " ")}
+                          <span className="px-2.5 py-0.5 text-[10.5px] uppercase tracking-wider font-semibold rounded bg-emerald-50 text-emerald-800 border border-emerald-200">
+                            {order.paymentStatus}
                           </span>
 
                           {isDelivered ? (
@@ -474,19 +400,6 @@ function AccountPageContent() {
                             </span>
                           )}
 
-                          {/* Cancel Order (Available before Stage 4 Dispatched) */}
-                          {isCancellable && (
-                            <button
-                              type="button"
-                              onClick={() => setCancellingOrder(order)}
-                              className="inline-flex items-center gap-1 px-2.5 py-1 bg-white hover:bg-red-50 text-red-700 hover:text-red-800 border border-red-200 hover:border-red-300 rounded text-xs uppercase tracking-wider font-semibold transition-colors cursor-pointer shadow-2xs"
-                              title="Cancel Order"
-                            >
-                              <XCircle className="w-3.5 h-3.5 text-red-600" />
-                              <span>Cancel</span>
-                            </button>
-                          )}
-
                           {/* Download Invoice Button */}
                           <button
                             type="button"
@@ -509,7 +422,7 @@ function AccountPageContent() {
                         </div>
                       </div>
 
-                      {/* Delivery Status Banner */}
+                      {/* Delivery Status Banner (Amazon / Luxury E-commerce Standard) */}
                       {isDelivered ? (
                         <div className="text-xs text-emerald-900 bg-emerald-50/90 p-3 rounded border border-emerald-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5">
                           <span className="flex items-center gap-2 font-medium">
@@ -610,7 +523,7 @@ function AccountPageContent() {
               {!isAddingAddress && (
                 <button
                   onClick={() => setIsAddingAddress(true)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#6D1A2A] text-white text-xs uppercase tracking-wider font-medium hover:bg-[#581522] rounded-sm cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#6D1A2A] text-white text-xs uppercase tracking-wider font-medium hover:bg-[#581522] rounded-sm"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Add New Address</span>
@@ -707,13 +620,13 @@ function AccountPageContent() {
                   <button
                     type="button"
                     onClick={() => setIsAddingAddress(false)}
-                    className="px-4 py-2 border border-[#D9C4B0] text-xs uppercase tracking-wider cursor-pointer"
+                    className="px-4 py-2 border border-[#D9C4B0] text-xs uppercase tracking-wider"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-[#6D1A2A] text-white text-xs uppercase tracking-wider font-medium cursor-pointer"
+                    className="px-4 py-2 bg-[#6D1A2A] text-white text-xs uppercase tracking-wider font-medium"
                   >
                     Save Address
                   </button>
@@ -733,7 +646,7 @@ function AccountPageContent() {
                     </span>
                     <button
                       onClick={() => deleteAddress(addr.id)}
-                      className="text-[#8A796B] hover:text-red-700 p-1 cursor-pointer"
+                      className="text-[#8A796B] hover:text-red-700 p-1"
                       title="Delete Address"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -817,7 +730,7 @@ function AccountPageContent() {
                 <button
                   type="submit"
                   disabled={isSavingProfile}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-[#6D1A2A] hover:bg-[#581522] text-white text-xs uppercase tracking-wider font-medium shadow-sm transition-colors rounded-sm disabled:opacity-50 cursor-pointer"
+                  className="flex items-center gap-2 px-5 py-2.5 bg-[#6D1A2A] hover:bg-[#581522] text-white text-xs uppercase tracking-wider font-medium shadow-sm transition-colors rounded-sm disabled:opacity-50"
                 >
                   {isSavingProfile && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                   <span>Save Changes</span>
@@ -827,19 +740,6 @@ function AccountPageContent() {
           </div>
         )}
       </main>
-
-      {/* Cancel Order Modal */}
-      {cancellingOrder && (
-        <CancelOrderModal
-          isOpen={Boolean(cancellingOrder)}
-          onClose={() => setCancellingOrder(null)}
-          orderId={cancellingOrder.id}
-          orderNumber={cancellingOrder.orderNumber}
-          onSuccess={() => {
-            fetchCustomerOrders();
-          }}
-        />
-      )}
 
       <Footer />
     </div>

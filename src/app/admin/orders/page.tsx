@@ -68,7 +68,7 @@ export default function AdminOrdersPage() {
 
       if (!res.ok) {
         if (res.status === 401 || res.status === 403) {
-          window.location.href = "/?auth=signin";
+          window.location.href = "/admin/login";
           return;
         }
         throw new Error("Failed to load orders.");

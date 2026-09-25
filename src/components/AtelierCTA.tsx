@@ -21,6 +21,7 @@ export default function AtelierCTA({ onOpenConsultation }: AtelierCTAProps) {
           src="/royal_heritage_corridor.webp"
           alt="Rajwadi Heritage Palace Interior Corridor"
           fill
+          priority
           sizes="100vw"
           className="object-cover object-center filter brightness-[0.9] contrast-[1.04]"
         />

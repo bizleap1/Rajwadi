@@ -4,12 +4,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { Heart, ShoppingBag } from "lucide-react";
-import {
-  REAL_POSHAKS,
-  PoshakProduct,
-  getPoshakDisplayName,
-  getCategoryEyebrow,
-} from "@/data/products";
+import { REAL_POSHAKS, PoshakProduct } from "@/data/products";
 import { useWishlist } from "@/context/WishlistContext";
 
 interface SignaturePoshaksProps {
@@ -53,14 +48,6 @@ export default function SignaturePoshaks({
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-6 lg:gap-8">
           {signatureProducts.map((product, index) => {
             const isWishlisted = isInWishlist(product.id);
-            const isSoldOut = Boolean(
-              product.soldOut ||
-                product.price === "Sold Out" ||
-                (typeof product.price === "string" &&
-                  product.price.toLowerCase().includes("sold"))
-            );
-            const displayName = getPoshakDisplayName(product);
-            const categoryLine = getCategoryEyebrow(product);
 
             return (
               <motion.div
@@ -69,35 +56,18 @@ export default function SignaturePoshaks({
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.15 }}
                 transition={{ duration: 0.5, delay: index * 0.08 }}
-                className="group flex flex-col cursor-pointer select-none relative"
+                className="group flex flex-col cursor-pointer select-none"
                 onClick={() => onSelectProduct(product)}
               >
                 {/* Image Container: Tall 2:3 Aspect Ratio */}
                 <div className="relative w-full aspect-[2/3] overflow-hidden bg-[#EAE0D2] shadow-sm border border-[#E6DCB8]/50">
                   <Image
                     src={product.image}
-                    alt={displayName}
+                    alt={product.name}
                     fill
                     sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 25vw"
-                    className={`object-cover object-top transition-transform duration-700 ease-out group-hover:scale-[1.03] ${
-                      isSoldOut ? "grayscale-[15%]" : ""
-                    }`}
+                    className="object-cover object-top transition-transform duration-700 ease-out group-hover:scale-[1.03]"
                   />
-
-                  {/* Top-Left Sold Out Badge */}
-                  {isSoldOut && (
-                    <div className="absolute top-2.5 left-2.5 sm:top-3 sm:left-3 z-20 pointer-events-none">
-                      <span className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 bg-[#4A1520]/95 text-[#FFF6E9] text-[9.5px] sm:text-[10.5px] font-sans font-bold uppercase tracking-[0.2em] rounded-xs shadow-md border border-[#D4AF37]/60 backdrop-blur-xs">
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#E5A93C] animate-pulse" />
-                        Sold Out
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Soft dark tint for sold out piece */}
-                  {isSoldOut && (
-                    <div className="absolute inset-0 bg-black/15 pointer-events-none z-10" />
-                  )}
 
                   {/* Subtle Vignette on Hover */}
                   <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
@@ -106,35 +76,12 @@ export default function SignaturePoshaks({
                 {/* Product Info: Name, Price, and Action Icons */}
                 <div className="pt-2.5 sm:pt-3.5 flex items-start justify-between gap-2">
                   <div className="text-left flex-1 min-w-0">
-                    {/* Line 1: Category line → small uppercase, letter spacing, muted gold/brown */}
-                    <span className="text-[9px] sm:text-[9.5px] uppercase tracking-[0.22em] text-[#855D25] font-medium font-sans block mb-1 leading-none">
-                      {categoryLine}
-                    </span>
-
-                    {/* Line 2: Product Name → serif, readable, slightly larger */}
-                    <h3 className="font-serif text-[14.5px] sm:text-[16px] text-[#1F1C18] font-normal leading-snug group-hover:text-[#855D25] transition-colors mb-1">
-                      {displayName}
+                    <h3 className="font-serif text-[14px] sm:text-[16px] lg:text-[16.5px] text-[#171717] font-normal leading-snug group-hover:text-[#5A1F2B] transition-colors">
+                      {product.name}
                     </h3>
-
-                    {/* Line 3: Price & Note */}
-                    <div className="flex items-baseline gap-2 mt-0.5">
-                      {product.originalPrice && (
-                        <span className="text-xs text-[#8C827A] line-through font-sans font-normal">
-                          {product.originalPrice}
-                        </span>
-                      )}
-                      <span
-                        className={`text-[13px] sm:text-[14px] font-sans tracking-wide ${
-                          isSoldOut
-                            ? "text-[#8B263E] font-bold uppercase tracking-wider"
-                            : product.originalPrice
-                            ? "text-[#5A1F2B] font-semibold"
-                            : "text-[#2B2723] font-semibold"
-                        }`}
-                      >
-                        {product.price}
-                      </span>
-                    </div>
+                    <p className="font-sans text-[12.5px] sm:text-[13.5px] lg:text-[14px] text-[#171717]/85 font-medium tracking-wide mt-0.5 sm:mt-1">
+                      {product.price}
+                    </p>
                   </div>
 
                   {/* Subtle Action Icons: Bag & Wishlist */}
@@ -146,7 +93,7 @@ export default function SignaturePoshaks({
                         onSelectProduct(product);
                       }}
                       aria-label={`View poshak details for ${product.name}`}
-                      title={isSoldOut ? "Sold Out" : "View Details"}
+                      title="View Details"
                       className="p-1 text-[#171717]/35 hover:text-[#5A1F2B] transition-colors"
                     >
                       <ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[1.2]" />
@@ -154,11 +101,10 @@ export default function SignaturePoshaks({
 
                     {/* Wishlist Heart */}
                     <button
-                      onClick={(e) => !isSoldOut && toggleWishlist(product.id, e)}
-                      disabled={isSoldOut}
+                      onClick={(e) => toggleWishlist(product.id, e)}
                       aria-label={`Add ${product.name} to wishlist`}
-                      title={isSoldOut ? "Sold Out" : "Save to Wishlist"}
-                      className="p-1 text-[#171717]/35 hover:text-[#5A1F2B] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                      title="Save to Wishlist"
+                      className="p-1 text-[#171717]/35 hover:text-[#5A1F2B] transition-colors"
                     >
                       <Heart
                         className={`w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[1.2] transition-colors duration-300 ${

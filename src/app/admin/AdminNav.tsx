@@ -4,9 +4,11 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
+  LayoutDashboard,
   Package,
   ShoppingBag,
   ArrowRightLeft,
+  Tag,
   ExternalLink,
   LogOut,
   Menu,
@@ -15,25 +17,36 @@ import {
 } from "lucide-react";
 import { signOut } from "@/lib/auth-client";
 
-export default function AdminNav({ user }: { user: { name?: string; email: string } }) {
+export default function AdminNav({ user }: { user?: { name?: string; email?: string } } = {}) {
   const pathname = usePathname();
   const router = useRouter();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  // If on login page, don't render navigation bar contents
+  if (pathname === "/admin/login") {
+    return null;
+  }
+
   const handleLogout = async () => {
     setIsLoggingOut(true);
     try {
       await signOut();
-      router.push("/");
+      router.push("/admin/login");
       router.refresh();
     } catch (e) {
       console.error("Logout error:", e);
-      window.location.href = "/";
+      window.location.href = "/admin/login";
     }
   };
 
   const navItems = [
+    {
+      label: "Dashboard",
+      href: "/admin",
+      icon: LayoutDashboard,
+      active: pathname === "/admin",
+    },
     {
       label: "Products",
       href: "/admin/products",
@@ -45,6 +58,12 @@ export default function AdminNav({ user }: { user: { name?: string; email: strin
       href: "/admin/orders",
       icon: ShoppingBag,
       active: pathname.startsWith("/admin/orders"),
+    },
+    {
+      label: "Discounts",
+      href: "/admin/discounts",
+      icon: Tag,
+      active: pathname.startsWith("/admin/discounts"),
     },
     {
       label: "Exchanges",

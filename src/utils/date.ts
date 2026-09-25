@@ -1,25 +1,11 @@
-export function getEstimatedDeliveryRange(daysFrom = 5, daysTo = 7): {
+export function getEstimatedDeliveryRange(days = 7): {
   fromFormatted: string;
   toFormatted: string;
   rangeString: string;
 } {
   const now = new Date();
-
-  const addDays = (startDate: Date, days: number): Date => {
-    const result = new Date(startDate);
-    result.setDate(result.getDate() + days);
-    return result;
-  };
-
-  const fromDate = addDays(now, daysFrom);
-  const toDate = addDays(now, daysTo);
-
-  const formatDayMonth = (date: Date): string => {
-    return date.toLocaleDateString("en-IN", {
-      day: "numeric",
-      month: "short",
-    });
-  };
+  const targetDate = new Date(now);
+  targetDate.setDate(targetDate.getDate() + days);
 
   const formatFull = (date: Date): string => {
     return date.toLocaleDateString("en-IN", {
@@ -29,9 +15,11 @@ export function getEstimatedDeliveryRange(daysFrom = 5, daysTo = 7): {
     });
   };
 
+  const formattedDate = formatFull(targetDate);
+
   return {
-    fromFormatted: formatDayMonth(fromDate),
-    toFormatted: formatFull(toDate),
-    rangeString: `${formatDayMonth(fromDate)} – ${formatFull(toDate)}`,
+    fromFormatted: "Within 7 Days",
+    toFormatted: formattedDate,
+    rangeString: `Within 7 Days (by ${formattedDate})`,
   };
 }

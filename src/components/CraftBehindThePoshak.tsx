@@ -36,6 +36,7 @@ export default function CraftBehindThePoshak({
                 fill
                 sizes="(max-width: 768px) 100vw, (max-width: 1024px) 80vw, 60vw"
                 className="object-cover object-center transition-transform duration-1000 ease-out group-hover:scale-[1.03]"
+                priority
               />
 
               {/* Gentle Warm Luxury Lighting Vignette */}

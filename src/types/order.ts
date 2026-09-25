@@ -1,7 +1,7 @@
 import { CartItem } from "@/context/CartContext";
 
-export type PaymentStatus = "PAID" | "FAILED" | "CANCELLED" | "PENDING" | "Pending Verification";
-export type OrderStatus = "CONFIRMED" | "IN_ATELIER" | "DISPATCHED" | "DELIVERED" | "Order Received";
+export type PaymentStatus = "PAID" | "FAILED" | "CANCELLED" | "PENDING";
+export type OrderStatus = "CONFIRMED" | "IN_ATELIER" | "DISPATCHED" | "DELIVERED";
 
 export interface DeliveryAddress {
   fullName: string;
@@ -31,6 +31,4 @@ export interface OrderRecord {
     to: string;
     rangeString?: string;
   };
-  utrNumber?: string;
-  paymentScreenshot?: string;
 }

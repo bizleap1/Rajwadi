@@ -7,8 +7,7 @@ import { isCloudinaryConfigured, cloudinary } from "../src/lib/cloudinary";
 
 const MIGRATION_MAP_FILE = path.join(process.cwd(), ".migration-map.json");
 
-function parsePriceToPaise(priceStr?: string): number {
-  if (!priceStr) return 0;
+function parsePriceToPaise(priceStr: string): number {
   const numeric = priceStr.replace(/[^0-9]/g, "");
   const inRupees = numeric ? parseInt(numeric, 10) : 0;
   return inRupees * 100; // Convert to paise
@@ -44,9 +43,7 @@ async function uploadLocalImageToCloudinary(
     return map.uploadedImages[relativePath];
   }
 
-  // Handle URL decoded relative paths
-  const cleanRelPath = decodeURIComponent(relativePath.replace(/^\//, ""));
-  const localAbsolutePath = path.join(process.cwd(), "public", cleanRelPath);
+  const localAbsolutePath = path.join(process.cwd(), "public", relativePath.replace(/^\//, ""));
 
   if (!fs.existsSync(localAbsolutePath)) {
     console.warn(`⚠️ Warning: Local image file not found: ${localAbsolutePath}`);
@@ -54,17 +51,15 @@ async function uploadLocalImageToCloudinary(
   }
 
   if (dryRun || !isCloudinaryConfigured) {
+    // If dry run or Cloudinary not configured, use local public path
     return { secureUrl: relativePath, publicId: null };
   }
 
   try {
-    const parentFolder = path.basename(path.dirname(localAbsolutePath));
-    const filename = path.basename(localAbsolutePath, path.extname(localAbsolutePath));
-    const sanitizedPublicId = `rajwadi/products/${parentFolder.replace(/[^a-zA-Z0-9_-]/g, "_")}_${filename}`;
-
     const result = await cloudinary.uploader.upload(localAbsolutePath, {
-      public_id: sanitizedPublicId,
-      overwrite: true,
+      folder: "rajwadi/products",
+      use_filename: true,
+      unique_filename: true,
       resource_type: "image",
     });
 
@@ -75,8 +70,8 @@ async function uploadLocalImageToCloudinary(
 
     map.uploadedImages[relativePath] = entry;
     return entry;
-  } catch (err: any) {
-    console.error(`❌ Failed to upload ${relativePath} to Cloudinary:`, err.message || err);
+  } catch (err) {
+    console.error(`❌ Failed to upload ${relativePath} to Cloudinary:`, err);
     return { secureUrl: relativePath, publicId: null };
   }
 }
@@ -87,10 +82,10 @@ async function runMigration() {
   const isForce = args.includes("--force");
 
   console.log(`\n======================================================`);
-  console.log(`  RAJWADI CATALOG & MEDIA MIGRATION (NEON + CLOUDINARY)`);
+  console.log(`  RAJWADI CATALOG & MEDIA MIGRATION`);
   console.log(`======================================================`);
   console.log(`Mode:           ${isDryRun ? "DRY RUN (No database/upload writes)" : "LIVE EXECUTION"}`);
-  console.log(`Cloudinary:     ${isCloudinaryConfigured ? "CONFIGURED (Uploading assets to Cloudinary)" : "LOCAL ASSET FALLBACK"}`);
+  console.log(`Cloudinary:     ${isCloudinaryConfigured ? "CONFIGURED (Uploading assets)" : "LOCAL ASSET FALLBACK"}`);
   console.log(`Force Overwrite:${isForce ? "YES" : "NO"}`);
   console.log(`Total Products: ${REAL_POSHAKS.length}`);
   console.log(`======================================================\n`);
@@ -105,11 +100,8 @@ async function runMigration() {
     const p = REAL_POSHAKS[index];
     const slug = p.id;
     const priceInPaise = parsePriceToPaise(p.price);
-    const compareAtPriceInPaise = p.originalPrice ? parsePriceToPaise(p.originalPrice) : null;
-    const isFeatured = index < 4;
+    const isFeatured = index < 4; // First 4 items featured on homepage
     const featuredOrder = index < 4 ? index + 1 : 0;
-    const type = p.type || (p.category === "Jewellery" ? "Jewellery" : "Stitched");
-    const subCategory = p.subCategory || p.category;
 
     console.log(`[${index + 1}/${REAL_POSHAKS.length}] Processing "${p.name}" (${slug})...`);
 
@@ -141,43 +133,6 @@ async function runMigration() {
       include: { images: true },
     });
 
-    const stitchingAvailable = p.stitchingAvailable !== undefined
-      ? p.stitchingAvailable
-      : ((p.category as any) === "Unstitched" || type === "Unstitched");
-    const stitchingPriceInPaise = stitchingAvailable ? 250000 : 0;
-
-    const productPayload = {
-      name: p.name,
-      category: p.category,
-      type,
-      subCategory,
-      priceInPaise,
-      compareAtPriceInPaise,
-      priceNote: p.priceNote || null,
-      fabric: p.fabric || "Premium Royal Pure Fabric",
-      craft: p.craft || "Handcrafted Heritage Embroidery",
-      color: p.color || "Heritage Royal",
-      quality: p.quality || null,
-      work: p.work || null,
-      odhna: p.odhna || null,
-      bestFor: p.bestFor || null,
-      description: p.description || p.name,
-      details: p.details || [],
-      includes: p.includes || [],
-      size: p.size || null,
-      sizes: p.sizes ? (p.sizes as any) : null,
-      soldOut: Boolean(p.soldOut),
-      status: "PUBLISHED",
-      isFeatured,
-      featuredOrder,
-      stock: 10,
-      inStock: !p.soldOut,
-      stitchingAvailable,
-      stitchingPriceInPaise,
-      imagePosition: p.imagePosition || "center 5%",
-      imageScale: p.imageScale || 1.0,
-    };
-
     if (existing && !isForce) {
       console.log(`  -> Product "${slug}" already exists in DB. Skipping (use --force to overwrite).`);
       skippedCount++;
@@ -185,10 +140,28 @@ async function runMigration() {
     }
 
     if (existing && isForce) {
+      // Update existing
       await prisma.product.update({
         where: { id: existing.id },
         data: {
-          ...productPayload,
+          name: p.name,
+          category: p.category,
+          priceInPaise,
+          fabric: p.fabric,
+          craft: p.craft,
+          color: p.color,
+          description: p.description,
+          details: p.details,
+          includes: p.includes,
+          status: "PUBLISHED",
+          isFeatured,
+          featuredOrder,
+          stock: 10,
+          inStock: true,
+          stitchingAvailable: (p.category as string) === "Unstitched" || (p.category as string) === "Traditional",
+          stitchingPriceInPaise: (p.category as string) === "Unstitched" ? 250000 : 0, // ₹2,500 if unstitched
+          imagePosition: p.imagePosition || "center 5%",
+          imageScale: p.imageScale || 1.0,
           images: {
             deleteMany: {},
             create: processedImages.map((img) => ({
@@ -200,12 +173,30 @@ async function runMigration() {
         },
       });
       updatedCount++;
-      console.log(`  -> ✅ Updated "${p.name}" with Cloudinary images & new columns.`);
+      console.log(`  -> ✅ Updated "${p.name}".`);
     } else {
+      // Create new
       await prisma.product.create({
         data: {
           slug,
-          ...productPayload,
+          name: p.name,
+          category: p.category,
+          priceInPaise,
+          fabric: p.fabric,
+          craft: p.craft,
+          color: p.color,
+          description: p.description,
+          details: p.details,
+          includes: p.includes,
+          status: "PUBLISHED",
+          isFeatured,
+          featuredOrder,
+          stock: 10,
+          inStock: true,
+          stitchingAvailable: (p.category as string) === "Unstitched" || (p.category as string) === "Traditional",
+          stitchingPriceInPaise: (p.category as string) === "Unstitched" ? 250000 : 0,
+          imagePosition: p.imagePosition || "center 5%",
+          imageScale: p.imageScale || 1.0,
           images: {
             create: processedImages.map((img) => ({
               publicId: img.publicId,
@@ -216,7 +207,7 @@ async function runMigration() {
         },
       });
       createdCount++;
-      console.log(`  -> ✅ Created "${p.name}" in Neon DB.`);
+      console.log(`  -> ✅ Created "${p.name}".`);
     }
 
     if (!migrationMap.migratedProducts.includes(slug)) {

@@ -34,66 +34,41 @@ export default function FeaturedPoshaks({ onSelectProduct }: FeaturedPoshaksProp
 
         {/* Large Clean Product Grid - Luxury Boutique Style */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10">
-          {REAL_POSHAKS.map((product, index) => {
-            const isSoldOut = Boolean(
-              product.soldOut ||
-                product.price === "Sold Out" ||
-                (typeof product.price === "string" &&
-                  product.price.toLowerCase().includes("sold"))
-            );
-
-            return (
-              <motion.div
-                key={product.id}
-                initial={{ opacity: 0, y: 25 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.05 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                className="group flex flex-col bg-royal-ivory border border-soft-beige hover:border-antique-gold/60 transition-colors duration-500 shadow-[0_4px_25px_rgba(0,0,0,0.02)]"
+          {REAL_POSHAKS.map((product, index) => (
+            <motion.div
+              key={product.id}
+              initial={{ opacity: 0, y: 25 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.05 }}
+              transition={{ duration: 0.6, delay: index * 0.1 }}
+              className="group flex flex-col bg-royal-ivory border border-soft-beige hover:border-antique-gold/60 transition-colors duration-500 shadow-[0_4px_25px_rgba(0,0,0,0.02)]"
+            >
+              {/* Large Product Image with Minimalistic Framing */}
+              <div
+                onClick={() => onSelectProduct(product)}
+                className="relative w-full aspect-[3/4] overflow-hidden bg-soft-beige/40 cursor-pointer"
               >
-                {/* Large Product Image with Minimalistic Framing */}
-                <div
-                  onClick={() => onSelectProduct(product)}
-                  className="relative w-full aspect-[3/4] overflow-hidden bg-soft-beige/40 cursor-pointer"
-                >
-                  <Image
-                    src={product.image}
-                    alt={product.name}
-                    fill
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                    className={`object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105 ${
-                      isSoldOut ? "grayscale-[15%]" : ""
-                    }`}
-                  />
+                <Image
+                  src={product.image}
+                  alt={product.name}
+                  fill
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                  className="object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
+                />
 
-                  {/* Top-Left Sold Out Badge */}
-                  {isSoldOut && (
-                    <div className="absolute top-2.5 left-2.5 sm:top-3 sm:left-3 z-20 pointer-events-none">
-                      <span className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 bg-[#4A1520]/95 text-[#FFF6E9] text-[9.5px] sm:text-[10.5px] font-sans font-bold uppercase tracking-[0.2em] rounded-xs shadow-md border border-[#D4AF37]/60 backdrop-blur-xs">
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#E5A93C] animate-pulse" />
-                        Sold Out
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Soft dark tint for sold out piece */}
-                  {isSoldOut && (
-                    <div className="absolute inset-0 bg-black/15 pointer-events-none z-10" />
-                  )}
-
-                  {/* Subtle Hover Overlay */}
-                  <div className="absolute inset-0 bg-charcoal/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-4">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onSelectProduct(product);
-                      }}
-                      className="px-6 py-2.5 bg-royal-ivory text-heritage-maroon text-xs uppercase tracking-[0.2em] font-medium shadow-lg hover:bg-heritage-maroon hover:text-royal-ivory transition-all duration-300"
-                    >
-                      {isSoldOut ? "View Archived Piece" : "View Details"}
-                    </button>
-                  </div>
+                {/* Subtle Hover Overlay */}
+                <div className="absolute inset-0 bg-charcoal/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-4">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSelectProduct(product);
+                    }}
+                    className="px-6 py-2.5 bg-royal-ivory text-heritage-maroon text-xs uppercase tracking-[0.2em] font-medium shadow-lg hover:bg-heritage-maroon hover:text-royal-ivory transition-all duration-300"
+                  >
+                    View Details
+                  </button>
                 </div>
+              </div>
 
               {/* Clean Minimal Typography (No Badges, No Stars) */}
               <div className="p-6 flex flex-col flex-1 justify-between text-center bg-royal-ivory">
@@ -120,8 +95,7 @@ export default function FeaturedPoshaks({ onSelectProduct }: FeaturedPoshaksProp
                 </div>
               </div>
             </motion.div>
-          );
-        })}
+          ))}
         </div>
       </div>
     </section>

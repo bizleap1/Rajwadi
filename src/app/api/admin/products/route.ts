@@ -54,9 +54,9 @@ export async function GET(req: NextRequest) {
     ]);
 
     return NextResponse.json({
-      products: (products as any[]).map((p: any) => ({
+      products: products.map((p) => ({
         ...p,
-        images: (p.images as any[]).map((img: any) => ({
+        images: p.images.map((img) => ({
           id: img.id,
           publicId: img.publicId,
           secureUrl: img.secureUrl,
@@ -112,25 +112,25 @@ export async function POST(req: NextRequest) {
         name: data.name,
         slug: data.slug,
         category: data.category,
-        type: data.type || "Stitched",
         subCategory: data.subCategory || null,
+        type: data.type || null,
         priceInPaise: data.priceInPaise,
         compareAtPriceInPaise: data.compareAtPriceInPaise || null,
         priceNote: data.priceNote || null,
         fabric: data.fabric,
         craft: data.craft,
-        color: data.color,
+        work: data.work || data.craft || null,
         quality: data.quality || null,
-        work: data.work || null,
         odhna: data.odhna || null,
         bestFor: data.bestFor || null,
+        size: data.size || (data.sizes && data.sizes.length > 0 ? data.sizes.join(", ") : null),
+        sizes: data.sizes || [],
+        color: data.color,
         description: data.description,
         details: data.details,
         includes: data.includes,
-        size: data.size || null,
-        sizes: data.sizes ? (data.sizes as any) : undefined,
-        soldOut: data.soldOut || false,
         status: data.status,
+        soldOut: data.soldOut ?? false,
         isFeatured: data.isFeatured,
         featuredOrder: data.featuredOrder,
         stock: data.stock,

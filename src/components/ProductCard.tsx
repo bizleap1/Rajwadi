@@ -3,8 +3,8 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Heart, ShoppingBag, MessageCircle } from "lucide-react";
-import { PoshakProduct, getPoshakDisplayName, getCategoryEyebrow } from "@/data/products";
+import { Heart, ShoppingBag } from "lucide-react";
+import { PoshakProduct } from "@/data/products";
 import { useWishlist } from "@/context/WishlistContext";
 import { useCart } from "@/context/CartContext";
 
@@ -25,42 +25,31 @@ export default function ProductCard({
   onRemove,
   showOverlayCTA = true,
   heartPosition = "bottom",
-  showDescription = false,
+  showDescription = true,
 }: ProductCardProps) {
   const { isInWishlist, toggleWishlist } = useWishlist();
   const { addToCart, setIsCartOpen } = useCart();
   const isWishlisted = isInWishlist(product.id);
-
-  const isJewellery = React.useMemo(() => {
-    return (product.category || "").toUpperCase() === "JEWELLERY" || (product.type || "").toUpperCase() === "JEWELLERY";
-  }, [product.category, product.type]);
-
-  const isUnstitched = React.useMemo(() => {
-    return (product.type || "").toLowerCase() === "unstitched" || (product.category || "").toLowerCase() === "unstitched";
-  }, [product.type, product.category]);
-
-  const categoryLine = React.useMemo(() => {
-    return getCategoryEyebrow(product);
-  }, [product]);
-
-  const isSoldOut = React.useMemo(() => {
-    return Boolean(
-      product.soldOut ||
-        product.price === "Sold Out" ||
-        (typeof product.price === "string" &&
-          product.price.toLowerCase().includes("sold"))
-    );
-  }, [product.soldOut, product.price]);
 
   const secondaryImage =
     product.additionalImages && product.additionalImages.length > 1
       ? product.additionalImages[1]
       : null;
 
+  // Calculate discount percentage if original price is provided
+  const discountPercent = React.useMemo(() => {
+    if (!product.price || !product.originalPrice) return null;
+    const currentNum = parseInt(product.price.replace(/[^0-9]/g, ""), 10);
+    const originalNum = parseInt(product.originalPrice.replace(/[^0-9]/g, ""), 10);
+    if (originalNum > currentNum && originalNum > 0) {
+      return Math.round(((originalNum - currentNum) / originalNum) * 100);
+    }
+    return null;
+  }, [product.price, product.originalPrice]);
+
   const handleWishlistClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (isSoldOut) return;
     if (isWishlisted && onRemove) {
       onRemove(product);
     }
@@ -70,18 +59,8 @@ export default function ProductCard({
   const handleAddToCartClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (isSoldOut) return;
     addToCart(product);
     setIsCartOpen(true);
-  };
-
-  const handleWhatsAppInquiry = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const msg = encodeURIComponent(
-      `Pranam Rajwadi! I would like to enquire about your jewellery creation: "${product.name}". Could you please share more details and pricing?`
-    );
-    window.open(`https://wa.me/918766667101?text=${msg}`, "_blank");
   };
 
   return (
@@ -110,24 +89,30 @@ export default function ProductCard({
               objectPosition: product.imagePosition || "center 5%",
             }}
             className={`object-cover transition-opacity duration-700 ease-out ${
-              isSoldOut ? "grayscale-[15%]" : ""
+              secondaryImage ? "group-hover:opacity-0" : ""
             }`}
           />
+
+          {secondaryImage && (
+            <Image
+              src={secondaryImage}
+              alt={`${product.name} alternate view`}
+              fill
+              loading="lazy"
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 30vw"
+              style={{
+                objectPosition: product.imagePosition || "center 5%",
+              }}
+              className="object-cover absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 ease-out"
+            />
+          )}
         </div>
 
-        {/* Top-Left Sold Out Badge */}
-        {isSoldOut && (
-          <div className="absolute top-2 left-2 sm:top-2.5 sm:left-2.5 z-20 pointer-events-none">
-            <span className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 bg-[#4A1520]/95 text-[#FFF6E9] text-[9.5px] sm:text-[10.5px] font-sans font-bold uppercase tracking-[0.2em] rounded-xs shadow-md border border-[#D4AF37]/60 backdrop-blur-xs">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#E5A93C] animate-pulse" />
-              Sold Out
-            </span>
+        {/* Top-Left Discount Badge */}
+        {discountPercent !== null && (
+          <div className="absolute top-2 left-2 sm:top-2.5 sm:left-2.5 z-20 px-2 py-0.5 bg-[#6D1A2A] text-[#FAF6F0] text-[9px] sm:text-[10px] uppercase font-bold tracking-wider rounded-xs shadow-xs flex items-center gap-1">
+            <span>{discountPercent}% OFF</span>
           </div>
-        )}
-
-        {/* Soft dark tint for sold out piece */}
-        {isSoldOut && (
-          <div className="absolute inset-0 bg-black/15 pointer-events-none z-10" />
         )}
 
         {/* Top-Right Heart Icon if heartPosition === "top-right" */}
@@ -140,17 +125,14 @@ export default function ProductCard({
                 ? `Remove ${product.name} from wishlist`
                 : `Add ${product.name} to wishlist`
             }
-            title={isSoldOut ? "Sold Out" : isWishlisted ? "In Wishlist (Click to remove)" : "Save to Wishlist"}
-            disabled={isSoldOut}
-            className={`absolute top-2 right-2 sm:top-2.5 sm:right-2.5 z-20 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/85 backdrop-blur-xs border border-[#E6DCB8]/70 flex items-center justify-center shadow-xs transition-all ${
-              isSoldOut ? "cursor-not-allowed opacity-50" : "cursor-pointer active:scale-90 text-[#171717] hover:text-[#5A1F2B]"
-            }`}
+            title={isWishlisted ? "In Wishlist (Click to remove)" : "Save to Wishlist"}
+            className="absolute top-2 right-2 sm:top-2.5 sm:right-2.5 z-20 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/85 backdrop-blur-xs border border-[#E6DCB8]/70 flex items-center justify-center shadow-xs cursor-pointer active:scale-90 transition-all text-[#171717] hover:text-[#5A1F2B]"
           >
             <Heart
               className={`w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[1.35] transition-colors duration-300 ${
                 isWishlisted
                   ? "fill-[#5A1F2B] text-[#5A1F2B]"
-                  : isSoldOut ? "text-gray-400" : "text-[#171717]/75 hover:text-[#5A1F2B]"
+                  : "text-[#171717]/75 hover:text-[#5A1F2B]"
               }`}
             />
           </button>
@@ -160,11 +142,7 @@ export default function ProductCard({
         {showOverlayCTA && (
           <div className="absolute inset-x-0 bottom-0 py-2 sm:py-2.5 px-2.5 bg-gradient-to-t from-black/75 via-black/35 to-transparent flex items-center justify-center gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10">
             <span className="text-[9.5px] sm:text-[10.5px] uppercase tracking-[0.2em] text-[#FAF6F0] font-sans font-medium">
-              {isSoldOut
-                ? "SOLD OUT · VIEW PIECE"
-                : isJewellery
-                ? "ENQUIRE ON WHATSAPP"
-                : "VIEW POSHAK"}
+              VIEW POSHAK
             </span>
             <span className="text-[10px] sm:text-[11px] text-[#FAF6F0] transition-transform duration-300 group-hover:translate-x-0.5">
               →
@@ -175,21 +153,21 @@ export default function ProductCard({
 
       {/* 2. Product Information below image */}
       <div className="pt-2 sm:pt-2.5 flex flex-col flex-grow text-left">
-        {/* Top meta row: Name & Category on Left, Heart & Bag on Right */}
+        {/* Top meta row: Name & Category (with bottom heart if heartPosition === "bottom") */}
         <div className="flex items-start justify-between gap-1.5">
           <div className="min-w-0 flex-1">
-            {/* Category line */}
-            <span className="text-[9px] sm:text-[10px] uppercase tracking-[0.22em] sm:tracking-[0.24em] text-[#855D25] font-medium font-sans block mb-1 leading-none truncate w-full">
-              {categoryLine}
+            {/* Category in Small Uppercase */}
+            <span className="text-[8.5px] sm:text-[9.5px] uppercase tracking-[0.22em] text-[#8C827A] font-semibold font-sans block leading-none mb-1">
+              {product.category}
             </span>
 
             {/* Product Name */}
-            <h3 className="font-serif text-[14.5px] sm:text-[16px] text-[#1F1C18] font-normal leading-snug group-hover:text-[#855D25] transition-colors duration-300 truncate mb-1 w-full">
-              {getPoshakDisplayName(product)}
+            <h3 className="font-serif text-[13.5px] sm:text-[15.5px] text-[#5A1F2B] font-normal leading-snug group-hover:text-[#C6A15B] transition-colors duration-300 line-clamp-1">
+              {product.name}
             </h3>
           </div>
 
-          {/* Original Heart & Bag / WhatsApp buttons side-by-side */}
+          {/* If heart is at bottom, show side-by-side with bag icon */}
           {heartPosition === "bottom" && (
             <div className="flex items-center gap-1.5 flex-shrink-0 pt-0.5">
               <button
@@ -200,100 +178,80 @@ export default function ProductCard({
                     ? `Remove ${product.name} from wishlist`
                     : `Add ${product.name} to wishlist`
                 }
-                title={product.soldOut ? "Sold Out" : isWishlisted ? "In Wishlist (Click to remove)" : "Save to Wishlist"}
-                disabled={product.soldOut}
-                className={`p-1 transition-colors ${
-                  product.soldOut ? "text-gray-300 cursor-not-allowed" : "text-[#333333] hover:text-[#5A1F2B] cursor-pointer"
-                }`}
+                title={isWishlisted ? "In Wishlist (Click to remove)" : "Save to Wishlist"}
+                className="p-1 text-[#333333] hover:text-[#5A1F2B] transition-colors cursor-pointer"
               >
                 <Heart
                   className={`w-[17px] h-[17px] stroke-[1.25] transition-colors duration-300 ${
                     isWishlisted
                       ? "fill-[#5A1F2B] text-[#5A1F2B]"
-                      : product.soldOut ? "text-gray-300" : "text-[#333333] hover:text-[#5A1F2B]"
+                      : "text-[#333333] hover:text-[#5A1F2B]"
                   }`}
                 />
               </button>
-              {isJewellery ? (
-                <button
-                  type="button"
-                  onClick={handleWhatsAppInquiry}
-                  aria-label={`Enquire about ${product.name} on WhatsApp`}
-                  title="Enquire on WhatsApp"
-                  className="p-1 transition-colors text-[#2E5A36] hover:text-[#5A1F2B] cursor-pointer active:scale-95"
-                >
-                  <MessageCircle className="w-[17px] h-[17px] stroke-[1.4]" />
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={handleAddToCartClick}
-                  disabled={isSoldOut}
-                  aria-label={isSoldOut ? "Sold Out" : `Add ${product.name} to royal bag`}
-                  title={isSoldOut ? "Sold Out" : "Add to Royal Bag"}
-                  className={`p-1 transition-colors ${
-                    isSoldOut ? "text-gray-300 cursor-not-allowed" : "text-[#333333] hover:text-[#5A1F2B] cursor-pointer"
-                  }`}
-                >
-                  <ShoppingBag className="w-[17px] h-[17px] stroke-[1.25]" />
-                </button>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Price & Note */}
-        <div className="mt-0.5">
-          {isJewellery ? (
-            <div className="pt-0.5">
               <button
                 type="button"
-                onClick={handleWhatsAppInquiry}
-                className="inline-flex items-center gap-1.5 text-xs text-[#2E5A36] hover:text-[#5A1F2B] font-sans font-medium tracking-wide transition-colors cursor-pointer group/wa"
+                onClick={handleAddToCartClick}
+                aria-label={`Add ${product.name} to royal bag`}
+                title="Add to Royal Bag"
+                className="p-1 text-[#333333] hover:text-[#5A1F2B] transition-colors cursor-pointer"
               >
-                <MessageCircle className="w-3.5 h-3.5 text-[#2E5A36] stroke-[1.8]" />
-                <span className="group-hover/wa:underline underline-offset-2">Enquire on WhatsApp</span>
+                <ShoppingBag className="w-[17px] h-[17px] stroke-[1.25]" />
               </button>
-            </div>
-          ) : (
-            <div className="flex items-center justify-between">
-              <div className="flex items-baseline gap-2">
-                {product.originalPrice && (
-                  <span className="text-xs text-[#8C827A] line-through font-sans font-normal">
-                    {product.originalPrice}
-                  </span>
-                )}
-                <span
-                  className={`text-[13.5px] sm:text-[14.5px] font-sans tracking-wide ${
-                    isSoldOut
-                      ? "text-[#8B263E] font-bold uppercase tracking-wider"
-                      : isUnstitched || product.originalPrice
-                      ? "text-[#5A1F2B] font-semibold"
-                      : "text-[#2B2723] font-semibold"
-                  }`}
-                >
-                  {product.price}
-                </span>
-              </div>
-
-              {/* When heart is top-right, show bag icon here */}
-              {heartPosition === "top-right" && (
-                <button
-                  type="button"
-                  onClick={handleAddToCartClick}
-                  disabled={isSoldOut}
-                  aria-label={isSoldOut ? "Sold Out" : `Add ${product.name} to royal bag`}
-                  title={isSoldOut ? "Sold Out" : "Add to Royal Bag"}
-                  className={`p-1 -mr-1 transition-colors ${
-                    isSoldOut ? "text-gray-300 cursor-not-allowed" : "text-[#333333] hover:text-[#5A1F2B] cursor-pointer active:scale-95"
-                  }`}
-                >
-                  <ShoppingBag className="w-[17px] h-[17px] stroke-[1.25]" />
-                </button>
-              )}
             </div>
           )}
         </div>
+
+        {/* Optional Description / Craft (hidden when showDescription === false) */}
+        {showDescription && (
+          <p className="font-serif italic text-[11.5px] sm:text-[12px] text-[#6B635B] mt-0.5 line-clamp-1">
+            {product.craft || product.fabric}
+          </p>
+        )}
+
+        {/* Price & Bag Row (when heart is top-right) */}
+        {heartPosition === "top-right" && (
+          <div className="flex items-center justify-between mt-1 pt-0.5">
+            <div className="flex items-baseline gap-1.5 flex-wrap">
+              <span className="font-sans font-medium text-[13px] sm:text-[14px] text-[#171717] tracking-wide">
+                {product.price}
+              </span>
+              {product.originalPrice && (
+                <span className="text-[11px] sm:text-[12px] text-[#8A796B] line-through font-sans">
+                  {product.originalPrice}
+                </span>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={handleAddToCartClick}
+              aria-label={`Add ${product.name} to royal bag`}
+              title="Add to Royal Bag"
+              className="p-1 -mr-1 text-[#333333] hover:text-[#5A1F2B] transition-colors cursor-pointer active:scale-95"
+            >
+              <ShoppingBag className="w-[17px] h-[17px] stroke-[1.25]" />
+            </button>
+          </div>
+        )}
+
+        {/* Price only (when heart is bottom) */}
+        {heartPosition === "bottom" && (
+          <div className="flex items-baseline gap-2 mt-1">
+            <span className="font-sans font-medium text-[13px] sm:text-[14px] text-[#171717] tracking-wide">
+              {product.price}
+            </span>
+            {product.originalPrice && (
+              <span className="text-[11px] sm:text-[12px] text-[#8A796B] line-through font-sans">
+                {product.originalPrice}
+              </span>
+            )}
+            {discountPercent !== null && (
+              <span className="text-[10px] font-semibold text-[#6D1A2A] uppercase tracking-wider font-sans">
+                ({discountPercent}% off)
+              </span>
+            )}
+          </div>
+        )}
       </div>
     </Link>
   );

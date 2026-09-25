@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, ChevronRight, Heart, ShoppingBag, ChevronDown, X, MessageCircle } from "lucide-react";
+import { ArrowRight, ChevronRight, Heart, ShoppingBag, ChevronDown, X, MessageCircle, Tag } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import ProductCard from "@/components/ProductCard";
 import { REAL_POSHAKS, PoshakProduct } from "@/data/products";

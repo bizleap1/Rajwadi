@@ -9,7 +9,7 @@ const CATEGORIES = [
   "All Looks",
   "Bridal Portraits",
   "Festival Styling",
-  "Everyday Elegance",
+  "Royal Traditional",
 ];
 
 export default function Lookbook() {

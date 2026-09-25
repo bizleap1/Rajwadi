@@ -36,15 +36,16 @@ export default function Footer({ onOpenConsultation }: FooterProps) {
           <div className="footer-brand-col flex flex-col items-center lg:items-start text-center lg:text-left">
             <Link href="/" className="inline-block group focus:outline-none">
               <Image
-                src="/logo.webp"
+                src="/logo without bg.png"
                 alt="Rajwadi Rajputi Poshak Logo"
                 width={138}
                 height={163}
+                priority
                 className="w-[120px] lg:w-[135px] h-auto object-contain mx-auto lg:mx-0"
               />
             </Link>
             <p className="font-serif italic text-xs sm:text-[13px] text-[#FAF6F0]/70 font-light mt-2.5 max-w-[240px] leading-relaxed mx-auto lg:mx-0">
-              Rajputi Poshaks, thoughtfully chosen.
+              Traditional Poshaks, thoughtfully chosen.
             </p>
 
             {/* Social Links (Instagram, Facebook & WhatsApp) - Centered on Mobile */}
@@ -205,50 +206,26 @@ export default function Footer({ onOpenConsultation }: FooterProps) {
                     <ul className="space-y-2.5 pb-4 pt-1 text-[13px] text-[#FAF6F0]/75 font-light font-sans tracking-wide">
                       <li>
                         <Link
-                          href="/collection?category=bridal"
+                          href="/#poshak-your-way"
                           className="hover:text-[#C6A15B] transition-colors duration-200 block"
                         >
-                          Heavy Poshaks
+                          Stitched
                         </Link>
                       </li>
                       <li>
                         <Link
-                          href="/collection?category=everyday"
+                          href="/#poshak-your-way"
                           className="hover:text-[#C6A15B] transition-colors duration-200 block"
                         >
-                          Classic Poshaks
+                          Unstitched
                         </Link>
                       </li>
                       <li>
                         <Link
-                          href="/collection?category=festive"
+                          href="/#collections"
                           className="hover:text-[#C6A15B] transition-colors duration-200 block"
                         >
-                          Festive
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          href="/collection?category=jewellery"
-                          className="hover:text-[#C6A15B] transition-colors duration-200 block"
-                        >
-                          Jewellery
-                        </Link>
-                      </li>
-                      <li className="pt-2 border-t border-[#C6A15B]/20">
-                        <Link
-                          href="/collection?type=stitched"
-                          className="text-xs text-[#C6A15B] hover:text-white transition-colors duration-200 block"
-                        >
-                          Stitched Poshaks
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          href="/collection?type=unstitched"
-                          className="text-xs text-[#C6A15B] hover:text-white transition-colors duration-200 block"
-                        >
-                          Semi-Stitched Poshaks
+                          Traditional
                         </Link>
                       </li>
                     </ul>
@@ -299,15 +276,15 @@ export default function Footer({ onOpenConsultation }: FooterProps) {
                           STORE ADDRESS
                         </span>
                         <a
-                          href="https://maps.google.com/?q=Rajwadi+Rajputi+Poshak,+Ews+41,+Hiwari+Lay+Out,+Near+Rajurkar+Bichayat+Kendra,+Wardhaman+Nagar,+Landmark+Inox+Mall,+Nagpur,+Maharashtra+440008"
+                          href="https://maps.google.com/?q=Rajwadi+Rajputi+Poshak,+EWS+41,+near+Maheshwari+bhawan,+Hiwari+Layout,+Uday+Nagar,+Padole+Nagar,+Nagpur,+Maharashtra+440008"
                           target="_blank"
                           rel="noopener noreferrer"
                           className="hover:text-[#C6A15B] transition-colors duration-200 block text-[12px] leading-relaxed text-[#FAF6F0]/70"
                         >
-                          Ews 41, Hiwari Lay Out,<br />
-                          Near Rajurkar Bichayat Kendra,<br />
-                          Wardhaman Nagar, Landmark Inox Mall,<br />
-                          Nagpur, Maharashtra - 440008
+                          EWS 41, near Maheshwari Bhawan,<br />
+                          Hiwari Layout, Uday Nagar,<br />
+                          Padole Nagar, Nagpur,<br />
+                          Maharashtra 440008
                         </a>
                       </div>
                     </div>
@@ -360,66 +337,35 @@ export default function Footer({ onOpenConsultation }: FooterProps) {
               </ul>
             </div>
 
-            {/* Column 2: COLLECTIONS */}
+            {/* Column 2: POSHAKS */}
             <div className="footer-col flex flex-col">
               <h4 className="text-[10.5px] sm:text-[11px] uppercase tracking-[0.26em] text-[#C6A15B] font-medium font-sans mb-3 sm:mb-3.5">
-                COLLECTIONS
+                POSHAKS
               </h4>
               <ul className="space-y-2 text-[12.5px] sm:text-[13px] text-[#FAF6F0]/75 font-light font-sans tracking-wide">
                 <li>
                   <Link
-                    href="/collection?category=bridal"
+                    href="/#poshak-your-way"
                     className="hover:text-[#C6A15B] transition-colors duration-200 block"
                   >
-                    Heavy Poshaks
+                    Stitched
                   </Link>
                 </li>
                 <li>
                   <Link
-                    href="/collection?category=everyday"
+                    href="/#poshak-your-way"
                     className="hover:text-[#C6A15B] transition-colors duration-200 block"
                   >
-                    Classic Poshaks
+                    Unstitched
                   </Link>
                 </li>
                 <li>
                   <Link
-                    href="/collection?category=festive"
+                    href="/#collections"
                     className="hover:text-[#C6A15B] transition-colors duration-200 block"
                   >
-                    Festive
+                    Traditional
                   </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/collection?category=jewellery"
-                    className="hover:text-[#C6A15B] transition-colors duration-200 block"
-                  >
-                    Jewellery
-                  </Link>
-                </li>
-                <li className="pt-2 border-t border-[#C6A15B]/20">
-                  <span className="text-[10px] uppercase tracking-wider text-[#C6A15B]/80 block mb-1">
-                    By Type
-                  </span>
-                  <ul className="space-y-1 text-xs text-[#FAF6F0]/70">
-                    <li>
-                      <Link
-                        href="/collection?type=stitched"
-                        className="hover:text-[#C6A15B] transition-colors duration-200 block"
-                      >
-                        Stitched Poshaks
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        href="/collection?type=unstitched"
-                        className="hover:text-[#C6A15B] transition-colors duration-200 block"
-                      >
-                        Semi-Stitched Poshaks
-                      </Link>
-                    </li>
-                  </ul>
                 </li>
               </ul>
             </div>
@@ -443,15 +389,15 @@ export default function Footer({ onOpenConsultation }: FooterProps) {
                     STORE ADDRESS
                   </span>
                   <a
-                    href="https://maps.google.com/?q=Rajwadi+Rajputi+Poshak,+Ews+41,+Hiwari+Lay+Out,+Near+Rajurkar+Bichayat+Kendra,+Wardhaman+Nagar,+Landmark+Inox+Mall,+Nagpur,+Maharashtra+440008"
+                    href="https://maps.google.com/?q=Rajwadi+Rajputi+Poshak,+EWS+41,+near+Maheshwari+bhawan,+Hiwari+Layout,+Uday+Nagar,+Padole+Nagar,+Nagpur,+Maharashtra+440008"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="hover:text-[#C6A15B] transition-colors duration-200 block"
                   >
-                    Ews 41, Hiwari Lay Out,<br />
-                    Near Rajurkar Bichayat Kendra,<br />
-                    Wardhaman Nagar, Landmark Inox Mall,<br />
-                    Nagpur, Maharashtra - 440008
+                    EWS 41, near Maheshwari Bhawan,<br />
+                    Hiwari Layout, Uday Nagar,<br />
+                    Padole Nagar, Nagpur,<br />
+                    Maharashtra 440008
                   </a>
                 </li>
               </ul>

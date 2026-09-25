@@ -119,35 +119,10 @@ function getOtpEmailHtml(otp: string, type: string): string {
   `;
 }
 
-// Global in-memory store for development/testing OTP codes
-const globalDevOtps = ((globalThis as any).__rajwadiDevOtps =
-  (globalThis as any).__rajwadiDevOtps || new Map<string, { otp: string; type: string; timestamp: number }>());
-
-export function getLatestDevOtp(email: string): string | null {
-  const cleanEmail = email.trim().toLowerCase();
-  const entry = globalDevOtps.get(cleanEmail);
-  if (!entry) return null;
-  // Valid for 5 minutes
-  if (Date.now() - entry.timestamp > 5 * 60 * 1000) {
-    globalDevOtps.delete(cleanEmail);
-    return null;
-  }
-  return entry.otp;
-}
-
 /**
- * Send an OTP code to the recipient via Resend / SMTP or log to development console.
+ * Send an OTP code to the recipient via SMTP or log to development console.
  */
 export async function sendOtpEmail({ email, otp, type }: SendOtpEmailOptions): Promise<boolean> {
-  const cleanEmail = email.trim().toLowerCase();
-  
-  // Store in dev memory for instant preview / fallback
-  globalDevOtps.set(cleanEmail, {
-    otp,
-    type,
-    timestamp: Date.now(),
-  });
-
   const subject =
     type === "forget-password"
       ? "Rajwadi: Password Reset Code"
@@ -158,30 +133,13 @@ export async function sendOtpEmail({ email, otp, type }: SendOtpEmailOptions): P
   // Always log cleanly in the server console for rapid testing and visibility
   console.log("\n=======================================================");
   console.log(` 👑 RAJWADI PATRON EMAIL OTP CODE`);
-  console.log(` Recipient : ${cleanEmail}`);
+  console.log(` Recipient : ${email}`);
   console.log(` OTP Code  : >>> ${otp} <<<`);
   console.log(` Type      : ${type}`);
   console.log(` Valid for : 5 minutes`);
   console.log("=======================================================\n");
 
-  // 1. If SMTP is configured, try SMTP first
-  if (transporter) {
-    try {
-      await transporter.sendMail({
-        from: emailFrom,
-        to: cleanEmail,
-        subject,
-        html: getOtpEmailHtml(otp, type),
-        text: `Your Rajwadi access code is: ${otp}. This code is valid for 5 minutes.`,
-      });
-      console.log(`✓ OTP email successfully delivered to ${cleanEmail} via SMTP.`);
-      return true;
-    } catch (error: any) {
-      console.error(`✗ Failed to deliver OTP email to ${cleanEmail} via SMTP:`, error.message || error);
-    }
-  }
-
-  // 2. If Resend is configured, send via Resend API
+  // 1. If Resend is configured, send via Resend API
   if (isResendConfigured) {
     try {
       const res = await fetch("https://api.resend.com/emails", {
@@ -192,7 +150,7 @@ export async function sendOtpEmail({ email, otp, type }: SendOtpEmailOptions): P
         },
         body: JSON.stringify({
           from: emailFrom,
-          to: [cleanEmail],
+          to: [email],
           subject,
           html: getOtpEmailHtml(otp, type),
           text: `Your Rajwadi access code is: ${otp}. This code is valid for 5 minutes.`,
@@ -204,13 +162,32 @@ export async function sendOtpEmail({ email, otp, type }: SendOtpEmailOptions): P
         throw new Error(resData?.message || "Failed to send email via Resend");
       }
 
-      console.log(`✓ OTP email successfully delivered to ${cleanEmail} via Resend API (ID: ${resData.id}).`);
+      console.log(`✓ OTP email successfully delivered to ${email} via Resend API (ID: ${resData.id}).`);
       return true;
     } catch (error: any) {
-      console.error(`✗ Resend Delivery Notice for ${cleanEmail}:`, error.message || error);
+      console.error(`✗ Failed to deliver OTP email to ${email} via Resend:`, error.message || error);
       return false;
     }
   }
 
+  // 2. If SMTP is configured, send via SMTP
+  if (transporter) {
+    try {
+      await transporter.sendMail({
+        from: emailFrom,
+        to: email,
+        subject,
+        html: getOtpEmailHtml(otp, type),
+        text: `Your Rajwadi access code is: ${otp}. This code is valid for 5 minutes.`,
+      });
+      console.log(`✓ OTP email successfully delivered to ${email} via SMTP.`);
+      return true;
+    } catch (error: any) {
+      console.error(`✗ Failed to deliver OTP email to ${email} via SMTP:`, error.message || error);
+      return false;
+    }
+  }
+
+  // 3. Fallback: Logged in console for local dev
   return true;
 }

@@ -31,12 +31,12 @@ export const ProductFormSchema = z
         "Slug can only contain lowercase letters, numbers, and hyphens"
       ),
     category: z.string().min(1, "Category is required"),
-    type: z.string().optional().default("Stitched"),
     subCategory: z.string().nullable().optional(),
+    type: z.string().nullable().optional(),
     priceInPaise: z
       .number()
       .int("Price must be an integer in paise")
-      .min(100, "Price must be at least ₹1 (100 paise)"),
+      .min(0, "Price must be non-negative"),
     compareAtPriceInPaise: z
       .number()
       .int()
@@ -44,20 +44,20 @@ export const ProductFormSchema = z
       .nullable()
       .optional(),
     priceNote: z.string().nullable().optional(),
-    fabric: z.string().min(2, "Fabric description is required"),
-    craft: z.string().min(2, "Craft description is required"),
-    color: z.string().min(2, "Color is required"),
-    quality: z.string().nullable().optional(),
+    fabric: z.string().min(1, "Fabric description is required"),
+    craft: z.string().min(1, "Craft description is required"),
     work: z.string().nullable().optional(),
+    quality: z.string().nullable().optional(),
     odhna: z.string().nullable().optional(),
     bestFor: z.string().nullable().optional(),
-    description: z.string().min(10, "Description must be at least 10 characters"),
-    details: z.array(z.string()).min(1, "At least one detail item is required"),
-    includes: z.array(z.string()).min(1, "At least one included item is required"),
     size: z.string().nullable().optional(),
-    sizes: z.array(z.string()).optional(),
-    soldOut: z.boolean().optional().default(false),
+    sizes: z.array(z.string()).default([]),
+    color: z.string().min(1, "Color is required"),
+    description: z.string().min(1, "Description is required"),
+    details: z.array(z.string()).default([]),
+    includes: z.array(z.string()).default([]),
     status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]).default("PUBLISHED"),
+    soldOut: z.boolean().default(false),
     isFeatured: z.boolean().default(false),
     featuredOrder: z.number().int().default(0),
     stock: z.number().int().min(0, "Stock cannot be negative").default(10),

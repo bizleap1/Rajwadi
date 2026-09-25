@@ -30,6 +30,7 @@ export const CreateCheckoutOrderSchema = z.object({
   notes: z.string().max(500).optional().nullable(),
   paymentScreenshotUrl: z.string().optional().nullable(),
   utrNumber: z.string().max(100).optional().nullable(),
+  couponCode: z.string().optional().nullable(),
 });
 
 export const VerifyPaymentSchema = z.object({

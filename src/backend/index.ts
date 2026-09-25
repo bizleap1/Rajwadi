@@ -20,6 +20,7 @@ export {
   signOut,
   useSession,
   getSession,
+  emailOtp,
 } from "./auth/auth-client";
 
 // 3. Backend Services

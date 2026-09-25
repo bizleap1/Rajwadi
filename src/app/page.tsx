@@ -6,18 +6,11 @@ import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import Collections from "@/components/Collections";
 import ThePoshakEdit from "@/components/ThePoshakEdit";
-
-// Dynamically import below-the-fold components to reduce initial compile module count & speed up compilation
-const CraftBehindThePoshak = dynamic(
-  () => import("@/components/CraftBehindThePoshak")
-);
-const GoogleReviews = dynamic(() => import("@/components/GoogleReviews"));
-const StitchedWithPrecision = dynamic(
-  () => import("@/components/StitchedWithPrecision")
-);
-const ContactSection = dynamic(() => import("@/components/ContactSection"));
-const Footer = dynamic(() => import("@/components/Footer"));
-
+import CraftBehindThePoshak from "@/components/CraftBehindThePoshak";
+import ThePoshakExperience from "@/components/ThePoshakExperience";
+import StitchedWithPrecision from "@/components/StitchedWithPrecision";
+import ContactSection from "@/components/ContactSection";
+import Footer from "@/components/Footer";
 const TalkToDesignerModal = dynamic(
   () => import("@/components/TalkToDesignerModal"),
   { ssr: false }
@@ -54,8 +47,8 @@ export default function Home() {
       {/* 04 — THE CRAFT BEHIND THE POSHAK */}
       <CraftBehindThePoshak onOpenConsultation={handleOpenConsultation} />
 
-      {/* 05 — GOOGLE REVIEWS */}
-      <GoogleReviews />
+      {/* 05 — THE POSHAK EXPERIENCE */}
+      <ThePoshakExperience onOpenConsultation={handleOpenConsultation} />
 
       {/* 06 — STITCHED WITH PRECISION / THE ART OF STITCHING */}
       <StitchedWithPrecision onOpenConsultation={handleOpenConsultation} />

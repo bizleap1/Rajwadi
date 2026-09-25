@@ -21,18 +21,16 @@ import {
   MapPin,
   Upload,
   Image as ImageIcon,
+  X,
   Copy,
   Smartphone,
   ExternalLink,
-  User,
-  Lock,
+  Tag,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useCart } from "@/context/CartContext";
-import { useOrders } from "@/context/OrderContext";
 import { useAuth } from "@/context/AuthContext";
-import { getUnstitchedDisplayName } from "@/data/products";
 import { getEstimatedDeliveryRange } from "@/utils/date";
 
 const INDIAN_STATES = [
@@ -74,11 +72,18 @@ interface FormErrors {
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { cartItems, cartCount, cartTotal, clearCart } = useCart();
-  const { createOrder } = useOrders();
-  const { user, isAuthenticated, addresses, openAuthModal, saveAddress } = useAuth();
+  const {
+    cartItems,
+    cartCount,
+    clearCart,
+    subtotalInPaise,
+    stitchingInPaise,
+    shippingInPaise,
+    cartTotalInPaise,
+  } = useCart();
+  const { user, addresses } = useAuth();
 
-  // Multi-step state: "address" | "payment" (matching old folder stage design)
+  // Multi-step state: "address" | "payment"
   const [currentStep, setCurrentStep] = useState<"address" | "payment">("address");
 
   // Address form data
@@ -95,6 +100,15 @@ export default function CheckoutPage() {
   const [savedAddress, setSavedAddress] = useState<typeof formData | null>(null);
   const [useSavedAddress, setUseSavedAddress] = useState(false);
 
+  // Coupon / Discount states
+  const [couponCodeInput, setCouponCodeInput] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
+  const [discountInPaise, setDiscountInPaise] = useState(0);
+  const [couponError, setCouponError] = useState("");
+  const [couponSuccess, setCouponSuccess] = useState("");
+  const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
+  const [activeCoupons, setActiveCoupons] = useState<Array<{ code: string; discountType: string; discountValue: number }>>([]);
+
   // Payment proof states
   const [screenshotFile, setScreenshotFile] = useState<File | null>(null);
   const [screenshotPreview, setScreenshotPreview] = useState<string>("");
@@ -108,78 +122,103 @@ export default function CheckoutPage() {
 
   const formRef = useRef<HTMLFormElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const deliveryRange = getEstimatedDeliveryRange(5, 7);
+  const deliveryRange = getEstimatedDeliveryRange(7);
 
   const storeUpiId =
     process.env.NEXT_PUBLIC_STORE_UPI_ID || "vyasshalu03@oksbi";
   const payeeName = "Rajwadi Rajputi Poshak";
-  const amountInRupees = cartTotal.toFixed(2);
-  const formattedAmount = cartTotal.toLocaleString("en-IN");
 
-  // Dynamic UPI URI format accepted by all Indian UPI apps
+  // Dynamic final total with discount deduction
+  const finalPayableInPaise = Math.max(0, cartTotalInPaise - discountInPaise);
+  const amountInRupees = (finalPayableInPaise / 100).toFixed(2);
+  const formattedAmount = (finalPayableInPaise / 100).toLocaleString("en-IN");
+
+  const handleApplyCoupon = async (codeToApply?: string) => {
+    const code = (codeToApply || couponCodeInput).trim().toUpperCase();
+    if (!code) {
+      setCouponError("Please enter a coupon code");
+      return;
+    }
+
+    setCouponError("");
+    setCouponSuccess("");
+    setIsValidatingCoupon(true);
+
+    try {
+      const res = await fetch("/api/coupons/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          code,
+          subtotalInPaise,
+          shippingInPaise,
+          categories: cartItems.map((i) => i.category || ""),
+          items: cartItems.map((i) => ({
+            productId: i.productId,
+            name: i.name,
+            category: i.category,
+            priceInPaise: i.unitPriceInPaise || i.totalInPaise,
+            quantity: i.quantity,
+          })),
+          email: formData.email || user?.email || undefined,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.valid) {
+        throw new Error(data.error || "Invalid coupon code.");
+      }
+
+      setAppliedCoupon(data.coupon);
+      setDiscountInPaise(data.discountInPaise);
+      setCouponSuccess(data.message || `Coupon "${code}" applied! You saved ₹${(data.discountInPaise / 100).toLocaleString("en-IN")}`);
+      setCouponCodeInput(code);
+    } catch (err: any) {
+      setCouponError(err.message || "Failed to apply coupon.");
+      setAppliedCoupon(null);
+      setDiscountInPaise(0);
+    } finally {
+      setIsValidatingCoupon(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setDiscountInPaise(0);
+    setCouponCodeInput("");
+    setCouponError("");
+    setCouponSuccess("");
+  };
+
+  // Standard UPI URI format accepted by all Indian UPI apps
   const upiUri = `upi://pay?pa=${encodeURIComponent(
     storeUpiId
   )}&pn=${encodeURIComponent(payeeName)}&am=${amountInRupees}&cu=INR&tn=${encodeURIComponent(
     `Rajwadi Poshak Order for ${formData.fullName || "Patron"}`
   )}`;
 
-  // High-resolution Dynamic QR Code generator
+  // High-resolution QR Code generator
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=280x280&margin=10&data=${encodeURIComponent(
     upiUri
   )}`;
 
   // Load and pre-fill saved address from database (if logged in) or localStorage (for repeat patrons)
   useEffect(() => {
-    if (user) {
-      const defaultAddr =
-        addresses && addresses.length > 0
-          ? addresses.find((a) => a.isDefault) || addresses[0]
-          : null;
-
-      if (defaultAddr && defaultAddr.address && defaultAddr.pincode) {
-        const addrData = {
-          email: user.email || "",
-          fullName: defaultAddr.name || user.name || "",
-          phone: defaultAddr.phone || user.phone || "",
-          address: defaultAddr.address || "",
-          city: defaultAddr.city || "",
-          state: defaultAddr.state || "Rajasthan",
-          pincode: defaultAddr.pincode || "",
-        };
-        setSavedAddress(addrData);
-        setFormData(addrData);
-        setUseSavedAddress(true);
-        return;
-      }
-
-      // Check localStorage for previously entered address if Neon addresses list is empty
-      try {
-        const localSaved = localStorage.getItem("rajwadi_saved_delivery_address");
-        if (localSaved) {
-          const parsed = JSON.parse(localSaved);
-          if (parsed && parsed.address && parsed.pincode) {
-            const merged = {
-              ...parsed,
-              email: user.email || parsed.email || "",
-              fullName: parsed.fullName || user.name || "",
-              phone: parsed.phone || user.phone || "",
-            };
-            setSavedAddress(merged);
-            setFormData(merged);
-            setUseSavedAddress(true);
-            return;
-          }
-        }
-      } catch {
-        // ignore
-      }
-
-      setFormData((prev) => ({
-        ...prev,
-        email: user.email || prev.email,
-        fullName: user.name || prev.fullName,
-        phone: user.phone || prev.phone,
-      }));
+    if (user && addresses && addresses.length > 0) {
+      const defaultAddr = addresses.find((a) => a.isDefault) || addresses[0];
+      const addrData = {
+        email: user.email || "",
+        fullName: defaultAddr.name || user.name || "",
+        phone: defaultAddr.phone || user.phone || "",
+        address: defaultAddr.address || "",
+        city: defaultAddr.city || "",
+        state: defaultAddr.state || "Rajasthan",
+        pincode: defaultAddr.pincode || "",
+      };
+      setSavedAddress(addrData);
+      setFormData(addrData);
+      setUseSavedAddress(true);
       return;
     }
 
@@ -198,27 +237,17 @@ export default function CheckoutPage() {
     }
   }, [user, addresses]);
 
-  const handleSelectSavedAddress = (addr: {
-    name?: string;
-    phone?: string;
-    address: string;
-    city: string;
-    state?: string;
-    pincode: string;
-  }) => {
-    const updated = {
-      email: user?.email || formData.email || "",
-      fullName: addr.name || user?.name || formData.fullName || "",
-      phone: addr.phone || user?.phone || formData.phone || "",
-      address: addr.address,
-      city: addr.city,
-      state: addr.state || "Rajasthan",
-      pincode: addr.pincode,
-    };
-    setSavedAddress(updated);
-    setFormData(updated);
-    setUseSavedAddress(true);
-  };
+  // Load only currently active coupons from database (automatically hides deactivated coupons)
+  useEffect(() => {
+    fetch("/api/coupons/active", { cache: "no-store" })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && Array.isArray(data.coupons)) {
+          setActiveCoupons(data.coupons);
+        }
+      })
+      .catch((err) => console.error("Failed to load active coupons", err));
+  }, []);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -268,7 +297,7 @@ export default function CheckoutPage() {
   };
 
   // Step 1 -> Step 2 transition
-  const handleProceedToPayment = async (e?: React.FormEvent) => {
+  const handleProceedToPayment = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     setErrorMessage("");
 
@@ -282,7 +311,7 @@ export default function CheckoutPage() {
       return;
     }
 
-    // Persist delivery address locally for instant prefill on next visit
+    // Persist delivery address locally
     try {
       localStorage.setItem(
         "rajwadi_saved_delivery_address",
@@ -292,32 +321,13 @@ export default function CheckoutPage() {
       // ignore
     }
 
-    // If patron is logged in, automatically save address to their Neon database account profile
-    if (user && saveAddress) {
-      try {
-        await saveAddress({
-          name: formData.fullName.trim(),
-          phone: formData.phone.trim(),
-          address: formData.address.trim(),
-          city: formData.city.trim(),
-          state: formData.state.trim(),
-          pincode: formData.pincode.trim(),
-          isDefault: true,
-        });
-      } catch (e) {
-        console.error("Failed to sync address to user profile:", e);
-      }
-    }
-
-    setSavedAddress(formData);
-    setUseSavedAddress(true);
     setCurrentStep("payment");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   // File handling for screenshot
   const handleFileSelected = (file: File) => {
-    if (!file.type.startsWith("image/") && !file.name.match(/\.(jpg|jpeg|png|webp|heic)$/i)) {
+    if (!file.type.startsWith("image/")) {
       setErrors((prev) => ({
         ...prev,
         screenshot: "Please upload an image file (PNG, JPG, WEBP).",
@@ -358,8 +368,8 @@ export default function CheckoutPage() {
   };
 
   // Step 2: Upload Screenshot & Submit Order
-  const handleSubmitPaymentOrder = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
+  const handleSubmitPaymentOrder = async (e: React.FormEvent) => {
+    e.preventDefault();
     setErrorMessage("");
 
     if (!screenshotFile && !screenshotPreview) {
@@ -413,17 +423,16 @@ export default function CheckoutPage() {
 
       const orderPayload = {
         items: cartItems.map((item) => ({
-          productId: item.product.id,
-          size: item.size || "Standard",
-          stitchingSelected:
-            item.size?.toLowerCase() === "stitched" ||
-            item.product.category?.toLowerCase() !== "unstitched",
+          productId: item.productId,
+          size: item.size,
+          stitchingSelected: item.stitchingSelected,
           quantity: item.quantity,
         })),
         deliveryAddress,
         paymentScreenshotUrl: uploadedScreenshotUrl || null,
         utrNumber: utrNumber.trim() || null,
         notes: utrNumber.trim() ? `UPI Ref/UTR: ${utrNumber.trim()}` : null,
+        couponCode: appliedCoupon ? appliedCoupon.code : null,
       };
 
       const createRes = await fetch("/api/checkout/create-order", {
@@ -441,44 +450,12 @@ export default function CheckoutPage() {
         );
       }
 
-      // Record in local state for seamless client-side order flow
-      createOrder({
-        orderId: orderData.orderId,
-        items: [...cartItems],
-        itemCount: cartCount,
-        subtotal: cartTotal,
-        shipping: 0,
-        total: cartTotal,
-        deliveryAddress: {
-          fullName: formData.fullName,
-          mobile: formData.phone,
-          email: formData.email,
-          phone: formData.phone,
-          address: formData.address,
-          city: formData.city,
-          state: formData.state,
-          pincode: formData.pincode,
-        },
-        paymentMethod: "UPI QR Code Payment",
-        paymentStatus: "Pending Verification",
-        orderStatus: "Order Received",
-        paymentScreenshot: uploadedScreenshotUrl || screenshotPreview || undefined,
-        utrNumber: utrNumber.trim() || undefined,
-        createdAt: new Date().toISOString(),
-        estimatedDelivery: {
-          from: deliveryRange.fromFormatted,
-          to: deliveryRange.toFormatted,
-          rangeString: deliveryRange.rangeString,
-        },
-      });
-
       clearCart();
-      const tokenParam = orderData.guestAccessToken ? `&token=${orderData.guestAccessToken}` : "";
       router.push(
-        `/order-confirmation?orderId=${orderData.orderId}${tokenParam}`
+        `/order-confirmation?orderId=${orderData.orderId}&token=${orderData.guestAccessToken}`
       );
     } catch (err: any) {
-      console.error("Payment & Order submission error:", err);
+      console.error(err);
       setErrorMessage(err.message || "Failed to confirm payment.");
       window.scrollTo({ top: 0, behavior: "smooth" });
     } finally {
@@ -508,53 +485,6 @@ export default function CheckoutPage() {
             Explore Collection
           </Link>
         </div>
-        <Footer />
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-[#FDFBF7] flex flex-col justify-between text-[#171717]">
-        <Navbar />
-        <main className="pt-32 pb-20 max-w-md mx-auto px-4 text-center">
-          <div className="w-16 h-16 mx-auto bg-[#F8F1E7] border border-[#EBD9C8] rounded-full flex items-center justify-center text-[#855D25] mb-5 shadow-2xs">
-            <Lock className="w-8 h-8 stroke-[1.5]" />
-          </div>
-          <span className="text-[10.5px] uppercase tracking-[0.25em] text-[#855D25] font-semibold block mb-1">
-            PATRON CHECKOUT
-          </span>
-          <h1 className="text-2xl sm:text-3xl font-serif text-[#171717]">Sign In Required</h1>
-          <p className="text-xs text-[#6B5E55] mt-2 mb-8 font-serif italic max-w-sm mx-auto leading-relaxed">
-            Please sign in with your mobile number or email to complete your bespoke poshak order and receive tailoring updates.
-          </p>
-
-          <div className="space-y-3 bg-white p-6 border border-[#EBD9C8] rounded-sm shadow-xs mb-6">
-            <button
-              type="button"
-              onClick={() => openAuthModal("signin", "Sign in to complete your checkout.")}
-              className="w-full py-3 px-4 bg-[#6D1A2A] hover:bg-[#581522] text-white text-xs uppercase tracking-[0.16em] font-medium rounded-xs transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm"
-            >
-              <span>Sign In to Checkout</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-
-            <button
-              type="button"
-              onClick={() => openAuthModal("signup", "Create an account to complete your checkout.")}
-              className="w-full py-2.5 px-4 bg-[#FAF5EE] hover:bg-[#F3EBE1] border border-[#D9C4B0] text-[#171717] text-xs uppercase tracking-[0.16em] font-medium rounded-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
-            >
-              <span>Create New Account</span>
-            </button>
-          </div>
-
-          <Link
-            href="/cart"
-            className="text-xs text-[#6D1A2A] hover:underline font-medium uppercase tracking-wider inline-flex items-center gap-1"
-          >
-            &larr; Return to Shopping Bag
-          </Link>
-        </main>
         <Footer />
       </div>
     );
@@ -661,48 +591,6 @@ export default function CheckoutPage() {
                 {savedAddress && useSavedAddress ? (
                   /* Saved Address Card */
                   <div className="space-y-5">
-                    {/* Multiple saved address selector if customer has more than 1 address */}
-                    {addresses && addresses.length > 1 && (
-                      <div className="space-y-2">
-                        <span className="text-[11px] uppercase tracking-wider text-[#855D25] font-semibold block">
-                          Choose from Your Saved Addresses ({addresses.length}):
-                        </span>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                          {addresses.map((a) => {
-                            const isSelected =
-                              savedAddress.address.trim().toLowerCase() ===
-                                a.address.trim().toLowerCase() &&
-                              savedAddress.pincode.trim() === a.pincode.trim();
-                            return (
-                              <button
-                                key={a.id}
-                                type="button"
-                                onClick={() => handleSelectSavedAddress(a)}
-                                className={`p-3 text-left border rounded-sm transition-all text-xs cursor-pointer ${
-                                  isSelected
-                                    ? "border-[#855D25] bg-[#FAF5EE] ring-1 ring-[#855D25]"
-                                    : "border-[#EBD9C8] bg-white hover:border-[#855D25] hover:bg-[#FDFBF7]"
-                                }`}
-                              >
-                                <div className="flex items-center justify-between font-semibold text-[#171717] mb-0.5">
-                                  <span>{a.name}</span>
-                                  {isSelected && (
-                                    <span className="text-[9px] bg-[#047857] text-white px-1.5 py-0.5 rounded-xs uppercase tracking-wider font-semibold">
-                                      Active
-                                    </span>
-                                  )}
-                                </div>
-                                <p className="text-[#4A3E37] text-[11px] line-clamp-1">{a.address}</p>
-                                <p className="text-[#8A796B] text-[10.5px]">
-                                  {a.city}, {a.pincode} &bull; {a.phone}
-                                </p>
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    )}
-
                     <div className="bg-[#FAF5EE] border-2 border-[#855D25] p-5 rounded-sm shadow-xs relative">
                       <div className="flex items-center justify-between pb-3 border-b border-[#EBD9C8]">
                         <div className="flex items-center gap-2">
@@ -1118,10 +1006,11 @@ export default function CheckoutPage() {
                       <div className="p-4 bg-[#FAF5EE] border-2 border-emerald-600/40 rounded-sm relative space-y-3">
                         <div className="flex items-start gap-4">
                           <div className="w-20 h-28 bg-white border border-[#D9C4B0] rounded relative overflow-hidden flex-shrink-0 shadow-xs">
-                            <img
+                            <Image
                               src={screenshotPreview}
                               alt="Payment Screenshot Preview"
-                              className="w-full h-full object-cover"
+                              fill
+                              className="object-cover"
                             />
                           </div>
 
@@ -1264,8 +1153,8 @@ export default function CheckoutPage() {
                   <div key={idx} className="py-3 flex gap-3 first:pt-0 last:pb-0">
                     <div className="w-12 h-16 bg-[#F3EBE1] relative rounded overflow-hidden flex-shrink-0 border border-[#EBD9C8]">
                       <Image
-                        src={item.product.image || "/products/kesariya-1.webp"}
-                        alt={item.product.name}
+                        src={item.image}
+                        alt={item.name}
                         fill
                         className="object-cover"
                         sizes="48px"
@@ -1273,15 +1162,15 @@ export default function CheckoutPage() {
                     </div>
                     <div className="flex-1 min-w-0 text-xs">
                       <h4 className="font-serif text-[#171717] font-medium truncate">
-                        {getUnstitchedDisplayName(item.product)}
+                        {item.name}
                       </h4>
                       <p className="text-[11px] text-[#8A796B] mt-0.5">
-                        {item.size}
+                        {item.size} {item.stitchingSelected ? "(+Stitching)" : ""}
                       </p>
                       <div className="flex justify-between items-baseline mt-1">
                         <span className="text-[#6B5E55]">Qty: {item.quantity}</span>
                         <span className="font-medium text-[#171717]">
-                          {item.product.price}
+                          ₹ {(item.totalInPaise / 100).toLocaleString("en-IN")}
                         </span>
                       </div>
                     </div>
@@ -1289,19 +1178,128 @@ export default function CheckoutPage() {
                 ))}
               </div>
 
+              {/* Promo Code / Coupon Section */}
+              <div className="pt-3 border-t border-[#F0E5D8] space-y-2">
+                <label className="block text-[11px] uppercase tracking-wider font-semibold text-[#855D25] flex items-center gap-1.5">
+                  <Tag className="w-3.5 h-3.5" />
+                  <span>Promo Code / Gift Voucher</span>
+                </label>
+
+                {appliedCoupon ? (
+                  <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-sm flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-700" />
+                      <div>
+                        <div className="text-xs font-mono font-bold text-emerald-900">
+                          {appliedCoupon.code}
+                        </div>
+                        <div className="text-[10.5px] text-emerald-700">
+                          Saved ₹{(discountInPaise / 100).toLocaleString("en-IN")}
+                        </div>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleRemoveCoupon}
+                      className="text-xs text-red-600 hover:text-red-800 font-medium px-2 py-1 bg-white border border-red-200 rounded-xs"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={couponCodeInput}
+                        onChange={(e) => {
+                          setCouponCodeInput(e.target.value.toUpperCase());
+                          if (couponError) setCouponError("");
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            handleApplyCoupon();
+                          }
+                        }}
+                        placeholder="ENTER PROMO CODE"
+                        className="flex-1 px-3 py-2 bg-[#FCFAF6] border border-[#D9C4B0] text-xs font-mono uppercase font-semibold text-[#171717] rounded-sm focus:outline-none focus:border-[#6D1A2A]"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleApplyCoupon()}
+                        disabled={isValidatingCoupon || !couponCodeInput.trim()}
+                        className="px-3.5 py-2 bg-[#855D25] hover:bg-[#6D1A2A] text-white text-xs uppercase tracking-wider font-semibold rounded-sm transition-colors disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
+                      >
+                        {isValidatingCoupon ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <span>Apply</span>
+                        )}
+                      </button>
+                    </div>
+
+                    {couponError && (
+                      <p className="text-[11px] text-red-600 font-medium flex items-center gap-1">
+                        <AlertCircle className="w-3 h-3 shrink-0" />
+                        <span>{couponError}</span>
+                      </p>
+                    )}
+
+                    {/* Quick Suggestion Chips - Dynamically loaded only from active DB coupons */}
+                    {activeCoupons.length > 0 && (
+                      <div className="flex items-center gap-1.5 flex-wrap pt-0.5">
+                        <span className="text-[10px] text-[#8A796B]">Available:</span>
+                        {activeCoupons.map((c) => (
+                          <button
+                            key={c.code}
+                            type="button"
+                            onClick={() => handleApplyCoupon(c.code)}
+                            className="px-2 py-0.5 bg-[#FAF6F0] hover:bg-[#F3EBE1] text-[#855D25] border border-[#EBD9C8] text-[10px] font-mono font-bold rounded-xs transition-colors cursor-pointer"
+                          >
+                            {c.code}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
               {/* Price Breakdown */}
               <div className="pt-4 border-t border-[#EBD9C8] space-y-2 text-xs">
                 <div className="flex justify-between text-[#6B5E55]">
                   <span>Subtotal</span>
                   <span className="font-medium text-[#171717]">
-                    ₹ {formattedAmount}
+                    ₹ {(subtotalInPaise / 100).toLocaleString("en-IN")}
                   </span>
                 </div>
+
+                {stitchingInPaise > 0 && (
+                  <div className="flex justify-between text-[#6B5E55]">
+                    <span>Bespoke Stitching</span>
+                    <span className="font-medium text-[#171717]">
+                      ₹ {(stitchingInPaise / 100).toLocaleString("en-IN")}
+                    </span>
+                  </div>
+                )}
+
+                {discountInPaise > 0 && (
+                  <div className="flex justify-between text-emerald-800 font-medium bg-emerald-50/70 px-2 py-1 rounded-xs">
+                    <span className="flex items-center gap-1">
+                      <Tag className="w-3 h-3 text-emerald-700" />
+                      <span>Discount ({appliedCoupon?.code || "Coupon"})</span>
+                    </span>
+                    <span>- ₹ {(discountInPaise / 100).toLocaleString("en-IN")}</span>
+                  </div>
+                )}
 
                 <div className="flex justify-between text-[#6B5E55]">
                   <span>Insured Shipping</span>
                   <span className="font-medium text-emerald-700">
-                    FREE
+                    {shippingInPaise === 0
+                      ? "FREE"
+                      : `₹ ${(shippingInPaise / 100).toLocaleString("en-IN")}`}
                   </span>
                 </div>
 
@@ -1317,7 +1315,7 @@ export default function CheckoutPage() {
               <div className="p-3 bg-[#FAF5EE] border border-[#EBD9C8] rounded text-[11px] text-[#855D25] flex items-center gap-2">
                 <Clock className="w-4 h-4 flex-shrink-0" />
                 <span>
-                  Estimated delivery: <strong>Within 5–7 Days ({deliveryRange.rangeString})</strong>
+                  Estimated delivery: <strong>{deliveryRange.rangeString}</strong>
                 </span>
               </div>
 

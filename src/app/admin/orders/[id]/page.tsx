@@ -99,7 +99,7 @@ export default function AdminOrderDetailPage() {
 
       if (!res.ok) {
         if (res.status === 401 || res.status === 403) {
-          router.push("/?auth=signin");
+          router.push("/admin/login");
           return;
         }
         throw new Error("Failed to fetch order details.");

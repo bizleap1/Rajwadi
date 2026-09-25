@@ -2,39 +2,50 @@ import 'dotenv/config';
 import { auth } from '../src/lib/auth';
 import prisma from '../src/lib/prisma';
 
-async function testAuthFlow() {
-  console.log('--- Testing Standard Credentials Sign-Up & Sign-In Flow ---');
+async function testOtpFlow() {
+  console.log('--- Testing Better Auth Email OTP Flow ---');
   const testEmail = `patron.${Date.now()}@rajwadi-test.com`;
-  const testPassword = 'RajwadiPassword2026!';
-  const testName = 'Test Patron';
 
-  console.log(`\n1. Creating test patron account: ${testEmail}`);
-  const signUpResult = await auth.api.signUpEmail({
-    body: {
-      name: testName,
-      email: testEmail,
-      password: testPassword,
-    },
-  });
-  console.log('✓ signUpEmail response user:', signUpResult?.user?.email, 'ID:', signUpResult?.user?.id);
-
-  console.log('\n2. Signing in with email and password...');
-  const signInResult = await auth.api.signInEmail({
+  console.log(`\n1. Sending verification OTP to: ${testEmail}`);
+  const sendResult = await auth.api.sendVerificationOTP({
     body: {
       email: testEmail,
-      password: testPassword,
+      type: 'sign-in',
+    },
+  });
+  console.log('✓ sendVerificationOTP response:', sendResult);
+
+  // Retrieve the generated OTP from the database Verification table
+  const verification = await prisma.verification.findFirst({
+    where: { identifier: `sign-in-otp-${testEmail}` },
+    orderBy: { createdAt: 'desc' },
+  });
+
+  if (!verification) {
+    console.error('✗ Verification record not found in database');
+    process.exit(1);
+  }
+
+  const generatedOtp = verification.value.split(':')[0];
+  console.log(`✓ Verification record found in DB. OTP: ${generatedOtp} (Expires: ${verification.expiresAt})`);
+
+  console.log('\n2. Verifying OTP and signing in...');
+  const signInResult = await auth.api.signInEmailOTP({
+    body: {
+      email: testEmail,
+      otp: generatedOtp,
     },
   });
 
-  console.log('✓ signInEmail response user:', signInResult?.user?.email, 'ID:', signInResult?.user?.id);
-  console.log('\n=============================================================');
-  console.log(' ✓ STANDARD CREDENTIALS FLOW VERIFIED SUCCESSFULLY');
-  console.log('=============================================================');
+  console.log('✓ signInEmailOTP response user:', signInResult?.user?.email, 'ID:', signInResult?.user?.id);
+  console.log('\n=======================================================');
+  console.log(' ✓ EMAIL OTP LOGIN & SIGN-UP FLOW VERIFIED SUCCESSFULLY');
+  console.log('=======================================================');
 }
 
-testAuthFlow()
+testOtpFlow()
   .catch((err) => {
-    console.error('Auth flow test failed:', err);
+    console.error('OTP flow test failed:', err);
     process.exit(1);
   })
   .finally(async () => {

@@ -231,7 +231,7 @@ export default function ProductDetailModal({
                   </div>
                   <div className="flex justify-between">
                     <span className="text-[#171717]/60 uppercase tracking-wider">
-                      Authentic Colorway
+                      Traditional Colorway
                     </span>
                     <span className="font-medium text-[#171717]">
                       {product.color}

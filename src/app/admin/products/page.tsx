@@ -68,7 +68,7 @@ export default function AdminProductsPage() {
 
       if (!res.ok) {
         if (res.status === 401 || res.status === 403) {
-          window.location.href = "/?auth=signin";
+          window.location.href = "/admin/login";
           return;
         }
         throw new Error("Failed to load catalog products.");
@@ -181,10 +181,9 @@ export default function AdminProductsPage() {
             className="bg-[#FCFAF6] border border-[#D9C4B0] text-xs py-2 px-2.5 rounded-sm text-[#171717] focus:outline-none focus:ring-1 focus:ring-[#855D25]"
           >
             <option value="ALL">All Categories</option>
-            <option value="Bridal">Bridal</option>
-            <option value="Festive">Festive</option>
-            <option value="Everyday">Everyday</option>
-            <option value="Jewellery">Jewellery</option>
+            <option value="Traditional">Traditional</option>
+            <option value="Unstitched">Unstitched</option>
+            <option value="Stitched">Stitched</option>
           </select>
 
           <span className="text-[#D9C4B0]">|</span>

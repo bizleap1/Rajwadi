@@ -102,18 +102,18 @@ export async function PUT(
     }
 
     // Identify deleted images to safely clean up Cloudinary assets if not referenced elsewhere
-    const currentPublicIds = (current.images as any[])
-      .map((img: any) => img.publicId)
-      .filter((pid: any): pid is string => Boolean(pid));
+    const currentPublicIds = current.images
+      .map((img) => img.publicId)
+      .filter((pid): pid is string => Boolean(pid));
     const newPublicIds = new Set(
-      data.images.map((img: any) => img.publicId).filter(Boolean)
+      data.images.map((img) => img.publicId).filter(Boolean)
     );
     const removedPublicIds = currentPublicIds.filter(
-      (pid: any) => !newPublicIds.has(pid)
+      (pid) => !newPublicIds.has(pid)
     );
 
     // Perform atomic update
-    const updated = await prisma.$transaction(async (tx: any) => {
+    const updated = await prisma.$transaction(async (tx) => {
       // Remove old image records
       await tx.productImage.deleteMany({
         where: { productId: current.id },
@@ -126,25 +126,25 @@ export async function PUT(
           name: data.name,
           slug: data.slug,
           category: data.category,
-          type: data.type || "Stitched",
           subCategory: data.subCategory || null,
+          type: data.type || null,
           priceInPaise: data.priceInPaise,
           compareAtPriceInPaise: data.compareAtPriceInPaise || null,
           priceNote: data.priceNote || null,
           fabric: data.fabric,
           craft: data.craft,
-          color: data.color,
+          work: data.work || data.craft || null,
           quality: data.quality || null,
-          work: data.work || null,
           odhna: data.odhna || null,
           bestFor: data.bestFor || null,
+          size: data.size || (data.sizes && data.sizes.length > 0 ? data.sizes.join(", ") : null),
+          sizes: data.sizes || [],
+          color: data.color,
           description: data.description,
           details: data.details,
           includes: data.includes,
-          size: data.size || null,
-          sizes: data.sizes ? (data.sizes as any) : undefined,
-          soldOut: data.soldOut || false,
           status: data.status,
+          soldOut: data.soldOut ?? false,
           isFeatured: data.isFeatured,
           featuredOrder: data.featuredOrder,
           stock: data.stock,
@@ -240,9 +240,9 @@ export async function DELETE(
     }
 
     // No historical orders: permanent deletion allowed
-    const publicIdsToDelete = (product.images as any[])
-      .map((img: any) => img.publicId)
-      .filter((pid: any): pid is string => Boolean(pid));
+    const publicIdsToDelete = product.images
+      .map((img) => img.publicId)
+      .filter((pid): pid is string => Boolean(pid));
 
     await prisma.product.delete({
       where: { id: product.id },

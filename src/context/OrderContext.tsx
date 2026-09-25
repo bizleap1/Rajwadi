@@ -6,7 +6,6 @@ import { OrderRecord } from "@/types/order";
 interface OrderContextType {
   orders: OrderRecord[];
   createOrder: (order: OrderRecord) => void;
-  clearOrders: () => void;
   getOrderById: (orderId: string) => OrderRecord | undefined;
   getLatestOrder: () => OrderRecord | undefined;
 }
@@ -38,11 +37,7 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!isLoadedRef.current) return;
     try {
-      if (orders.length === 0) {
-        localStorage.removeItem("rajwadi_orders");
-      } else {
-        localStorage.setItem("rajwadi_orders", JSON.stringify(orders));
-      }
+      localStorage.setItem("rajwadi_orders", JSON.stringify(orders));
     } catch (e) {
       console.warn("Could not save orders to localStorage", e);
     }
@@ -52,14 +47,8 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
     setOrders((prev) => [order, ...prev]);
   };
 
-  const clearOrders = () => {
-    setOrders([]);
-    try {
-      localStorage.removeItem("rajwadi_orders");
-    } catch {}
-  };
-
   const getOrderById = (orderId: string): OrderRecord | undefined => {
+    // Case-insensitive match, stripping # if present
     const cleanId = orderId.replace(/^#/, "").trim().toLowerCase();
     return orders.find(
       (o) => o.orderId.replace(/^#/, "").trim().toLowerCase() === cleanId
@@ -75,7 +64,6 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
       value={{
         orders,
         createOrder,
-        clearOrders,
         getOrderById,
         getLatestOrder,
       }}

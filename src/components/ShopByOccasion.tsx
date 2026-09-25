@@ -16,24 +16,24 @@ interface OccasionItem {
 const OCCASIONS: OccasionItem[] = [
   {
     id: "bridal",
-    title: "Heavy Poshak",
+    title: "Bridal",
     subtitle: "For the most cherished beginnings.",
     image: "/bridal.webp",
-    link: "/collection?category=bridal",
-  },
-  {
-    id: "everyday",
-    title: "Classic Poshak",
-    subtitle: "For timeless grace and effortless poise.",
-    image: "/traditonal.webp",
-    link: "/collection?category=everyday",
+    link: "#collections",
   },
   {
     id: "festive",
     title: "Festive",
     subtitle: "For celebrations steeped in tradition.",
     image: "/festive.webp",
-    link: "/collection?category=festive",
+    link: "#collections",
+  },
+  {
+    id: "heritage",
+    title: "Heritage",
+    subtitle: "For timeless Indian elegance.",
+    image: "/traditonal.webp",
+    link: "#collections",
   },
 ];
 

@@ -87,7 +87,7 @@ export default function ContactPage() {
   };
 
   const GOOGLE_MAPS_URL =
-    "https://maps.google.com/?q=Rajwadi+Rajputi+Poshak,+Ews+41,+Hiwari+Lay+Out,+Near+Rajurkar+Bichayat+Kendra,+Wardhaman+Nagar,+Landmark+Inox+Mall,+Nagpur,+Maharashtra+440008";
+    "https://maps.google.com/?q=Rajwadi+Rajputi+Poshak,+EWS+41,+near+Maheshwari+bhawan,+Hiwari+Layout,+Uday+Nagar,+Padole+Nagar,+Nagpur,+Maharashtra+440008";
 
   const WHATSAPP_URL =
     "https://wa.me/918766667101?text=Hello%20Rajwadi%2C%20I%20would%20like%20to%20inquire%20about%20a%20poshak.";
@@ -195,10 +195,10 @@ export default function ContactPage() {
                   <p className="font-serif text-[15px] sm:text-base text-[#171717] font-normal mb-1">
                     Rajwadi Rajputi Poshak
                   </p>
-                  <p>Ews 41, Hiwari Lay Out,</p>
-                  <p>Near Rajurkar Bichayat Kendra,</p>
-                  <p>Wardhaman Nagar, Landmark Inox Mall,</p>
-                  <p>Nagpur, Maharashtra - 440008</p>
+                  <p>EWS 41, near Maheshwari Bhawan,</p>
+                  <p>Hiwari Layout, Uday Nagar,</p>
+                  <p>Padole Nagar, Nagpur,</p>
+                  <p>Maharashtra 440008</p>
                 </address>
 
                 <a
@@ -465,10 +465,10 @@ export default function ContactPage() {
                 <p className="font-serif text-base text-[#171717] font-normal mb-1">
                   Rajwadi Rajputi Poshak
                 </p>
-                <p>Ews 41, Hiwari Lay Out,</p>
-                <p>Near Rajurkar Bichayat Kendra,</p>
-                <p>Wardhaman Nagar, Landmark Inox Mall,</p>
-                <p>Nagpur, Maharashtra - 440008</p>
+                <p>EWS 41, near Maheshwari Bhawan,</p>
+                <p>Hiwari Layout, Uday Nagar,</p>
+                <p>Padole Nagar, Nagpur,</p>
+                <p>Maharashtra 440008</p>
               </address>
 
               <p className="text-xs text-[#6B635B] font-light leading-relaxed font-sans pt-1">

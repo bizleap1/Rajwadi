@@ -97,32 +97,22 @@ model Address {
 }
 
 // -------------------------------------------------------------
-// Product Catalog Models (Enhanced with New Columns for Storefront)
+// Product Catalog Models
 // -------------------------------------------------------------
 
 model Product {
   id                    String            @id @default(cuid())
   slug                  String            @unique
   name                  String
-  category              String            // "Bridal" | "Festive" | "Everyday" | "Jewellery" | "Stitched" | "Unstitched"
-  type                  String?           @default("Stitched") // "Stitched" | "Unstitched" | "Jewellery"
-  subCategory           String?           // e.g. "Bridal", "Festive", "Daily Wear", "Leheriya"
+  category              String            // "Stitched" | "Unstitched" | "Traditional"
   priceInPaise          Int
   compareAtPriceInPaise Int?
-  priceNote             String?           // e.g. "Inclusive of stitching"
   fabric                String
   craft                 String
   color                 String
-  quality               String?           // e.g. "Premium Royal Pure Fabric"
-  work                  String?           // e.g. "Heavy Fancy Barik Zari Work with Stone Work"
-  odhna                 String?           // e.g. "Heavy Four-side Work"
-  bestFor               String?           // e.g. "Bridal", "Festive", "Royal Celebrations"
   description           String            @db.Text
   details               Json              // string[]
   includes              Json              // string[]
-  size                  String?           // e.g. "Free Size / Semi-Stitched"
-  sizes                 Json?             // string[] e.g. ["36", "38", "40", "42"]
-  soldOut               Boolean           @default(false)
   status                String            @default("PUBLISHED") // "DRAFT" | "PUBLISHED" | "ARCHIVED"
   isFeatured            Boolean           @default(false)
   featuredOrder         Int               @default(0)
@@ -132,6 +122,16 @@ model Product {
   stitchingPriceInPaise Int               @default(0)
   imagePosition         String            @default("center 5%")
   imageScale            Float             @default(1.0)
+  subCategory           String?
+  quality               String?
+  work                  String?
+  odhna                 String?
+  bestFor               String?
+  priceNote             String?
+  type                  String?
+  soldOut               Boolean?          @default(false)
+  size                  String?
+  sizes                 Json?
   version               Int               @default(1)
   createdAt             DateTime          @default(now())
   updatedAt             DateTime          @updatedAt
@@ -142,8 +142,6 @@ model Product {
   orderItems            OrderItem[]
 
   @@index([category])
-  @@index([type])
-  @@index([subCategory])
   @@index([status])
   @@index([isFeatured, featuredOrder])
   @@index([priceInPaise])
@@ -219,7 +217,7 @@ model Order {
   shippingInPaise   Int                  @default(0)
   stitchingInPaise  Int                  @default(0)
   totalInPaise      Int
-  paymentStatus     String               @default("PENDING") // "PENDING" | "PAID" | "FAILED" | "CANCELLED" | "REFUNDED" | "VERIFICATION_PENDING"
+  paymentStatus     String               @default("PENDING") // "PENDING" | "PAID" | "FAILED" | "CANCELLED" | "REFUNDED"
   fulfilmentStatus  String               @default("PENDING") // "PENDING" | "IN_ATELIER" | "DISPATCHED" | "DELIVERED" | "CANCELLED"
   paymentMethod     String               @default("RAZORPAY")
   paymentScreenshotUrl String?           @db.Text
@@ -235,21 +233,55 @@ model Order {
   trackingUrl       String?              // e.g. "https://bluedart.com/track/..."
   estimatedDeliveryDate DateTime?        // e.g. 2026-09-30
   deliveredAt       DateTime?
+  couponId          String?
+  couponCode        String?
+  discountInPaise   Int                  @default(0)
+  discountDetails   Json?                // Snapshot of discount logic e.g. { type: "PERCENTAGE", value: 10, code: "ROYAL10" }
   createdAt         DateTime             @default(now())
   updatedAt         DateTime             @updatedAt
 
   user              User?                @relation(fields: [userId], references: [id], onDelete: SetNull)
+  coupon            Coupon?              @relation(fields: [couponId], references: [id], onDelete: SetNull)
   items             OrderItem[]
   transactions      PaymentTransaction[]
   exchangeRequests  ExchangeRequest[]
 
   @@index([userId])
+  @@index([couponCode])
   @@index([guestEmail])
   @@index([orderNumber])
   @@index([paymentStatus])
   @@index([fulfilmentStatus])
   @@index([createdAt])
   @@map("orders")
+}
+
+model Coupon {
+  id                    String      @id @default(cuid())
+  code                  String      @unique // "ROYAL10", "FESTIVE500" (always UPPERCASE)
+  description           String?     // e.g. "Exclusive 10% Royal Heritage discount"
+  discountType          String      @default("PERCENTAGE") // "PERCENTAGE" | "FIXED_AMOUNT" | "FREE_SHIPPING"
+  discountValue         Int         // If PERCENTAGE: 10 (means 10%), if FIXED_AMOUNT: 50000 (means ₹500 in paise)
+  maxDiscountInPaise    Int?        // Optional cap on percentage discounts (e.g. 100000 paise = max ₹1,000)
+  minOrderValueInPaise  Int         @default(0) // Minimum subtotal required in paise (e.g. 200000 = ₹2,000)
+  usageLimit            Int?        // Total max usage across all customers (null = unlimited)
+  usedCount             Int         @default(0) // How many times it has been redeemed
+  perUserLimit          Int         @default(1) // Max times a single customer/email can use this coupon
+  startDate             DateTime    @default(now())
+  endDate               DateTime?   // Expiry date (null = no expiration)
+  isActive              Boolean     @default(true) // Admin status toggle
+  applicableScope       String      @default("ALL") // "ALL" | "SPECIFIC_PRODUCTS" | "SPECIFIC_CATEGORIES"
+  applicableProducts    Json?       // String array of product IDs/slugs e.g. ["morbagh-rajputi-poshak"]
+  applicableCategories  Json?       // String array of categories e.g. ["Stitched", "Unstitched"] (null = all)
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
+
+  orders                Order[]
+
+  @@index([code])
+  @@index([isActive])
+  @@index([startDate, endDate])
+  @@map("coupons")
 }
 
 model OrderItem {
@@ -259,8 +291,6 @@ model OrderItem {
   productName           String
   productSlug           String?
   category              String?
-  type                  String?
-  subCategory           String?
   size                  String?
   stitchingSelected     Boolean           @default(false)
   stitchingPriceInPaise Int               @default(0)

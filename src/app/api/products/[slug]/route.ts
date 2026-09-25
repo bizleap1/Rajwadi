@@ -30,7 +30,7 @@ export async function GET(
       );
     }
 
-    const images = (product.images as any[]).map((img: any) => img.secureUrl);
+    const images = product.images.map((img) => img.secureUrl);
     const mainImage = images[0] || "/placeholder.webp";
 
     const formatted = {
@@ -39,40 +39,27 @@ export async function GET(
       slug: product.slug,
       name: product.name,
       category: product.category,
-      type: product.type || "Stitched",
-      subCategory: product.subCategory || product.category,
       priceInPaise: product.priceInPaise,
       priceFormatted: `₹ ${(product.priceInPaise / 100).toLocaleString("en-IN")}`,
       price: `₹ ${(product.priceInPaise / 100).toLocaleString("en-IN")}`,
       compareAtPriceInPaise: product.compareAtPriceInPaise,
-      originalPrice: product.compareAtPriceInPaise
-        ? `₹ ${(product.compareAtPriceInPaise / 100).toLocaleString("en-IN")}`
-        : undefined,
-      priceNote: product.priceNote || undefined,
       fabric: product.fabric,
       craft: product.craft,
       color: product.color,
-      quality: product.quality || undefined,
-      work: product.work || undefined,
-      odhna: product.odhna || undefined,
-      bestFor: product.bestFor || undefined,
       description: product.description,
       details: Array.isArray(product.details) ? product.details : [],
       includes: Array.isArray(product.includes) ? product.includes : [],
-      size: product.size || undefined,
-      sizes: Array.isArray(product.sizes) ? product.sizes : undefined,
-      soldOut: product.soldOut || false,
       image: mainImage,
       additionalImages: images,
       imagePosition: product.imagePosition,
       imageScale: product.imageScale,
-      inStock: product.inStock && product.stock > 0 && !product.soldOut,
+      inStock: product.inStock && product.stock > 0,
       stock: product.stock,
       stitchingAvailable: product.stitchingAvailable,
       stitchingPriceInPaise: product.stitchingPriceInPaise,
       stitchingPriceFormatted: `₹ ${(product.stitchingPriceInPaise / 100).toLocaleString("en-IN")}`,
       isFeatured: product.isFeatured,
-      variants: (product.variants as any[]).map((v: any) => ({
+      variants: product.variants.map((v) => ({
         id: v.id,
         name: v.name,
         priceAdjustmentInPaise: v.priceAdjustmentInPaise,

@@ -108,7 +108,6 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     category: "Bridal",
     type: "Stitched",
     subCategory: "Bridal",
-    originalPrice: "₹ 8,000",
 
     price: "₹ 7,594",
     priceNote: "Inclusive of stitching",
@@ -142,7 +141,6 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     name: "Neelam Turquoise Poshak",
     category: "Festive",
     type: "Stitched",
-    originalPrice: "₹ 15,000",
 
     price: "₹ 6,370",
     priceNote: "Inclusive of stitching",
@@ -176,8 +174,6 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     name: "Rani Maroon Poshak",
     category: "Festive",
     subCategory: "Festive",
-
-    originalPrice: "₹8,200",
     price: "₹ 6,370",
     priceNote: "Inclusive of stitching",
     fabric: "Pure Georgette & Brocade",
@@ -219,7 +215,6 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     category: "Bridal",
     type: "Stitched",
     subCategory: "Bridal",
-    originalPrice: "₹ 8,000",
 
     price: "Sold Out",
     priceNote: "Currently out of stock",
@@ -254,7 +249,6 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     name: "Pista Neel Poshak",
     category: "Bridal",
     type: "Stitched",
-    originalPrice: "₹ 12,000",
 
     price: "₹ 7,594",
     priceNote: "Inclusive of stitching",
@@ -289,7 +283,6 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     category: "Bridal",
     type: "Stitched",
     subCategory: "Bridal",
-    originalPrice: "₹ 12,000",
 
     price: "₹ 7,390",
     priceNote: "Inclusive of stitching",
@@ -323,7 +316,6 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     name: "Peach Kundan Poshak",
     category: "Festive",
     subCategory: "Festive",
-    originalPrice: "₹ 15,000",
 
     price: "₹ 4,228",
     priceNote: "Inclusive of stitching",
@@ -365,7 +357,6 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     name: "Pista Yellow Odhna Poshak",
     category: "Festive",
     subCategory: "Festive",
-    originalPrice: "₹ 15,000",
 
     price: "₹ 6,370",
     priceNote: "Inclusive of stitching",
@@ -407,7 +398,6 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     name: "Kesariya Sunehri Poshak",
     category: "Everyday",
     subCategory: "Everyday",
-    originalPrice: "₹ 15,000",
 
     price: "₹ 3,055",
     priceNote: "Inclusive of stitching",
@@ -452,7 +442,6 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     category: "Everyday",
     type: "Stitched",
     subCategory: "Everyday",
-    originalPrice: "₹ 12,000",
 
     price: "₹ 3,106",
     priceNote: "Inclusive of stitching",
@@ -486,7 +475,6 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     name: "Morika Lavender Poshak",
     category: "Bridal",
     type: "Stitched",
-    originalPrice: "₹ 15,000",
 
     price: "Sold Out",
     priceNote: "Currently out of stock",
@@ -521,7 +509,6 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     name: "Gulabi Mor Poshak",
     category: "Bridal",
     subCategory: "Bridal",
-    originalPrice: "₹ 12,000",
 
     price: "₹ 7,390",
     priceNote: "Inclusive of stitching",
@@ -563,7 +550,6 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     name: "Neelam Noor Poshak",
     category: "Festive",
     type: "Stitched",
-    originalPrice: "₹ 15,000",
 
     price: "₹ 5,146",
     priceNote: "Inclusive of stitching",
@@ -598,7 +584,6 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     category: "Bridal",
     type: "Stitched",
     subCategory: "Bridal",
-    originalPrice: "₹ 8,000",
 
     price: "₹ 7,390",
     priceNote: "Inclusive of stitching",
@@ -633,7 +618,6 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     category: "Bridal",
     type: "Stitched",
     subCategory: "Bridal",
-    originalPrice: "₹ 15,000",
 
     price: "₹ 6,574",
     priceNote: "Inclusive of stitching",
@@ -667,7 +651,6 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     name: "Neelambari Poshak",
     category: "Bridal",
     type: "Stitched",
-    originalPrice: "₹ 12,000",
 
     price: "₹ 7,594",
     priceNote: "Inclusive of stitching",
@@ -702,7 +685,6 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     category: "Bridal",
     type: "Stitched",
     subCategory: "Bridal",
-    originalPrice: "₹ 8,000",
 
     price: "₹ 7,390",
     priceNote: "Inclusive of stitching",
@@ -736,7 +718,6 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     name: "Gulabi Noor Poshak",
     category: "Festive",
     type: "Stitched",
-    originalPrice: "₹ 15,000",
 
     price: "₹ 4,228",
     priceNote: "Inclusive of stitching",
@@ -771,7 +752,6 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     name: "Gulabi Poshak",
     category: "Festive",
     subCategory: "Festive",
-    originalPrice: "₹6,100",
     price: "₹ 4,840",
     priceNote: "Inclusive of stitching",
     fabric: "Half-Pure Fabric",
@@ -813,7 +793,6 @@ export const REAL_POSHAKS: PoshakProduct[] = [
 
     category: "Festive",
     subCategory: "Festive",
-    originalPrice: "₹7,000",
     price: "₹ 5,554",
     priceNote: "Inclusive of stitching",
     fabric: "Tissue Georgette & Chiffon",
@@ -854,7 +833,6 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     name: "Kesariya Gulab Poshak",
     category: "Everyday",
     subCategory: "Everyday",
-    originalPrice: "₹ 15,000",
 
     price: "₹ 2,800",
     priceNote: "Inclusive of stitching",
@@ -898,7 +876,6 @@ export const REAL_POSHAKS: PoshakProduct[] = [
 
     category: "Festive",
     subCategory: "Festive",
-    originalPrice: "₹7,000",
     price: "₹ 5,554",
     priceNote: "Inclusive of stitching",
     fabric: "Pure Fabric",
@@ -940,7 +917,6 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     category: "Bridal",
 
     subCategory: "Bridal",
-    originalPrice: "₹9,500",
     price: "₹ 7,390",
     priceNote: "Inclusive of stitching",
     fabric: "Half-Pure Fabric & Pure Chiffon",
@@ -983,7 +959,6 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     category: "Festive",
 
     subCategory: "Festive",
-    originalPrice: "₹5,650",
     price: "₹ 4,534",
     priceNote: "Inclusive of stitching",
     fabric: "Half-Pure Fabric",
@@ -1025,7 +1000,6 @@ export const REAL_POSHAKS: PoshakProduct[] = [
 
     category: "Bridal",
     subCategory: "Bridal",
-    originalPrice: "₹9,500",
     price: "₹ 7,390",
     priceNote: "Inclusive of stitching",
     fabric: "Royal Velvet & Georgette",
@@ -1066,7 +1040,6 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     name: "Rani Crimson Poshak",
     category: "Festive",
     subCategory: "Festive",
-    originalPrice: "₹8,200",
     price: "₹ 6,370",
     priceNote: "Inclusive of stitching",
     fabric: "Pure Georgette & Brocade",
@@ -1107,7 +1080,6 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     name: "Kundan Rajputi Rakhdi",
     category: "Jewellery",
     type: "Jewellery",
-    originalPrice: "₹ 12,000",
 
     price: "₹ 5,350",
     fabric: "Metal",
@@ -1124,7 +1096,6 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     name: "Rajputi Borla",
     category: "Jewellery",
     type: "Jewellery",
-    originalPrice: "₹ 12,000",
 
     price: "₹ 3,820",
     fabric: "Metal",
@@ -1141,7 +1112,6 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     name: "Rajputi Bridal Jewellery Set",
     category: "Jewellery",
     type: "Jewellery",
-    originalPrice: "₹ 15,000",
 
     price: "₹ 46,150",
     fabric: "Metal",
@@ -1158,7 +1128,6 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     name: "Rajputi Sheeshphool",
     category: "Jewellery",
     type: "Jewellery",
-    originalPrice: "₹ 15,000",
 
     price: "₹ 8,410",
     fabric: "Metal",
@@ -1176,7 +1145,6 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     name: "Rajsi Green Aad Necklace Set",
     category: "Jewellery",
     type: "Jewellery",
-    originalPrice: "₹ 8,000",
 
     price: "₹ 15,550",
     fabric: "Metal",
@@ -1193,7 +1161,6 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     name: "Rajsi Kundan Aad Necklace",
     category: "Jewellery",
     type: "Jewellery",
-    originalPrice: "₹ 15,000",
 
     price: "₹ 12,490",
     fabric: "Metal",
@@ -1210,7 +1177,6 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     name: "Kesari Noor Semi Stitched Poshak",
     category: "Festive",
     subCategory: "Festive",
-    originalPrice: "₹ 5,590",
     price: "₹ 4,626",
     fabric: "Fandy Fabric",
     craft: "Heavy Zari Multi Work Border with Diamond Work",
@@ -1248,7 +1214,6 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     name: "Laal Mahal Semi Stitched Poshak",
     category: "Festive",
     subCategory: "Festive",
-    originalPrice: "₹ 5,590",
     price: "₹ 4,626",
     fabric: "Fandy Fabric",
     craft: "Heavy Zari Multi Work Border with Diamond Work",
@@ -1286,7 +1251,6 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     name: "Rajrani Maroon Ivory Semi Stitched Poshak",
     category: "Festive",
     subCategory: "Festive",
-    originalPrice: "₹ 5,590",
     price: "₹ 4,626",
     fabric: "Fandy Fabric",
     craft: "Heavy Zari Multi Work Border with Diamond Work",
@@ -1324,7 +1288,6 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     name: "Rani Sa Gulabi Semi Stitched Poshak",
     category: "Festive",
     subCategory: "Festive",
-    originalPrice: "₹ 5,590",
     price: "₹ 4,626",
     fabric: "Fandy Fabric",
     craft: "Heavy Zari Multi Work Border with Diamond Work",
@@ -1362,7 +1325,6 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     name: "Red Rani Special Semi Stitched Poshak",
     category: "Bridal",
     subCategory: "Bridal",
-    originalPrice: "₹ 5,190",
     price: "₹ 4,320",
     fabric: "Heavy Quality",
     craft: "Heavy Border Work",
@@ -1395,7 +1357,6 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     name: "Red Rani Special Semi Stitched Poshak",
     category: "Bridal",
     subCategory: "Bridal",
-    originalPrice: "₹ 5,190",
     price: "₹ 4,320",
     fabric: "Heavy Quality",
     craft: "Heavy Border Work",
@@ -1428,7 +1389,6 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     name: "Red Rani Special Semi Stitched Poshak",
     category: "Bridal",
     subCategory: "Bridal",
-    originalPrice: "₹ 5,190",
     price: "₹ 4,320",
     fabric: "Heavy Quality",
     craft: "Heavy Border Work",
@@ -1461,7 +1421,6 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     name: "Red Rani Special Semi Stitched Poshak",
     category: "Bridal",
     subCategory: "Bridal",
-    originalPrice: "₹ 5,190",
     price: "₹ 4,320",
     fabric: "Heavy Quality",
     craft: "Heavy Border Work",
@@ -1494,7 +1453,6 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     name: "Baingani Gulnaar Leheriya Semi Stitched Poshak",
     category: "Festive",
     subCategory: "Festive",
-    originalPrice: "₹ 4,550",
     price: "₹ 3,820",
     fabric: "Premium Royal Pure Fabric",
     craft: "Heavy Fancy Barik Zari Work with Stone Work",
@@ -1531,7 +1489,6 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     name: "Gulnaar Leheriya Semi Stitched Poshak",
     category: "Festive",
     subCategory: "Festive",
-    originalPrice: "₹ 4,550",
     price: "₹ 3,820",
     fabric: "Premium Royal Pure Fabric",
     craft: "Heavy Fancy Barik Zari Work with Stone Work",
@@ -1568,7 +1525,6 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     name: "Hari Kesariya Leheriya Semi Stitched Poshak",
     category: "Festive",
     subCategory: "Festive",
-    originalPrice: "₹ 4,550",
     price: "₹ 3,820",
     fabric: "Premium Royal Pure Fabric",
     craft: "Heavy Fancy Barik Zari Work with Stone Work",
@@ -1605,7 +1561,6 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     name: "Panna Leheriya Semi Stitched Poshak",
     category: "Festive",
     subCategory: "Festive",
-    originalPrice: "₹ 4,550",
     price: "₹ 3,820",
     fabric: "Premium Royal Pure Fabric",
     craft: "Heavy Fancy Barik Zari Work with Stone Work",
@@ -1642,7 +1597,6 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     name: "Rani Gulabi Leheriya Semi Stitched Poshak",
     category: "Festive",
     subCategory: "Festive",
-    originalPrice: "₹ 4,550",
     price: "₹ 3,820",
     fabric: "Premium Royal Pure Fabric",
     craft: "Heavy Fancy Barik Zari Work with Stone Work",
@@ -1679,7 +1633,6 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     name: "Surkh Kesariya Leheriya Semi Stitched Poshak",
     category: "Festive",
     subCategory: "Festive",
-    originalPrice: "₹ 4,550",
     price: "₹ 3,820",
     fabric: "Premium Royal Pure Fabric",
     craft: "Heavy Fancy Barik Zari Work with Stone Work",

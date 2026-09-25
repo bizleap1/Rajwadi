@@ -57,14 +57,6 @@ export async function POST(
       );
     }
 
-    // Exchange policy: Only allowed after the order is delivered
-    if (order.fulfilmentStatus !== "DELIVERED") {
-      return NextResponse.json(
-        { error: "Exchange requests can only be initiated after your order has been delivered." },
-        { status: 400 }
-      );
-    }
-
     const body = await req.json();
     const validated = CreateExchangeSchema.safeParse(body);
 
@@ -78,7 +70,7 @@ export async function POST(
     const { orderItemId, reason, reasonDetails, desiredSize, desiredReplacement } = validated.data;
 
     // Verify order item belongs to order
-    const orderItem = order.items.find((item: any) => item.id === orderItemId);
+    const orderItem = order.items.find((item) => item.id === orderItemId);
     if (!orderItem) {
       return NextResponse.json(
         { error: "Selected item does not belong to this order" },

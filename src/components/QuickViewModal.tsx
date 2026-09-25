@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Check, ShoppingBag, ArrowRight } from "lucide-react";
-import { PoshakProduct, getPoshakDisplayName, getCategoryEyebrow } from "@/data/products";
+import { PoshakProduct } from "@/data/products";
 import { useCart } from "@/context/CartContext";
 
 interface QuickViewModalProps {
@@ -26,13 +26,6 @@ export default function QuickViewModal({
   const [isAdded, setIsAdded] = useState(false);
 
   if (!product) return null;
-
-  const isUnstitched =
-    (product.type || "").toLowerCase() === "unstitched" ||
-    (product.category || "").toLowerCase() === "unstitched";
-  const isJewellery =
-    (product.type || "").toLowerCase() === "jewellery" ||
-    (product.category || "").toLowerCase() === "jewellery";
 
   const currentImage = selectedImage || product.image;
   const allImages = [product.image, ...(product.additionalImages || [])];
@@ -112,73 +105,56 @@ export default function QuickViewModal({
             <div className="p-6 sm:p-8 flex flex-col justify-between">
               <div>
                 <span className="text-[10px] uppercase tracking-[0.25em] text-[#855D25] font-semibold font-sans block mb-1">
-                  {getCategoryEyebrow(product)}
+                  {product.category} Poshak
                 </span>
 
                 <h3 className="font-serif text-2xl sm:text-3xl text-[#171717] font-normal leading-tight mb-2">
-                  {getPoshakDisplayName(product)}
+                  {product.name}
                 </h3>
 
-                <div className="flex items-baseline gap-2.5 mb-4">
-                  {product.originalPrice && (
-                    <span className="font-sans text-sm text-[#8C827A] line-through font-normal">
-                      {product.originalPrice}
-                    </span>
-                  )}
-                  <span className="font-serif text-2xl text-[#5A1F2B] font-medium tracking-wide">
-                    {product.price}
-                  </span>
-                </div>
+                <p className="font-sans text-xl text-[#171717] font-medium tracking-wide mb-4">
+                  {product.price}
+                </p>
 
                 <p className="text-xs text-[#171717]/75 font-sans font-light leading-relaxed mb-6 border-b border-[#E6DCB8]/80 pb-4">
                   {product.description}
                 </p>
 
-                {/* Size Selector (Only if not unstitched and not jewellery) */}
-                {!isUnstitched && !isJewellery && (
-                  <div className="mb-6">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-xs uppercase tracking-wider text-[#171717] font-medium font-sans">
-                        Size (Bust / Fit)
-                      </span>
-                      <span className="text-[11px] text-[#855D25] font-sans">
-                        Standard Rajputi Measurements
-                      </span>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2.5">
-                      {AVAILABLE_SIZES.map((size) => {
-                        const isSelected = selectedSize === size;
-                        return (
-                          <button
-                            key={size}
-                            type="button"
-                            onClick={() => setSelectedSize(size)}
-                            className={`min-w-[44px] px-3.5 py-2 text-xs font-sans font-medium uppercase tracking-wider border transition-all duration-200 ${
-                              isSelected
-                                ? "bg-[#5A1F2B] text-[#FAF5EE] border-[#5A1F2B] shadow-sm"
-                                : "bg-white/60 text-[#171717]/80 border-[#D8CCB8] hover:border-[#855D25]"
-                            }`}
-                          >
-                            {size}
-                          </button>
-                        );
-                      })}
-                    </div>
+                {/* Size Selector */}
+                <div className="mb-6">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-xs uppercase tracking-wider text-[#171717] font-medium font-sans">
+                      Size (Bust / Fit)
+                    </span>
+                    <span className="text-[11px] text-[#855D25] font-sans">
+                      Standard Rajputi Measurements
+                    </span>
                   </div>
-                )}
+
+                  <div className="flex flex-wrap gap-2.5">
+                    {AVAILABLE_SIZES.map((size) => {
+                      const isSelected = selectedSize === size;
+                      return (
+                        <button
+                          key={size}
+                          type="button"
+                          onClick={() => setSelectedSize(size)}
+                          className={`min-w-[44px] px-3.5 py-2 text-xs font-sans font-medium uppercase tracking-wider border transition-all duration-200 ${
+                            isSelected
+                              ? "bg-[#5A1F2B] text-[#FAF5EE] border-[#5A1F2B] shadow-sm"
+                              : "bg-white/60 text-[#171717]/80 border-[#D8CCB8] hover:border-[#855D25]"
+                          }`}
+                        >
+                          {size}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
 
               {/* Action Buttons */}
               <div className="space-y-3 pt-4 border-t border-[#E6DCB8]/80">
-                {/* Note for unstitched products */}
-                {isUnstitched && product.stitchingAvailable !== false && (
-                  <div className="flex items-center gap-1.5 text-xs text-[#855D25] font-sans tracking-wide pb-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#C6A15B] flex-shrink-0" />
-                    <span>Stitching service available on request.</span>
-                  </div>
-                )}
-
                 {/* [ ADD TO BAG ] Button */}
                 <button
                   onClick={handleAddToBag}
