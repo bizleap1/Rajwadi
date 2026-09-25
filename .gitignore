@@ -22,8 +22,11 @@ yarn-debug.log*
 .env.production
 .env.development
 
-# Root test/verification scripts and screenshots
+# Scratch and temp files
+.next-dev/
+/scratch/
 /*.png
 take_screenshots*.js
 capture_*.js
 test_*.js
+update_*.js
