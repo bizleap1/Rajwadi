@@ -16,6 +16,21 @@ export interface CartItem {
   image: string;
   inStock?: boolean;
   stock?: number;
+  // Full backwards & legacy compatibility for components accessing item.product
+  product: {
+    id: string;
+    slug?: string;
+    name: string;
+    price: string;
+    category?: string;
+    image: string;
+    images?: string[];
+    imagePosition?: string;
+    imageScale?: number;
+    stitchingAvailable?: boolean;
+    stitchingPriceInPaise?: number;
+    [key: string]: any;
+  };
 }
 
 interface CartContextType {
@@ -42,18 +57,74 @@ interface CartContextType {
       images?: string[];
       stitchingAvailable?: boolean;
       stitchingPriceInPaise?: number;
+      [key: string]: any;
     },
     size?: string,
     quantity?: number,
     stitchingSelected?: boolean
   ) => void;
-  removeFromCart: (productId: string, size: string, stitchingSelected: boolean) => void;
-  updateQuantity: (productId: string, size: string, stitchingSelected: boolean, delta: number) => void;
+  removeFromCart: (productId: string, size?: string, stitchingSelected?: boolean) => void;
+  updateQuantity: (
+    productId: string,
+    size?: string,
+    stitchingSelectedOrDelta?: boolean | number,
+    delta?: number
+  ) => void;
   clearCart: () => void;
   reconcileCart: () => Promise<void>;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
+
+// Helper to guarantee `product` sub-object is always present and robust on every CartItem
+function ensureProduct(item: any): CartItem {
+  const pId = item.productId || item.product?.id || item.product?.slug || item.id || "";
+  const name = item.name || item.product?.name || "Rajputi Poshak";
+  const category = item.category || item.product?.category || "Semi-Stitched";
+  const image =
+    item.image ||
+    item.product?.image ||
+    (item.product?.images && item.product.images[0]) ||
+    "/placeholder.webp";
+  const priceInPaise = item.unitPriceInPaise || item.totalInPaise || 0;
+  const priceStr =
+    item.product?.price ||
+    (priceInPaise
+      ? `₹ ${(priceInPaise / 100).toLocaleString("en-IN")}`
+      : "₹ 0");
+
+  const productObj = {
+    id: pId,
+    slug: pId,
+    name,
+    category,
+    price: priceStr,
+    image,
+    images: item.product?.images || [image],
+    imagePosition: item.product?.imagePosition || "center 5%",
+    imageScale: item.product?.imageScale || 1,
+    stitchingAvailable: item.product?.stitchingAvailable ?? true,
+    stitchingPriceInPaise: item.stitchingPriceInPaise || 0,
+    ...(item.product || {}),
+  };
+
+  return {
+    productId: pId,
+    internalId: item.internalId || productObj.id,
+    name,
+    category,
+    size: item.size || "Standard",
+    stitchingSelected: Boolean(item.stitchingSelected),
+    stitchingPriceInPaise: item.stitchingPriceInPaise || 0,
+    unitPriceInPaise: item.unitPriceInPaise || priceInPaise,
+    quantity: item.quantity || 1,
+    totalInPaise: item.totalInPaise || priceInPaise * (item.quantity || 1),
+    image,
+    inStock: item.inStock ?? true,
+    stock: item.stock,
+    product: productObj,
+  };
+}
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -94,7 +165,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
       if (res.ok) {
         const data = await res.json();
-        setCartItems(data.items || []);
+        setCartItems((data.items || []).map(ensureProduct));
         setSubtotalInPaise(data.subtotalInPaise || 0);
         setStitchingInPaise(data.stitchingInPaise || 0);
         setShippingInPaise(data.shippingInPaise || 0);
@@ -115,7 +186,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) {
-          setCartItems(parsed);
+          setCartItems(parsed.map(ensureProduct));
         }
       }
     } catch (e) {
@@ -157,7 +228,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
     let unitPriceInPaise = product.priceInPaise;
     if (!unitPriceInPaise && product.price) {
-      const numeric = product.price.replace(/[^0-9]/g, "");
+      const numeric = String(product.price).replace(/[^0-9]/g, "");
       unitPriceInPaise = (numeric ? parseInt(numeric, 10) : 0) * 100;
     }
 
@@ -180,14 +251,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       if (existingIdx > -1) {
         const updated = [...prev];
         const newQty = updated[existingIdx].quantity + quantity;
-        updated[existingIdx] = {
+        updated[existingIdx] = ensureProduct({
           ...updated[existingIdx],
           quantity: newQty,
           totalInPaise: (unitPriceInPaise + stitchingPriceInPaise) * newQty,
-        };
+        });
         return updated;
       } else {
-        const newItem: CartItem = {
+        const newItem = ensureProduct({
           productId: pId,
           internalId: product.internalId || product.id,
           name: product.name,
@@ -200,7 +271,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           totalInPaise: (unitPriceInPaise + stitchingPriceInPaise) * quantity,
           image: mainImage,
           inStock: true,
-        };
+          product,
+        });
         return [...prev, newItem];
       }
     });
@@ -210,41 +282,51 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setTimeout(() => reconcileCart(), 100);
   };
 
-  const removeFromCart = (productId: string, size: string, stitchingSelected: boolean) => {
+  // Supports both (productId, size) and (productId, size, stitchingSelected)
+  const removeFromCart = (
+    productId: string,
+    size?: string,
+    stitchingSelected?: boolean
+  ) => {
     setCartItems((prev) =>
-      prev.filter(
-        (item) =>
-          !(
-            item.productId === productId &&
-            item.size === size &&
-            item.stitchingSelected === stitchingSelected
-          )
-      )
+      prev.filter((item) => {
+        const idMatches = item.productId === productId || item.product?.id === productId;
+        if (!idMatches) return true;
+        if (size !== undefined && item.size !== size) return true;
+        if (stitchingSelected !== undefined && item.stitchingSelected !== stitchingSelected) return true;
+        return false;
+      })
     );
   };
 
+  // Supports both (productId, size, delta) and (productId, size, stitchingSelected, delta)
   const updateQuantity = (
     productId: string,
-    size: string,
-    stitchingSelected: boolean,
-    delta: number
+    size?: string,
+    stitchingSelectedOrDelta?: boolean | number,
+    deltaArg?: number
   ) => {
+    const isThreeArgs = typeof stitchingSelectedOrDelta === "number";
+    const delta = isThreeArgs ? stitchingSelectedOrDelta : (deltaArg ?? 0);
+    const checkStitching = !isThreeArgs && stitchingSelectedOrDelta !== undefined;
+
     setCartItems((prev) =>
       prev
         .map((item) => {
-          if (
-            item.productId === productId &&
-            item.size === size &&
-            item.stitchingSelected === stitchingSelected
-          ) {
+          const matchId = item.productId === productId || item.product?.id === productId;
+          const matchSize = size === undefined || item.size === size;
+          const matchStitching = !checkStitching || item.stitchingSelected === stitchingSelectedOrDelta;
+
+          if (matchId && matchSize && matchStitching) {
             const newQty = item.quantity + delta;
             if (newQty <= 0) return null;
-            return {
+            const singleUnitPrice = item.unitPriceInPaise || (item.totalInPaise / item.quantity);
+            const singleStitching = item.stitchingPriceInPaise || 0;
+            return ensureProduct({
               ...item,
               quantity: newQty,
-              totalInPaise:
-                (item.unitPriceInPaise + item.stitchingPriceInPaise) * newQty,
-            };
+              totalInPaise: (singleUnitPrice + singleStitching) * newQty,
+            });
           }
           return item;
         })
