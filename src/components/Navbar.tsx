@@ -1,22 +1,22 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, User, Heart, ShoppingBag, Menu, X } from "lucide-react";
+import { Search, Heart, ShoppingBag, Menu, X, User } from "lucide-react";
+import dynamic from "next/dynamic";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
-import SearchModal from "@/components/SearchModal";
-import AccountPopover from "@/components/AccountPopover";
-import AuthModal from "@/components/AuthModal";
+import { useAuth } from "@/context/AuthContext";
+
+const SearchModal = dynamic(() => import("@/components/SearchModal"), { ssr: false });
+const AccountPopover = dynamic(() => import("@/components/AccountPopover"), { ssr: false });
 
 interface NavbarProps {
   onOpenConsultation?: () => void;
   solidOnTop?: boolean;
 }
-
-type AccountOverlayState = "none" | "popover" | "signin" | "signup";
 
 export default function Navbar({
   onOpenConsultation,
@@ -24,11 +24,12 @@ export default function Navbar({
 }: NavbarProps) {
   const { cartCount, setIsCartOpen } = useCart();
   const { wishlistCount } = useWishlist();
+  const { user } = useAuth();
   const [isAtTop, setIsAtTop] = useState(true);
   const [isVisible, setIsVisible] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [accountOverlay, setAccountOverlay] = useState<AccountOverlayState>("none");
+  const [isAccountOpen, setIsAccountOpen] = useState(false);
 
   const isScrolled = !isAtTop;
   const lastScrollY = useRef(0);
@@ -50,8 +51,8 @@ export default function Navbar({
 
       setIsAtTop(false);
 
-      // If mobile menu, search drawer, or account overlay is active, keep navbar in place
-      if (isMobileMenuOpen || isSearchOpen || accountOverlay !== "none") {
+      // If mobile menu, search drawer, or account popover is active, keep navbar in place
+      if (isMobileMenuOpen || isSearchOpen || isAccountOpen) {
         setIsVisible(true);
         lastScrollY.current = currentScrollY;
         return;
@@ -77,13 +78,27 @@ export default function Navbar({
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [isMobileMenuOpen, isSearchOpen, accountOverlay]);
+  }, [isMobileMenuOpen, isSearchOpen, isAccountOpen]);
+
+  // Lock background scroll when mobile menu is open
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isMobileMenuOpen]);
 
   return (
     <>
       {/* Main Luxury Header: Present when needed, invisible during immersive content consumption */}
       <header
-        className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ease-in-out border-none ${
+        className={`fixed top-0 left-0 w-full ${
+          isMobileMenuOpen ? "z-[70]" : "z-50"
+        } transition-all duration-300 ease-in-out border-none ${
           isVisible ? "translate-y-0" : "-translate-y-full pointer-events-none"
         } ${
           !useSolidStyle
@@ -206,26 +221,38 @@ export default function Navbar({
               )}
             </Link>
 
-            {/* 4. Account Icon (Accessible on desktop & mobile) */}
+            {/* 👑 Atelier Owner Portal Direct Link (Only when signed in as ADMIN) */}
+            {user?.role === "ADMIN" && (
+              <Link
+                href="/admin/products"
+                className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#6D1A2A] text-white text-[10px] uppercase tracking-wider font-semibold rounded-xs hover:bg-[#581522] transition-colors shadow-2xs mr-0.5"
+                title="Atelier Owner Portal"
+              >
+                <span>👑 Owner Portal</span>
+              </Link>
+            )}
+
+            {/* 4. My Account Icon (Accessible on desktop & mobile) */}
             <div className="relative">
               <button
-                onClick={() =>
-                  setAccountOverlay((prev) => (prev === "popover" ? "none" : "popover"))
-                }
-                aria-label="Account"
+                onClick={() => setIsAccountOpen((prev) => !prev)}
+                aria-label="My Account"
                 className={`${
                   useSolidStyle ? "text-charcoal" : "text-royal-ivory"
-                } hover:text-[#C6A15B] transition-colors duration-300 p-1.5 cursor-pointer flex items-center justify-center`}
+                } hover:text-[#C6A15B] transition-colors duration-300 p-1.5 cursor-pointer flex items-center justify-center relative`}
               >
                 <User className="w-4 h-4 sm:w-[18px] sm:h-[18px] stroke-[1.35]" />
+                {user?.role === "ADMIN" && (
+                  <span className="absolute -top-1 -right-0.5 text-[9px] leading-none select-none" title="Owner Admin Active">
+                    👑
+                  </span>
+                )}
               </button>
 
-              {/* Desktop Popover (Only on desktop, anchored below User button) */}
+              {/* Desktop Popover */}
               <AccountPopover
-                isOpen={accountOverlay === "popover"}
-                onClose={() => setAccountOverlay("none")}
-                onOpenSignIn={() => setAccountOverlay("signin")}
-                onOpenSignUp={() => setAccountOverlay("signup")}
+                isOpen={isAccountOpen}
+                onClose={() => setIsAccountOpen(false)}
                 view="desktop"
               />
             </div>
@@ -233,12 +260,10 @@ export default function Navbar({
         </div>
       </header>
 
-      {/* Mobile Full-Screen Account Drawer (Fixed to Viewport, Outside Transformed Header) */}
+      {/* Mobile Full-Screen Account Drawer */}
       <AccountPopover
-        isOpen={accountOverlay === "popover"}
-        onClose={() => setAccountOverlay("none")}
-        onOpenSignIn={() => setAccountOverlay("signin")}
-        onOpenSignUp={() => setAccountOverlay("signup")}
+        isOpen={isAccountOpen}
+        onClose={() => setIsAccountOpen(false)}
         view="mobile"
       />
 
@@ -248,25 +273,27 @@ export default function Navbar({
         onClose={() => setIsSearchOpen(false)}
       />
 
-      {/* Auth Modal: Sign In & Create Account (Mutually exclusive with Popover) */}
-      <AuthModal
-        isOpen={accountOverlay === "signin" || accountOverlay === "signup"}
-        onClose={() => setAccountOverlay("none")}
-        mode={accountOverlay === "signup" ? "signup" : "signin"}
-        onSwitchMode={(nextMode) => setAccountOverlay(nextMode)}
-        onBack={() => setAccountOverlay("popover")}
-      />
-
       {/* Mobile Drawer Navigation */}
       <AnimatePresence>
         {isMobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.2 }}
-            className="lg:hidden fixed top-[56px] sm:top-[64px] left-0 w-full z-40 bg-royal-ivory border-b border-antique-gold/30 px-6 py-7 shadow-2xl max-h-[calc(100dvh-64px)] overflow-y-auto"
-          >
+          <>
+            {/* Dark Backdrop Overlay */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="lg:hidden fixed inset-0 z-[60] bg-black/60 backdrop-blur-xs"
+            />
+
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2 }}
+              className="lg:hidden fixed top-[56px] sm:top-[64px] left-0 w-full z-[65] bg-royal-ivory border-b border-antique-gold/30 px-6 py-7 shadow-2xl max-h-[calc(100dvh-64px)] overflow-y-auto"
+            >
             <div className="flex flex-col space-y-5 text-center">
               {/* Quick Search Button on Mobile */}
               <button
@@ -304,6 +331,15 @@ export default function Navbar({
 
               {/* Actions: Book Consultation + Account */}
               <div className="pt-4 border-t border-soft-beige flex flex-col items-center gap-3">
+                {user?.role === "ADMIN" && (
+                  <Link
+                    href="/admin/products"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="w-full py-3 bg-[#FAF0E1] border border-[#D9C4B0] text-[#6D1A2A] text-xs uppercase tracking-widest font-semibold flex items-center justify-center gap-2 hover:bg-[#F5E6D0] transition-colors shadow-2xs"
+                  >
+                    <span>👑 Atelier Owner Portal</span>
+                  </Link>
+                )}
                 <button
                   onClick={() => {
                     setIsMobileMenuOpen(false);
@@ -316,17 +352,18 @@ export default function Navbar({
                 <button
                   onClick={() => {
                     setIsMobileMenuOpen(false);
-                    setAccountOverlay("popover");
+                    setIsAccountOpen(true);
                   }}
                   className="inline-flex items-center gap-2 text-xs uppercase tracking-wider text-charcoal/70 hover:text-charcoal pt-1 transition-colors cursor-pointer"
                 >
                   <User className="w-3.5 h-3.5 stroke-[1.5]" />
-                  <span>My Account</span>
+                  <span>My Account &amp; Services</span>
                 </button>
               </div>
             </div>
           </motion.div>
-        )}
+        </>
+      )}
       </AnimatePresence>
     </>
   );

@@ -88,52 +88,79 @@ export default function OurHeritagePage() {
       </section>
 
       {/* ────────────────────────────────────────────────────────────────────── */}
-      {/* 2. THE RAJWADI STORY                                                  */}
+      {/* 2. THE RAJWADI STORY & FOUNDER CURATION                               */}
       {/* ────────────────────────────────────────────────────────────────────── */}
-      <section className="py-10 sm:py-12 md:py-14 bg-[#FDFBF7] border-b border-[#E6DCB8]/60">
+      <section className="py-12 sm:py-14 md:py-16 bg-[#FDFBF7] border-b border-[#E6DCB8]/60">
         <div className="max-w-5xl mx-auto px-5 sm:px-8 md:px-12">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-10 lg:gap-12 items-center">
-            {/* Left: Strong Heritage Visual */}
+            {/* Left: Founder Portrait (owner.png) */}
             <div className="lg:col-span-5 order-2 lg:order-1">
-              <div className="relative w-full aspect-[4/5] overflow-hidden bg-[#EAE0D2] shadow-sm border border-[#E6DCB8]">
-                <Image
-                  src="/royal_heritage_corridor.webp"
-                  alt="Traditional Rajasthani Royal Architecture"
-                  fill
-                  loading="lazy"
-                  sizes="(max-width: 1024px) 100vw, 42vw"
-                  className="object-cover object-center"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#171717]/15 via-transparent to-transparent pointer-events-none" />
+              <div className="relative p-2 bg-[#FAF5EE] border border-[#E6DCB8] shadow-xl rounded-xs group">
+                <div className="relative w-full aspect-[3/4] overflow-hidden bg-[#EAE0D2]">
+                  <Image
+                    src="/owner.png"
+                    alt="Shalu Vyas - Founder & Master Curator of Rajwadi Rajputi Poshak"
+                    fill
+                    priority
+                    sizes="(max-width: 1024px) 100vw, 42vw"
+                    className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#1F080C]/80 via-transparent to-transparent pointer-events-none" />
+
+                  {/* Luxury Plaque on Image */}
+                  <div className="absolute bottom-3 left-3 right-3 text-center px-3 py-2.5 bg-[#1F080C]/90 backdrop-blur-xs border border-[#C6A15B]/50 rounded-xs shadow-md">
+                    <p className="text-[10px] uppercase tracking-[0.24em] text-[#C6A15B] font-semibold font-sans">
+                      FOUNDER &amp; MASTER CURATOR
+                    </p>
+                    <p className="font-serif text-sm sm:text-base text-[#FAF6F0] font-normal tracking-wide mt-0.5">
+                      Shalu Vyas
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Right: Story Editorial (2 short paragraphs max) */}
+            {/* Right: Story & Founder Editorial */}
             <div className="lg:col-span-7 order-1 lg:order-2 text-left">
               <div className="flex items-center gap-2.5 mb-2.5">
                 <span className="h-[1px] w-5 bg-[#855D25]" />
                 <span className="text-[10px] sm:text-[11px] uppercase tracking-[0.3em] text-[#855D25] font-semibold font-sans">
-                  THE RAJWADI STORY
+                  THE RAJWADI STORY &amp; FOUNDER CURATION
                 </span>
               </div>
 
-              <h2 className="font-serif text-3xl sm:text-4xl md:text-[38px] text-[#171717] font-light leading-[1.18] tracking-wide mb-4 sm:mb-5">
+              <h2 className="font-serif text-3xl sm:text-4xl md:text-[38px] text-[#171717] font-light leading-[1.18] tracking-wide mb-2 sm:mb-2.5">
                 A tradition worth carrying forward.
               </h2>
 
+              <p className="font-serif italic text-sm text-[#855D25] mb-4">
+                Curated with devotion by Founder Shalu Vyas
+              </p>
+
               <div className="space-y-3.5 text-[14px] sm:text-[15px] text-[#4A423B] font-light leading-[1.75] font-sans">
                 <p>
-                  Rajwadi was created with a singular devotion: to honor the dignity,
+                  Rajwadi was created by <strong className="font-medium text-[#171717]">Shalu Vyas</strong> with a singular devotion: to honor the dignity,
                   form and ceremonial purity of the Rajputi Poshak. In a world of fleeting trends,
                   we believe ceremonial attire deserves reverence—preserving its sacred role in
-                  weddings, festivals, and life’s defining milestones.
+                  weddings, auspicious festivals, and life’s defining milestones.
                 </p>
 
                 <p>
                   Our purpose is to bring authentic Poshaks to those who cherish heritage:
-                  hand-selected fabrics, genuine festive colorways, and timeless needlework,
-                  curated with care so that tradition continues to be worn with quiet pride.
+                  hand-selected pure fabrics, genuine festive colorways, and timeless Gotapatti &amp; Kasab Zari needlework,
+                  curated with personal care so that tradition continues to be worn with quiet pride.
                 </p>
+              </div>
+
+              {/* Founder Heritage Quote Card */}
+              <div className="mt-5 p-4 sm:p-4.5 bg-[#FAF5EE] border-l-2 border-[#5A1F2B] border-y border-r border-[#E6DCB8]/80 rounded-r-xs shadow-2xs">
+                <p className="font-serif italic text-xs sm:text-[13px] text-[#5A1F2B] leading-relaxed">
+                  &ldquo;A Rajputi Poshak is not simply ceremonial attire—it is an unbroken lineage of grace, poise, and Rajasthani pride woven into every thread.&rdquo;
+                </p>
+                <div className="mt-2.5 flex items-center justify-between text-[10px] text-[#855D25] font-semibold uppercase tracking-wider font-sans">
+                  <span>— SHALU VYAS • FOUNDER &amp; CURATOR</span>
+                  <span className="text-[#8C827A] normal-case tracking-normal font-serif italic font-normal">Jaipur, Rajasthan</span>
+                </div>
               </div>
             </div>
           </div>
