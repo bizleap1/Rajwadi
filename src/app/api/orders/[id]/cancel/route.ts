@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "@/lib/auth";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import { z } from "zod";
 
 export const dynamic = "force-dynamic";
 
 const CancelOrderSchema = z.object({
-  reason: z.string().min(1, "Please select a reason for cancellation"),
-  comments: z.string().optional(),
+  reason: z.string().trim().min(1, "Please select a reason for cancellation").max(200),
+  comments: z.string().trim().max(1000).optional(),
 });
 
 export async function POST(
@@ -15,6 +16,18 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const ip = getClientIp(req.headers);
+    const rateLimit = checkRateLimit(`order-cancel:${ip}`, {
+      windowMs: 60_000,
+      maxRequests: 5,
+    });
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        { error: "Too many cancellation attempts. Please try again shortly." },
+        { status: 429 }
+      );
+    }
+
     const { id } = await params;
     const { searchParams } = new URL(req.url);
     const guestToken = searchParams.get("token");

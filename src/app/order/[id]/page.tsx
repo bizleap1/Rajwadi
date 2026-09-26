@@ -165,6 +165,7 @@ export default function OrderTrackingPage() {
       })
     : null;
 
+  const isDelivered = order.fulfilmentStatus === "DELIVERED";
   const currentStageIndex = STAGES.findIndex((s) => s.key === order.fulfilmentStatus);
   const exchangeRequests = order.exchangeRequests || [];
 
@@ -585,27 +586,29 @@ export default function OrderTrackingPage() {
                     </div>
                   </div>
 
-                  {/* Exchange Button Action */}
-                  <div className="flex sm:flex-col justify-end items-end gap-2 pt-2 sm:pt-0">
-                    {activeExchange ? (
-                      <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#FAF5EE] border border-[#855D25]/30 text-[#855D25] rounded text-[11px] font-medium">
-                        <RefreshCw className="w-3 h-3 animate-spin" />
-                        <span>Exchange {activeExchange.status.replace(/_/g, " ")}</span>
-                      </div>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSelectedExchangeItem(item);
-                          setIsExchangeModalOpen(true);
-                        }}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-[#855D25] text-[#855D25] hover:bg-[#855D25] hover:text-white rounded text-[11px] uppercase tracking-wider font-semibold transition-colors shadow-2xs"
-                      >
-                        <ArrowRightLeft className="w-3.5 h-3.5" />
-                        <span>Request Exchange</span>
-                      </button>
-                    )}
-                  </div>
+                  {/* Exchange Button Action (Available only after order is delivered or exchange is active) */}
+                  {(activeExchange || isDelivered) && (
+                    <div className="flex sm:flex-col justify-end items-end gap-2 pt-2 sm:pt-0">
+                      {activeExchange ? (
+                        <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#FAF5EE] border border-[#855D25]/30 text-[#855D25] rounded text-[11px] font-medium">
+                          <RefreshCw className="w-3 h-3 animate-spin" />
+                          <span>Exchange {activeExchange.status.replace(/_/g, " ")}</span>
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedExchangeItem(item);
+                            setIsExchangeModalOpen(true);
+                          }}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-[#855D25] text-[#855D25] hover:bg-[#855D25] hover:text-white rounded text-[11px] uppercase tracking-wider font-semibold transition-colors shadow-2xs"
+                        >
+                          <ArrowRightLeft className="w-3.5 h-3.5" />
+                          <span>Request Exchange</span>
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -653,7 +656,7 @@ export default function OrderTrackingPage() {
       </main>
 
       {/* Exchange Request Modal */}
-      {selectedExchangeItem && (
+      {selectedExchangeItem && isDelivered && (
         <ExchangeRequestModal
           isOpen={isExchangeModalOpen}
           onClose={() => {

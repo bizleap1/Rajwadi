@@ -15,6 +15,37 @@ const renderUrl = cleanUrl(process.env.RENDER_EXTERNAL_URL);
 
 const effectiveBaseUrl = authUrl || appUrl || renderUrl || vercelProjectUrl || vercelUrl || "http://localhost:3000";
 
+function isAllowedOrigin(originStr: string, hostHeader?: string | null): boolean {
+  try {
+    const url = new URL(originStr);
+    const h = url.hostname.toLowerCase();
+
+    // 1. Matches incoming Host header (same domain / forwarded proxy)
+    if (hostHeader) {
+      const cleanHost = hostHeader.split(":")[0].toLowerCase();
+      if (h === cleanHost) return true;
+    }
+
+    // 2. Local development
+    if (h === "localhost" || h === "127.0.0.1" || h === "0.0.0.0") return true;
+
+    // 3. Deployment domains (Vercel previews, onrender, custom domain)
+    if (h.endsWith(".vercel.app") || h.endsWith(".onrender.com")) return true;
+
+    // 4. Configured environment URLs
+    const configuredList = [appUrl, authUrl, renderUrl, vercelProjectUrl, vercelUrl].filter(Boolean) as string[];
+    for (const c of configuredList) {
+      try {
+        if (new URL(c).hostname.toLowerCase() === h) return true;
+      } catch {}
+    }
+
+    return false;
+  } catch {
+    return false;
+  }
+}
+
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
@@ -46,14 +77,12 @@ export const auth = betterAuth({
       const host = request.headers.get("x-forwarded-host") || request.headers.get("host");
       const proto = request.headers.get("x-forwarded-proto") || "https";
 
-      if (origin && origin !== "null") {
+      if (origin && origin !== "null" && isAllowedOrigin(origin, host)) {
         try {
           origins.push(new URL(origin).origin);
-        } catch {
-          origins.push(origin);
-        }
+        } catch {}
       }
-      if (referer && referer !== "null") {
+      if (referer && referer !== "null" && isAllowedOrigin(referer, host)) {
         try {
           origins.push(new URL(referer).origin);
         } catch {}

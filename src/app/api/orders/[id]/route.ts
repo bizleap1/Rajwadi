@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "@/lib/auth";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -9,6 +10,18 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const ip = getClientIp(req.headers);
+    const rateLimit = checkRateLimit(`order-details:${ip}`, {
+      windowMs: 60_000,
+      maxRequests: 60,
+    });
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        { error: "Too many requests. Please wait a moment." },
+        { status: 429 }
+      );
+    }
+
     const { id } = await params;
     const { searchParams } = new URL(req.url);
     const guestToken = searchParams.get("token");

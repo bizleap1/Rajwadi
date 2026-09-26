@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "@/lib/auth";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import { z } from "zod";
 
 export const dynamic = "force-dynamic";
 
 const CreateExchangeSchema = z.object({
-  orderItemId: z.string().min(1, "Please select an item to exchange"),
+  orderItemId: z.string().trim().min(1, "Please select an item to exchange").max(100),
   reason: z.enum([
     "SIZE_FITTING",
     "COLOR_PREFERENCE",
@@ -14,9 +15,9 @@ const CreateExchangeSchema = z.object({
     "ALTERATION",
     "OTHER",
   ]),
-  reasonDetails: z.string().optional(),
-  desiredSize: z.string().optional(),
-  desiredReplacement: z.string().optional(),
+  reasonDetails: z.string().trim().max(1000, "Details cannot exceed 1000 characters").optional(),
+  desiredSize: z.string().trim().max(50, "Size cannot exceed 50 characters").optional(),
+  desiredReplacement: z.string().trim().max(200, "Replacement cannot exceed 200 characters").optional(),
 });
 
 export async function POST(
@@ -24,6 +25,18 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const ip = getClientIp(req.headers);
+    const rateLimit = checkRateLimit(`order-exchange-post:${ip}`, {
+      windowMs: 60_000,
+      maxRequests: 5,
+    });
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        { error: "Too many exchange requests. Please wait a minute before trying again." },
+        { status: 429 }
+      );
+    }
+
     const { id } = await params;
     const { searchParams } = new URL(req.url);
     const guestToken = searchParams.get("token");
@@ -57,9 +70,18 @@ export async function POST(
       );
     }
 
-    const body = await req.json();
-    const validated = CreateExchangeSchema.safeParse(body);
+    // Crash-safe JSON parsing
+    let body: any;
+    try {
+      body = await req.json();
+    } catch {
+      return NextResponse.json(
+        { error: "Invalid JSON request body" },
+        { status: 400 }
+      );
+    }
 
+    const validated = CreateExchangeSchema.safeParse(body);
     if (!validated.success) {
       return NextResponse.json(
         { error: "Invalid exchange request details", details: validated.error.flatten() },
@@ -68,6 +90,26 @@ export async function POST(
     }
 
     const { orderItemId, reason, reasonDetails, desiredSize, desiredReplacement } = validated.data;
+
+    // Verify order is delivered before allowing exchange
+    if (order.fulfilmentStatus !== "DELIVERED") {
+      return NextResponse.json(
+        { error: "Exchange requests can only be submitted once the order has been delivered." },
+        { status: 400 }
+      );
+    }
+
+    // Verify 7-day exchange window
+    const deliveryDate = (order as any).deliveredAt || order.updatedAt;
+    if (deliveryDate) {
+      const daysSinceDelivery = (Date.now() - new Date(deliveryDate).getTime()) / (1000 * 60 * 60 * 24);
+      if (daysSinceDelivery > 7) {
+        return NextResponse.json(
+          { error: "The 7-day exchange guarantee period has ended for this order. Please reach out to concierge support." },
+          { status: 400 }
+        );
+      }
+    }
 
     // Verify order item belongs to order
     const orderItem = order.items.find((item) => item.id === orderItemId);
@@ -126,6 +168,18 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const ip = getClientIp(req.headers);
+    const rateLimit = checkRateLimit(`order-exchange-get:${ip}`, {
+      windowMs: 60_000,
+      maxRequests: 30,
+    });
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        { error: "Too many requests. Please slow down." },
+        { status: 429 }
+      );
+    }
+
     const { id } = await params;
     const { searchParams } = new URL(req.url);
     const guestToken = searchParams.get("token");
