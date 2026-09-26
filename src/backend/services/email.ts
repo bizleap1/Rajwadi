@@ -1,4 +1,6 @@
 import nodemailer, { type Transporter } from "nodemailer";
+import prisma from "@/lib/prisma";
+import { generateReceiptHtml, type ReceiptOrderData } from "./receipt";
 
 interface SendOtpEmailOptions {
   email: string;
@@ -190,4 +192,306 @@ export async function sendOtpEmail({ email, otp, type }: SendOtpEmailOptions): P
 
   // 3. Fallback: Logged in console for local dev
   return true;
+}
+
+/**
+ * Designated Owner Notification Email (bizleap1@gmail.com default)
+ */
+export const OWNER_ORDER_EMAIL = process.env.OWNER_EMAIL || "bizleap1@gmail.com";
+
+interface SendRawEmailParams {
+  to: string;
+  subject: string;
+  html: string;
+  text: string;
+}
+
+/**
+ * Universal raw email sender via Resend API with domain fallback & SMTP support.
+ */
+export async function sendRawEmail({
+  to,
+  subject,
+  html,
+  text,
+}: SendRawEmailParams): Promise<{ success: boolean; error?: string }> {
+  // 1. If Resend is configured, send via Resend API
+  if (isResendConfigured) {
+    try {
+      let res = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${resendApiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: emailFrom,
+          to: [to],
+          subject,
+          html,
+          text,
+        }),
+      });
+
+      let resData = await res.json().catch(() => ({}));
+
+      // Domain verification fallback: if unverified domain, retry with Resend onboarding address
+      if (
+        !res.ok &&
+        resData?.message &&
+        typeof resData.message === "string" &&
+        (resData.message.toLowerCase().includes("domain") ||
+          resData.message.toLowerCase().includes("verify") ||
+          res.status === 403)
+      ) {
+        console.warn(
+          `[Email Service] Retrying delivery to ${to} via Resend onboarding domain...`
+        );
+        res = await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${resendApiKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            from: "Rajwadi Couture <onboarding@resend.dev>",
+            to: [to],
+            subject,
+            html,
+            text,
+          }),
+        });
+        resData = await res.json().catch(() => ({}));
+      }
+
+      if (!res.ok) {
+        throw new Error(resData?.message || `Resend API returned status ${res.status}`);
+      }
+
+      console.log(`✓ Email delivered to ${to} via Resend (ID: ${resData.id || "ok"}).`);
+      return { success: true };
+    } catch (err: any) {
+      console.error(`✗ Resend delivery error for ${to}:`, err.message || err);
+      // Fall through to SMTP if available
+    }
+  }
+
+  // 2. If SMTP is configured, send via SMTP
+  if (transporter) {
+    try {
+      await transporter.sendMail({
+        from: emailFrom,
+        to,
+        subject,
+        html,
+        text,
+      });
+      console.log(`✓ Email delivered to ${to} via SMTP.`);
+      return { success: true };
+    } catch (err: any) {
+      console.error(`✗ SMTP delivery error for ${to}:`, err.message || err);
+      return { success: false, error: err.message || "SMTP error" };
+    }
+  }
+
+  // 3. Simulated delivery in development
+  console.log(`ℹ [Dev Mailbox] Simulated email sent to ${to}: "${subject}"`);
+  return { success: true };
+}
+
+export interface SendOrderInvoiceResult {
+  customerSent: boolean;
+  ownerSent: boolean;
+  orderNumber?: string;
+  errors?: string[];
+}
+
+/**
+ * Dispatches the official Rajwadi Tax Invoice to both the Customer and the Owner (bizleap1@gmail.com).
+ * Runs safely without blocking or throwing unhandled errors.
+ */
+export async function sendOrderInvoiceEmail(
+  orderOrId: string | ReceiptOrderData,
+  customerEmailOverride?: string
+): Promise<SendOrderInvoiceResult> {
+  const errors: string[] = [];
+  let orderData: ReceiptOrderData;
+
+  try {
+    if (typeof orderOrId === "string") {
+      const orderRecord = await prisma.order.findFirst({
+        where: {
+          OR: [{ id: orderOrId }, { orderNumber: orderOrId }],
+        },
+        include: {
+          items: true,
+          user: {
+            select: {
+              name: true,
+              email: true,
+              phone: true,
+            },
+          },
+        },
+      });
+
+      if (!orderRecord) {
+        console.error(`[Invoice Email] Order with ID ${orderOrId} not found.`);
+        return { customerSent: false, ownerSent: false, errors: ["Order not found"] };
+      }
+
+      orderData = {
+        id: orderRecord.id,
+        orderNumber: orderRecord.orderNumber,
+        createdAt: orderRecord.createdAt.toISOString(),
+        guestEmail: orderRecord.guestEmail || undefined,
+        paymentStatus: orderRecord.paymentStatus,
+        paymentMethod: orderRecord.paymentMethod,
+        razorpayPaymentId: orderRecord.razorpayPaymentId || undefined,
+        utrNumber: orderRecord.utrNumber || undefined,
+        subtotalInPaise: orderRecord.subtotalInPaise,
+        stitchingInPaise: orderRecord.stitchingInPaise,
+        shippingInPaise: orderRecord.shippingInPaise,
+        discountInPaise: orderRecord.discountInPaise,
+        totalInPaise: orderRecord.totalInPaise,
+        shippingAddress: orderRecord.shippingAddress,
+        user: orderRecord.user
+          ? {
+              name: orderRecord.user.name || undefined,
+              email: orderRecord.user.email || undefined,
+              phone: orderRecord.user.phone || undefined,
+            }
+          : undefined,
+        items: orderRecord.items.map((it) => ({
+          id: it.id,
+          productName: it.productName,
+          category: it.category || undefined,
+          size: it.size || undefined,
+          stitchingSelected: it.stitchingSelected,
+          stitchingPriceInPaise: it.stitchingPriceInPaise,
+          unitPriceInPaise: it.unitPriceInPaise,
+          quantity: it.quantity,
+          totalInPaise: it.totalInPaise,
+        })),
+      };
+    } else {
+      orderData = orderOrId;
+    }
+
+    const orderNum = orderData.orderNumber || orderData.id || "ORD";
+    const totalRupees = ((orderData.totalInPaise ?? 0) / 100).toLocaleString("en-IN");
+
+    // Extract customer email with comprehensive fallback hierarchy
+    let customerEmail = customerEmailOverride?.trim()?.toLowerCase();
+    if (!customerEmail && orderData.guestEmail) {
+      customerEmail = orderData.guestEmail.trim().toLowerCase();
+    }
+    if (!customerEmail && orderData.user?.email) {
+      customerEmail = orderData.user.email.trim().toLowerCase();
+    }
+    if (!customerEmail && orderData.shippingAddress) {
+      let addr: any = orderData.shippingAddress;
+      if (typeof addr === "string") {
+        try {
+          addr = JSON.parse(addr);
+        } catch {}
+      }
+      if (addr && addr.email) {
+        customerEmail = String(addr.email).trim().toLowerCase();
+      }
+    }
+
+    // Extract patron name
+    let patronName = orderData.user?.name || "Valued Patron";
+    if (orderData.shippingAddress) {
+      let addr: any = orderData.shippingAddress;
+      if (typeof addr === "string") {
+        try {
+          addr = JSON.parse(addr);
+        } catch {}
+      }
+      if (addr && (addr.fullName || addr.name)) {
+        patronName = addr.fullName || addr.name;
+      }
+    }
+
+    const ownerEmail = OWNER_ORDER_EMAIL.trim().toLowerCase();
+
+    console.log("\n=======================================================");
+    console.log(` 👑 DISPATCHING RAJWADI TAX INVOICE EMAILS`);
+    console.log(` Order Ref     : #${orderNum}`);
+    console.log(` Total Amount  : ₹${totalRupees}`);
+    console.log(` Customer Mail : ${customerEmail || "Not provided"}`);
+    console.log(` Owner Mail    : ${ownerEmail}`);
+    console.log("=======================================================\n");
+
+    // 1. Generate Customer Confirmation Email
+    const customerSubject = `👑 Order Confirmed: Your Rajwadi Couture Tax Invoice #${orderNum}`;
+    const customerHtml = generateReceiptHtml(orderData, {
+      isEmail: true,
+      emailRecipientType: "customer",
+    });
+    const customerText = `Rajwadi Rajputi Poshak — Order Confirmation\nOrder Reference: #${orderNum}\nTotal Amount: ₹${totalRupees}\nStatus: ${orderData.paymentStatus || "PENDING"}\n\nDear ${patronName},\nThank you for placing your order with Rajwadi Haute Couture. Your official tax invoice has been generated.\nFor any assistance, please write to royal@rajwadirajputiposhak.com.`;
+
+    // 2. Generate Owner Alert Email
+    const ownerSubject = `👑 [New Order Alert] Rajwadi #${orderNum} — ₹${totalRupees}`;
+    const ownerHtml = generateReceiptHtml(orderData, {
+      isEmail: true,
+      emailRecipientType: "owner",
+    });
+    const ownerText = `👑 NEW ORDER ALERT #${orderNum}\nCustomer: ${patronName}\nEmail: ${customerEmail || "N/A"}\nAmount: ₹${totalRupees}\nPayment Method: ${orderData.paymentMethod || "UPI"}\nStatus: ${orderData.paymentStatus || "PENDING"}\n\nCheck full details in your admin dashboard: /admin/orders`;
+
+    // 3. Dispatch both in parallel
+    const [customerRes, ownerRes] = await Promise.allSettled([
+      customerEmail
+        ? sendRawEmail({
+            to: customerEmail,
+            subject: customerSubject,
+            html: customerHtml,
+            text: customerText,
+          })
+        : Promise.resolve({ success: false, error: "No customer email available" }),
+      sendRawEmail({
+        to: ownerEmail,
+        subject: ownerSubject,
+        html: ownerHtml,
+        text: ownerText,
+      }),
+    ]);
+
+    const customerSent = customerRes.status === "fulfilled" && customerRes.value.success;
+    const ownerSent = ownerRes.status === "fulfilled" && ownerRes.value.success;
+
+    if (customerRes.status === "fulfilled" && !customerRes.value.success && customerRes.value.error) {
+      errors.push(`Customer email: ${customerRes.value.error}`);
+    } else if (customerRes.status === "rejected") {
+      errors.push(`Customer email rejection: ${customerRes.reason}`);
+    }
+
+    if (ownerRes.status === "fulfilled" && !ownerRes.value.success && ownerRes.value.error) {
+      errors.push(`Owner email: ${ownerRes.value.error}`);
+    } else if (ownerRes.status === "rejected") {
+      errors.push(`Owner email rejection: ${ownerRes.reason}`);
+    }
+
+    console.log(
+      `[Invoice Dispatch Summary] Order #${orderNum} => Customer (${customerEmail || "N/A"}): ${
+        customerSent ? "SUCCESS" : "FAILED"
+      }, Owner (${ownerEmail}): ${ownerSent ? "SUCCESS" : "FAILED"}`
+    );
+
+    return {
+      customerSent,
+      ownerSent,
+      orderNumber: orderNum,
+      errors: errors.length > 0 ? errors : undefined,
+    };
+  } catch (err: any) {
+    console.error(`[Invoice Email Fatal] Failed to dispatch invoice for order:`, err);
+    return {
+      customerSent: false,
+      ownerSent: false,
+      errors: [err.message || "Unknown dispatch failure"],
+    };
+  }
 }

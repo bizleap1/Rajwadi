@@ -5,6 +5,7 @@ import { CreateCheckoutOrderSchema } from "@/lib/validations/checkout";
 import { getServerSession } from "@/lib/auth";
 import { razorpayInstance, isRazorpayConfigured } from "@/lib/razorpay";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { sendOrderInvoiceEmail } from "@/backend/services/email";
 
 export const dynamic = "force-dynamic";
 
@@ -323,6 +324,11 @@ export async function POST(req: NextRequest) {
           timeout: 30000,
         }
       );
+
+      // Asynchronously trigger tax invoice delivery to both customer & store owner (bizleap1@gmail.com)
+      sendOrderInvoiceEmail(savedOrder.id, deliveryAddress.email).catch((emailErr) => {
+        console.error("Async invoice delivery error:", emailErr);
+      });
 
       return NextResponse.json({
         success: true,

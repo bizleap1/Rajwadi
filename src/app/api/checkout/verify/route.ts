@@ -6,6 +6,7 @@ import {
   fetchRazorpayPayment,
   isRazorpayConfigured,
 } from "@/lib/razorpay";
+import { sendOrderInvoiceEmail } from "@/backend/services/email";
 
 export const dynamic = "force-dynamic";
 
@@ -176,6 +177,11 @@ export async function POST(req: NextRequest) {
         timeout: 30000,
       }
     );
+
+    // Asynchronously trigger tax invoice delivery to both customer & store owner (bizleap1@gmail.com)
+    sendOrderInvoiceEmail(order.id).catch((emailErr) => {
+      console.error("Payment verified invoice delivery error:", emailErr);
+    });
 
     return NextResponse.json({
       success: true,

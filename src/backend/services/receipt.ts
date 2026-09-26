@@ -71,7 +71,12 @@ const STATE_CODES: Record<string, string> = {
   "chandigarh": "04",
 };
 
-export function generateReceiptHtml(order: ReceiptOrderData): string {
+export interface ReceiptHtmlOptions {
+  isEmail?: boolean;
+  emailRecipientType?: "customer" | "owner";
+}
+
+export function generateReceiptHtml(order: ReceiptOrderData, options?: ReceiptHtmlOptions): string {
   // Parse shipping address safely
   let addr: any = {};
   if (order.shippingAddress) {
@@ -647,7 +652,27 @@ export function generateReceiptHtml(order: ReceiptOrderData): string {
   <div class="invoice-wrapper">
     <div class="watermark-emblem">RAJWADI</div>
 
-    <!-- Onscreen Print Button Toolbar (Hidden in print/pdf) -->
+    ${options?.isEmail
+      ? (options.emailRecipientType === "owner"
+          ? `<!-- Owner New Order Email Banner -->
+    <div style="background-color: #581522; color: #FFFFFF; padding: 14px 18px; border-radius: 4px; margin-bottom: 16px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+      <div style="font-family: 'Playfair Display', Georgia, serif; font-size: 16px; font-weight: 700; letter-spacing: 0.05em; color: #FDFBF7; text-transform: uppercase;">
+        👑 New Order Received &bull; Order #${orderNum}
+      </div>
+      <div style="font-size: 12px; color: #E8D8B0; margin-top: 4px; line-height: 1.5;">
+        Customer: <strong>${patronName}</strong> (${patronPhone}) &bull; Total: <strong>Rs. ${(totalPaise / 100).toLocaleString("en-IN")}</strong> &bull; Status: <strong>${order.paymentStatus || "VERIFICATION_PENDING"}</strong>
+      </div>
+    </div>`
+          : `<!-- Customer Confirmation Email Banner -->
+    <div style="background-color: #FAF6F0; border: 1px solid #EBD9C8; padding: 14px 18px; border-radius: 4px; margin-bottom: 16px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+      <div style="font-family: 'Playfair Display', Georgia, serif; font-size: 16px; font-weight: 700; letter-spacing: 0.05em; color: #581522; text-transform: uppercase;">
+        👑 Royal Order Confirmation &bull; Rajwadi Haute Couture
+      </div>
+      <div style="font-size: 12px; color: #66584F; margin-top: 4px; line-height: 1.5;">
+        Valued Patron <strong>${patronName}</strong>, your couture order has been placed successfully. Please find your official tax invoice below.
+      </div>
+    </div>`)
+      : `<!-- Onscreen Print Button Toolbar (Hidden in print/pdf) -->
     <div class="no-print">
       <div style="font-size: 11.5px; font-weight: 600; color: #581522;">
         👑 Official Tax Invoice &bull; #${orderNum}
@@ -660,7 +685,8 @@ export function generateReceiptHtml(order: ReceiptOrderData): string {
           Close
         </button>
       </div>
-    </div>
+    </div>`
+    }
 
     <!-- 1. HEADER SECTION -->
     <table class="header-table">

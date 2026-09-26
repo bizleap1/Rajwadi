@@ -26,6 +26,9 @@ export {
 // 3. Backend Services
 export {
   sendOtpEmail,
+  sendOrderInvoiceEmail,
+  OWNER_ORDER_EMAIL,
+  type SendOrderInvoiceResult,
   isResendConfigured,
   isSmtpConfigured,
 } from "./services/email";
