@@ -148,7 +148,16 @@ export default function OrderTrackingPage() {
     );
   }
 
-  const shippingAddr = order.shippingAddress as any;
+  const shippingAddr =
+    typeof order?.shippingAddress === "string"
+      ? (() => {
+          try {
+            return JSON.parse(order.shippingAddress);
+          } catch {
+            return {};
+          }
+        })()
+      : order?.shippingAddress || {};
   const dateStr = new Date(order.createdAt).toLocaleDateString("en-IN", {
     weekday: "long",
     day: "numeric",
@@ -216,6 +225,10 @@ export default function OrderTrackingPage() {
                 <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs uppercase tracking-wider font-semibold rounded bg-emerald-100 text-emerald-900 border border-emerald-300">
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" />
                   <span>Delivered</span>
+                </span>
+              ) : order.fulfilmentStatus === "PENDING" ? (
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs uppercase tracking-wider font-semibold rounded bg-[#F3EBE1] text-[#6D1A2A] border border-[#EBD9C8]">
+                  <span>Order Confirmed</span>
                 </span>
               ) : (
                 <span className="px-2.5 py-1 text-xs uppercase tracking-wider font-medium rounded bg-[#F3EBE1] text-[#4A3E37]">
@@ -634,21 +647,35 @@ export default function OrderTrackingPage() {
             <div className="bg-[#FAF6F0] p-4 rounded-sm border border-[#EBD9C8] space-y-2">
               <div className="flex justify-between text-[#6B5E55]">
                 <span>Items Subtotal</span>
-                <span className="font-medium text-[#171717]">{order.subtotalFormatted}</span>
+                <span className="font-medium text-[#171717]">
+                  {order.subtotalFormatted || (order.subtotalInPaise != null ? `₹ ${(order.subtotalInPaise / 100).toLocaleString("en-IN")}` : "—")}
+                </span>
               </div>
               {order.stitchingInPaise > 0 && (
                 <div className="flex justify-between text-[#6B5E55]">
                   <span>Stitching Service</span>
-                  <span className="font-medium text-[#171717]">{order.stitchingFormatted}</span>
+                  <span className="font-medium text-[#171717]">
+                    {order.stitchingFormatted || `₹ ${(order.stitchingInPaise / 100).toLocaleString("en-IN")}`}
+                  </span>
+                </div>
+              )}
+              {order.discountInPaise > 0 && (
+                <div className="flex justify-between text-[#6B5E55]">
+                  <span>Discount {order.couponCode ? `(${order.couponCode})` : ""}</span>
+                  <span className="font-medium text-emerald-700">
+                    -{order.discountFormatted || `₹ ${(order.discountInPaise / 100).toLocaleString("en-IN")}`}
+                  </span>
                 </div>
               )}
               <div className="flex justify-between text-[#6B5E55]">
                 <span>Shipping</span>
-                <span className="font-medium text-emerald-700">{order.shippingFormatted}</span>
+                <span className="font-medium text-emerald-700">{order.shippingFormatted || "FREE"}</span>
               </div>
               <div className="pt-2 border-t border-[#EBD9C8] flex justify-between text-sm font-serif font-semibold text-[#171717]">
                 <span>Total Amount</span>
-                <span className="text-[#6D1A2A]">{order.totalFormatted}</span>
+                <span className="text-[#6D1A2A]">
+                  {order.totalFormatted || (order.totalInPaise != null ? `₹ ${(order.totalInPaise / 100).toLocaleString("en-IN")}` : "—")}
+                </span>
               </div>
             </div>
           </div>

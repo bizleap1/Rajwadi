@@ -297,7 +297,9 @@ function OrderConfirmationContent() {
 
               <div className="pt-2 border-t border-[#EBD9C8] flex justify-between text-sm font-serif font-semibold text-[#171717]">
                 <span>Amount Paid</span>
-                <span className="text-[#6D1A2A]">{order.totalFormatted}</span>
+                <span className="text-[#6D1A2A]">
+                  {order.totalFormatted || (order.totalInPaise != null ? `₹ ${(order.totalInPaise / 100).toLocaleString("en-IN")}` : "—")}
+                </span>
               </div>
             </div>
           </div>

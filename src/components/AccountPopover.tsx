@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
@@ -6,8 +6,6 @@ import {
   X,
   ArrowRight,
   Package,
-  Heart,
-  ShoppingBag,
   MessageCircle,
   Sparkles,
   LogOut,
@@ -18,8 +16,6 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import { useWishlist } from "@/context/WishlistContext";
-import { useCart } from "@/context/CartContext";
 
 interface AccountPopoverProps {
   isOpen: boolean;
@@ -34,8 +30,6 @@ export default function AccountPopover({
 }: AccountPopoverProps) {
   const router = useRouter();
   const { user, isAuthenticated, logout, openAuthModal } = useAuth();
-  const { wishlistCount } = useWishlist();
-  const { cartCount } = useCart();
   const popoverRef = useRef<HTMLDivElement>(null);
 
   // Handle escape key
@@ -232,45 +226,7 @@ export default function AccountPopover({
                   </button>
                 )}
 
-                {/* 3. Wishlist */}
-                <button
-                  type="button"
-                  onClick={() => handleNavigate("/wishlist")}
-                  className="w-full text-left group py-2 px-2.5 hover:bg-white/70 rounded-xs transition-colors flex items-center justify-between cursor-pointer"
-                >
-                  <div className="flex items-center gap-3">
-                    <Heart className="w-4 h-4 text-[#855D25]" />
-                    <div>
-                      <span className="font-semibold uppercase tracking-wider text-[#171717] block group-hover:text-[#5A1F2B] transition-colors">
-                        Saved Poshaks
-                      </span>
-                      <span className="text-[11px] text-[#6B635B]">
-                        {wishlistCount > 0 ? `${wishlistCount} items saved` : "Your curated wishlist"}
-                      </span>
-                    </div>
-                  </div>
-                  <span className="text-xs text-[#8C827A] group-hover:text-[#5A1F2B]">&rarr;</span>
-                </button>
 
-                {/* 4. Shopping Bag */}
-                <button
-                  type="button"
-                  onClick={() => handleNavigate("/cart")}
-                  className="w-full text-left group py-2 px-2.5 hover:bg-white/70 rounded-xs transition-colors flex items-center justify-between cursor-pointer"
-                >
-                  <div className="flex items-center gap-3">
-                    <ShoppingBag className="w-4 h-4 text-[#855D25]" />
-                    <div>
-                      <span className="font-semibold uppercase tracking-wider text-[#171717] block group-hover:text-[#5A1F2B] transition-colors">
-                        Royal Shopping Bag
-                      </span>
-                      <span className="text-[11px] text-[#6B635B]">
-                        {cartCount > 0 ? `${cartCount} items in bag` : "Ready for checkout"}
-                      </span>
-                    </div>
-                  </div>
-                  <span className="text-xs text-[#8C827A] group-hover:text-[#5A1F2B]">&rarr;</span>
-                </button>
 
                 {/* 5. WhatsApp Concierge */}
                 <a
@@ -460,39 +416,7 @@ export default function AccountPopover({
                   </button>
                 )}
 
-                <button
-                  type="button"
-                  onClick={() => handleNavigate("/wishlist")}
-                  className="w-full py-4 flex items-center justify-between text-left group cursor-pointer"
-                >
-                  <div className="flex items-center gap-3.5">
-                    <Heart className="w-4 h-4 text-[#855D25]" />
-                    <div>
-                      <span className="font-semibold uppercase tracking-[0.16em] text-[#171717] group-active:text-[#5A1F2B] block">
-                        SAVED POSHAKS ({wishlistCount})
-                      </span>
-                      <span className="text-[11px] text-[#6B635B]">Your selected collection</span>
-                    </div>
-                  </div>
-                  <ArrowRight className="w-4 h-4 text-[#8C827A] group-active:text-[#5A1F2B]" />
-                </button>
 
-                <button
-                  type="button"
-                  onClick={() => handleNavigate("/cart")}
-                  className="w-full py-4 flex items-center justify-between text-left group cursor-pointer"
-                >
-                  <div className="flex items-center gap-3.5">
-                    <ShoppingBag className="w-4 h-4 text-[#855D25]" />
-                    <div>
-                      <span className="font-semibold uppercase tracking-[0.16em] text-[#171717] group-active:text-[#5A1F2B] block">
-                        ROYAL BAG &amp; CHECKOUT ({cartCount})
-                      </span>
-                      <span className="text-[11px] text-[#6B635B]">Items ready for purchase</span>
-                    </div>
-                  </div>
-                  <ArrowRight className="w-4 h-4 text-[#8C827A] group-active:text-[#5A1F2B]" />
-                </button>
 
                 <a
                   href="https://wa.me/918766667101?text=Hello%20Rajwadi%20Couture%2C%20I%20need%20assistance%20with%20my%20order."
