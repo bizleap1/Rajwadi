@@ -207,7 +207,7 @@ export default function ProductDetailModal({
                     className="w-full py-3 bg-transparent hover:bg-[#F4ECE1] text-[#5A1F2B] text-xs uppercase tracking-[0.2em] font-medium border border-[#5A1F2B]/40 hover:border-[#5A1F2B] transition-all flex items-center justify-center gap-2 cursor-pointer font-sans"
                   >
                     <MessageCircle className="w-3.5 h-3.5 stroke-[1.5]" />
-                    <span>Inquire & Bespoke Tailoring Consultation</span>
+                    <span>Inquire via WhatsApp Concierge</span>
                   </button>
                 </div>
 

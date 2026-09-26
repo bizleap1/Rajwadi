@@ -14,7 +14,6 @@ import {
   ArrowRight,
   ArrowLeft,
   Share2,
-  Scissors,
   Zap,
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
@@ -59,7 +58,6 @@ function ProductDetailInner({
   const [isAdded, setIsAdded] = useState(false);
   const [isConsultationOpen, setIsConsultationOpen] = useState(false);
   const [openAccordion, setOpenAccordion] = useState<string | null>(null);
-  const [stitchingEnabled, setStitchingEnabled] = useState<boolean>(false);
   const mobileCarouselRef = useRef<HTMLDivElement>(null);
 
   const isStitchedPoshak = useMemo(() => {
@@ -100,7 +98,6 @@ function ProductDetailInner({
   useEffect(() => {
     setSelectedImage(product.image);
     setActiveImageIndex(0);
-    setStitchingEnabled(false);
     if (Array.isArray(product.sizes) && product.sizes.length > 0) {
       setSelectedSize(product.sizes[0]);
     } else if (typeof product.size === "string" && product.size.trim()) {
@@ -132,15 +129,9 @@ function ProductDetailInner({
 
   const handleAddToBag = () => {
     if (!product.inStock) return;
-    const formatLabel = isJewellery
-      ? "Standard"
-      : isStitchedPoshak
-      ? `Stitched (${selectedSize})`
-      : stitchingEnabled
-      ? `With Stitching Service (${selectedSize})`
-      : `Unstitched (${selectedSize})`;
+    const formatLabel = isJewellery ? "Standard" : `Size: ${selectedSize}`;
 
-    addToCart(product, selectedSize || formatLabel, 1, stitchingEnabled);
+    addToCart(product, selectedSize || formatLabel, 1, false);
     setIsAdded(true);
     setIsCartOpen(true);
     setTimeout(() => setIsAdded(false), 2400);
@@ -148,27 +139,16 @@ function ProductDetailInner({
 
   const handleBuyNow = () => {
     if (!product.inStock) return;
-    const formatLabel = isJewellery
-      ? "Standard"
-      : isStitchedPoshak
-      ? `Stitched (${selectedSize})`
-      : stitchingEnabled
-      ? `With Stitching Service (${selectedSize})`
-      : `Unstitched (${selectedSize})`;
+    const formatLabel = isJewellery ? "Standard" : `Size: ${selectedSize}`;
 
-    addToCart(product, selectedSize || formatLabel, 1, stitchingEnabled);
+    addToCart(product, selectedSize || formatLabel, 1, false);
     router.push("/checkout");
   };
 
   const handleWhatsAppInquiry = () => {
     const sizeNote = isJewellery ? "" : ` (Size: ${selectedSize})`;
-    const stitchingText = isStitchedPoshak
-      ? `Stitched${sizeNote}`
-      : stitchingEnabled
-      ? `With Stitching Service${sizeNote}`
-      : `Unstitched${sizeNote}`;
     const message = encodeURIComponent(
-      `Pranam Rajwadi! I am interested in inquiring about "${product.name}" (${product.price || product.priceFormatted}, ${stitchingText}). Could you please share more details?`
+      `Pranam Rajwadi! I am interested in inquiring about "${product.name}" (${product.price || product.priceFormatted}${sizeNote}). Could you please share more details?`
     );
     window.open(`https://wa.me/918766667101?text=${message}`, "_blank");
   };
@@ -494,44 +474,7 @@ function ProductDetailInner({
               </div>
             )}
 
-            {/* Optional Tailoring Option if unstitched */}
-            {product.stitchingAvailable && !isStitchedPoshak && (
-              <div className="pb-4 mb-2">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="font-sans text-xs font-semibold text-[#171717] uppercase tracking-wider">
-                    CUSTOM TAILORING
-                  </span>
-                  <span className="font-sans text-[11px] text-[#855D25] italic flex items-center gap-1">
-                    <Scissors className="w-3 h-3" />
-                    <span>Custom tailoring available</span>
-                  </span>
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setStitchingEnabled(false)}
-                    className={`flex-1 py-2 px-3 text-xs font-sans font-medium tracking-wider transition-all border rounded-xs ${
-                      !stitchingEnabled
-                        ? "bg-[#5A1F2B] text-[#FAF6F0] border-[#5A1F2B] shadow-xs font-semibold"
-                        : "bg-white/80 text-[#171717]/80 border-[#E6DCB8]/80 hover:border-[#855D25] hover:bg-white"
-                    }`}
-                  >
-                    Unstitched Set
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setStitchingEnabled(true)}
-                    className={`flex-1 py-2 px-3 text-xs font-sans font-medium tracking-wider transition-all border rounded-xs ${
-                      stitchingEnabled
-                        ? "bg-[#5A1F2B] text-[#FAF6F0] border-[#5A1F2B] shadow-xs font-semibold"
-                        : "bg-white/80 text-[#171717]/80 border-[#E6DCB8]/80 hover:border-[#855D25] hover:bg-white"
-                    }`}
-                  >
-                    Bespoke Stitching (+{product.stitchingPriceFormatted || `₹ ${(product.stitchingPriceInPaise / 100).toLocaleString("en-IN")}`})
-                  </button>
-                </div>
-              </div>
-            )}
+
 
             {/* 7. PRIMARY & SECONDARY ACTIONS */}
             <div className="space-y-2.5 mb-6">
