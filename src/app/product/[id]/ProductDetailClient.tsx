@@ -14,7 +14,6 @@ import {
   ArrowRight,
   ArrowLeft,
   Share2,
-  Zap,
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
@@ -506,14 +505,13 @@ function ProductDetailInner({
                   )}
                 </button>
 
-                {/* 2. Buy Now (Instant Checkout) */}
+                {/* 2. Buy Now (Instant Checkout - Royal Antique Gold) */}
                 <button
                   type="button"
                   onClick={handleBuyNow}
                   disabled={!product.inStock}
-                  className="flex-1 h-[48px] sm:h-[50px] px-2 sm:px-3 text-[11px] sm:text-xs uppercase tracking-[0.14em] sm:tracking-[0.18em] font-semibold bg-[#855D25] hover:bg-[#6D1A2A] text-white transition-all duration-300 flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer font-sans shadow-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 h-[48px] sm:h-[50px] px-2 sm:px-3 text-[11px] sm:text-xs uppercase tracking-[0.22em] font-semibold bg-[#855D25] hover:bg-[#704C1C] text-[#FAF6F0] transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer font-sans shadow-xs active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed border border-[#704C1C]/30"
                 >
-                  <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-white text-white flex-shrink-0" />
                   <span className="truncate">Buy Now</span>
                 </button>
 
