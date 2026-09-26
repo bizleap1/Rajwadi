@@ -524,11 +524,11 @@ export default function CheckoutPage() {
           </nav>
 
           {/* Stepper Pills */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center flex-wrap gap-2 text-[10px] sm:text-[11px]">
             <button
               type="button"
               onClick={() => setCurrentStep("address")}
-              className={`px-3 py-1 text-[11px] uppercase tracking-wider font-semibold rounded-sm transition-colors flex items-center gap-1.5 cursor-pointer ${
+              className={`px-3 py-1 uppercase tracking-wider font-semibold rounded-sm transition-colors flex items-center gap-1.5 cursor-pointer ${
                 currentStep === "address"
                   ? "bg-[#6D1A2A] text-white"
                   : "bg-[#FAF5EE] text-[#855D25] border border-[#EBD9C8] hover:bg-[#F3EBE1]"
@@ -545,7 +545,7 @@ export default function CheckoutPage() {
               onClick={() => {
                 if (validateAddress()) setCurrentStep("payment");
               }}
-              className={`px-3 py-1 text-[11px] uppercase tracking-wider font-semibold rounded-sm transition-colors flex items-center gap-1.5 ${
+              className={`px-3 py-1 uppercase tracking-wider font-semibold rounded-sm transition-colors flex items-center gap-1.5 ${
                 currentStep === "payment"
                   ? "bg-[#6D1A2A] text-white"
                   : "bg-[#FAF5EE] text-[#8A796B] border border-[#EBD9C8] cursor-pointer"
@@ -575,7 +575,7 @@ export default function CheckoutPage() {
           <div className="lg:col-span-7 space-y-6">
             {currentStep === "address" ? (
               /* ── STEP 1: DELIVERY DESTINATION FORM ── */
-              <div className="bg-white p-6 sm:p-8 border border-[#EBD9C8] rounded-sm shadow-2xs space-y-6">
+              <div className="bg-white p-4 sm:p-8 border border-[#EBD9C8] rounded-sm shadow-2xs space-y-6">
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="h-[1px] w-5 bg-[#855D25]" />
@@ -885,7 +885,7 @@ export default function CheckoutPage() {
                 </button>
 
                 {/* Main Payment Container */}
-                <div className="bg-white p-6 sm:p-8 border border-[#EBD9C8] rounded-sm shadow-2xs space-y-6">
+                <div className="bg-white p-4 sm:p-8 border border-[#EBD9C8] rounded-sm shadow-2xs space-y-6">
                   <div>
                     <div className="flex items-center gap-2">
                       <span className="h-[1px] w-5 bg-[#855D25]" />
@@ -918,9 +918,9 @@ export default function CheckoutPage() {
                   </div>
 
                   {/* 2. QR Code Box */}
-                  <div className="p-6 bg-[#FCFAF6] border-2 border-[#855D25]/30 rounded-sm flex flex-col items-center justify-center space-y-4">
-                    <div className="p-3.5 bg-white border-2 border-[#855D25] rounded-sm shadow-md flex flex-col items-center">
-                      <div className="relative w-60 h-60">
+                  <div className="p-4 sm:p-6 bg-[#FCFAF6] border-2 border-[#855D25]/30 rounded-sm flex flex-col items-center justify-center space-y-4">
+                    <div className="p-3.5 bg-white border-2 border-[#855D25] rounded-sm shadow-md flex flex-col items-center max-w-full">
+                      <div className="relative w-52 h-52 sm:w-60 sm:h-60">
                         <Image
                           src={qrCodeUrl}
                           alt="Rajwadi UPI QR Code"
@@ -931,16 +931,16 @@ export default function CheckoutPage() {
                           priority
                         />
                       </div>
-                      <div className="mt-2.5 text-[11px] text-[#855D25] font-semibold uppercase tracking-wider flex items-center gap-1">
-                        <Sparkles className="w-3.5 h-3.5" />
+                      <div className="mt-2.5 text-[11px] text-[#855D25] font-semibold uppercase tracking-wider flex items-center gap-1 text-center">
+                        <Sparkles className="w-3.5 h-3.5 shrink-0" />
                         <span>Rajwadi Rajputi Poshak Official</span>
                       </div>
                     </div>
 
                     {/* Copy UPI ID */}
-                    <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
+                    <div className="flex flex-wrap items-center justify-center gap-2 pt-1 max-w-full">
                       <span className="text-xs text-[#6B5E55]">UPI ID:</span>
-                      <code className="px-2.5 py-1 bg-white border border-[#D9C4B0] text-xs font-mono font-bold text-[#171717] rounded select-all">
+                      <code className="px-2.5 py-1 bg-white border border-[#D9C4B0] text-xs font-mono font-bold text-[#171717] rounded select-all break-all max-w-full text-center">
                         {storeUpiId}
                       </code>
                       <button

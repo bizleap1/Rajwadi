@@ -77,7 +77,7 @@ export default function AdminLoginPage() {
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4 sm:px-0">
-        <div className="bg-white py-8 px-6 sm:px-10 shadow-sm border border-[#EBD9C8] rounded-none sm:rounded-sm">
+        <div className="bg-white py-6 px-4 sm:py-8 sm:px-10 shadow-sm border border-[#EBD9C8] rounded-sm">
           {error && (
             <div className="mb-6 p-3.5 bg-red-50 border border-red-200 text-red-800 text-xs flex items-start gap-2.5 rounded-sm">
               <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />

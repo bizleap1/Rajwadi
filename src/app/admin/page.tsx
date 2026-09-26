@@ -163,11 +163,11 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
           <button
             onClick={() => fetchDashboard(true)}
             disabled={isRefreshing}
-            className="px-3 py-2 bg-white border border-[#EBD9C8] hover:bg-[#FAF6F0] text-xs font-semibold text-[#4A3E37] rounded-sm transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+            className="flex-1 sm:flex-initial justify-center px-3 py-2 bg-white border border-[#EBD9C8] hover:bg-[#FAF6F0] text-xs font-semibold text-[#4A3E37] rounded-sm transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
             title="Refresh metrics"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? "animate-spin text-[#6D1A2A]" : ""}`} />
@@ -176,7 +176,7 @@ export default function AdminDashboardPage() {
 
           <Link
             href="/admin/products"
-            className="px-3.5 py-2 bg-[#FAF6F0] border border-[#855D25]/40 text-[#855D25] hover:bg-[#855D25]/10 text-xs uppercase tracking-wider font-semibold rounded-sm transition-colors flex items-center gap-1.5"
+            className="flex-1 sm:flex-initial justify-center px-3.5 py-2 bg-[#FAF6F0] border border-[#855D25]/40 text-[#855D25] hover:bg-[#855D25]/10 text-xs uppercase tracking-wider font-semibold rounded-sm transition-colors flex items-center gap-1.5"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Add Poshak</span>
@@ -184,7 +184,7 @@ export default function AdminDashboardPage() {
 
           <Link
             href="/admin/orders"
-            className="px-4 py-2 bg-[#6D1A2A] hover:bg-[#551320] text-white text-xs uppercase tracking-wider font-semibold shadow-xs rounded-sm transition-colors flex items-center gap-1.5"
+            className="w-full sm:w-auto justify-center px-4 py-2 bg-[#6D1A2A] hover:bg-[#551320] text-white text-xs uppercase tracking-wider font-semibold shadow-xs rounded-sm transition-colors flex items-center gap-1.5"
           >
             <ShoppingBag className="w-3.5 h-3.5" />
             <span>Manage Orders</span>
@@ -608,7 +608,7 @@ export default function AdminDashboardPage() {
                 </div>
               ) : (
                 <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs">
+                  <table className="w-full min-w-[560px] text-left text-xs">
                     <thead>
                       <tr className="border-b border-[#EBD9C8] text-[10px] uppercase tracking-wider text-[#8A796B]">
                         <th className="pb-2.5 font-semibold">Order</th>

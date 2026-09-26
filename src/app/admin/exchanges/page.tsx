@@ -207,7 +207,7 @@ export default function AdminExchangesPage() {
 
         <Link
           href="/admin/orders"
-          className="inline-flex items-center gap-1.5 px-4 py-2 border border-[#855D25] text-[#855D25] hover:bg-[#855D25] hover:text-white text-xs uppercase tracking-wider font-medium rounded-sm transition-colors shadow-2xs"
+          className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2 border border-[#855D25] text-[#855D25] hover:bg-[#855D25] hover:text-white text-xs uppercase tracking-wider font-medium rounded-sm transition-colors shadow-2xs"
         >
           <span>View All Orders</span>
           <ExternalLink className="w-3.5 h-3.5" />

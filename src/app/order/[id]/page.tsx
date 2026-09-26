@@ -194,7 +194,7 @@ export default function OrderTrackingPage() {
         </div>
 
         {/* ── 1. REAL-TIME DELIVERY TIMELINE STEPPER ── */}
-        <div className="bg-white p-6 border border-[#EBD9C8] rounded-sm shadow-2xs space-y-6">
+        <div className="bg-white p-4 sm:p-6 border border-[#EBD9C8] rounded-sm shadow-2xs space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4 border-b border-[#F0E5D8]">
             <div>
               <div className="flex items-center gap-2">
@@ -544,7 +544,7 @@ export default function OrderTrackingPage() {
         )}
 
         {/* ── 3. ORDERED ITEMS & DETAILS ── */}
-        <div className="bg-white p-6 border border-[#EBD9C8] rounded-sm shadow-2xs space-y-4">
+        <div className="bg-white p-4 sm:p-6 border border-[#EBD9C8] rounded-sm shadow-2xs space-y-4">
           <div className="flex items-center justify-between pb-2 border-b border-[#F0E5D8]">
             <h2 className="text-sm font-serif text-[#171717]">
               Ordered Pieces ({order.items.length})

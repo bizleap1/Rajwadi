@@ -126,61 +126,70 @@ export default function AdminNav({ user }: { user?: { name?: string; email?: str
       <div className="md:hidden flex items-center gap-2">
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="p-2 text-[#4A3E37] hover:bg-[#F3EBE1] rounded-sm focus:outline-none"
+          className="p-2 text-[#4A3E37] hover:bg-[#F3EBE1] rounded-sm focus:outline-none cursor-pointer"
           aria-label="Toggle navigation"
         >
-          {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          {isMobileMenuOpen ? <X className="w-5 h-5 text-[#6D1A2A]" /> : <Menu className="w-5 h-5" />}
         </button>
       </div>
 
-      {/* Mobile Menu Dropdown */}
+      {/* Mobile Menu Backdrop & Drawer */}
       {isMobileMenuOpen && (
-        <div className="md:hidden absolute top-16 left-0 right-0 bg-white border-b border-[#EBD9C8] p-4 shadow-lg z-50 flex flex-col gap-2">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center gap-2.5 px-3 py-2.5 text-xs uppercase tracking-wider font-medium rounded-sm ${
-                  item.active
-                    ? "bg-[#6D1A2A] text-white"
-                    : "text-[#4A3E37] hover:bg-[#F3EBE1]"
-                }`}
-              >
-                <Icon className="w-4 h-4" />
-                <span>{item.label}</span>
-              </Link>
-            );
-          })}
-
-          <div className="h-[1px] bg-[#EBD9C8] my-1" />
-
-          <Link
-            href="/"
-            target="_blank"
-            rel="noopener noreferrer"
+        <>
+          {/* Backdrop */}
+          <div
+            className="md:hidden fixed inset-0 z-40 bg-black/50 backdrop-blur-xs top-16"
             onClick={() => setIsMobileMenuOpen(false)}
-            className="flex items-center justify-between px-3 py-2 text-xs uppercase tracking-wider text-[#855D25] hover:bg-[#F3EBE1] font-medium rounded-sm"
-          >
-            <span>View Website</span>
-            <ExternalLink className="w-3.5 h-3.5" />
-          </Link>
+          />
 
-          <button
-            onClick={handleLogout}
-            disabled={isLoggingOut}
-            className="flex items-center gap-2 px-3 py-2 text-xs uppercase tracking-wider text-red-700 hover:bg-red-50 font-medium rounded-sm disabled:opacity-50 text-left"
-          >
-            {isLoggingOut ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <LogOut className="w-4 h-4" />
-            )}
-            <span>Logout</span>
-          </button>
-        </div>
+          {/* Drawer Menu */}
+          <div className="md:hidden fixed top-16 left-0 right-0 bg-white border-b border-[#EBD9C8] p-4 shadow-2xl z-50 flex flex-col gap-2 max-h-[calc(100vh-64px)] overflow-y-auto">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={`flex items-center gap-3 px-3.5 py-3 text-xs uppercase tracking-wider font-semibold rounded-sm transition-colors ${
+                    item.active
+                      ? "bg-[#6D1A2A] text-white shadow-xs"
+                      : "text-[#4A3E37] hover:bg-[#F3EBE1] hover:text-[#171717]"
+                  }`}
+                >
+                  <Icon className="w-4 h-4 flex-shrink-0" />
+                  <span>{item.label}</span>
+                </Link>
+              );
+            })}
+
+            <div className="h-[1px] bg-[#EBD9C8] my-1" />
+
+            <Link
+              href="/"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="flex items-center justify-between px-3.5 py-2.5 text-xs uppercase tracking-wider text-[#855D25] hover:bg-[#F3EBE1] font-semibold rounded-sm"
+            >
+              <span>View Live Storefront</span>
+              <ExternalLink className="w-3.5 h-3.5" />
+            </Link>
+
+            <button
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              className="flex items-center gap-2.5 px-3.5 py-2.5 text-xs uppercase tracking-wider text-red-700 hover:bg-red-50 font-semibold rounded-sm disabled:opacity-50 text-left cursor-pointer"
+            >
+              {isLoggingOut ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <LogOut className="w-4 h-4" />
+              )}
+              <span>Logout</span>
+            </button>
+          </div>
+        </>
       )}
     </>
   );

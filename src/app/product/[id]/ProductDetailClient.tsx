@@ -57,6 +57,8 @@ function ProductDetailInner({
   const [isAdded, setIsAdded] = useState(false);
   const [isConsultationOpen, setIsConsultationOpen] = useState(false);
   const [openAccordion, setOpenAccordion] = useState<string | null>(null);
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+  const [showStickyBar, setShowStickyBar] = useState(false);
   const mobileCarouselRef = useRef<HTMLDivElement>(null);
 
   const isStitchedPoshak = useMemo(() => {
@@ -107,12 +109,32 @@ function ProductDetailInner({
     window.scrollTo(0, 0);
   }, [product.id, product.image, product.sizes, product.size, isJewellery]);
 
+  // Monitor scroll for mobile sticky action bar
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowStickyBar(window.scrollY > 400);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   const allImages = [product.image, ...(product.additionalImages || [])];
   const uniqueImages = Array.from(new Set(allImages.filter(Boolean)));
 
   const handleThumbnailClick = (img: string, idx: number) => {
     setSelectedImage(img);
     setActiveImageIndex(idx);
+  };
+
+  const scrollToMobileImage = (idx: number) => {
+    if (mobileCarouselRef.current) {
+      const width = mobileCarouselRef.current.offsetWidth;
+      mobileCarouselRef.current.scrollTo({
+        left: width * idx,
+        behavior: "smooth",
+      });
+      setActiveImageIndex(idx);
+    }
   };
 
   const handleMobileScroll = () => {
@@ -152,6 +174,21 @@ function ProductDetailInner({
     window.open(`https://wa.me/918766667101?text=${message}`, "_blank");
   };
 
+  const handleShareProduct = () => {
+    if (typeof navigator !== "undefined" && navigator.share) {
+      navigator
+        .share({
+          title: product.name,
+          text: `Check out ${product.name} on Rajwadi`,
+          url: window.location.href,
+        })
+        .catch(() => {});
+    } else if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(window.location.href);
+      alert("Product link copied to clipboard!");
+    }
+  };
+
   const toggleAccordion = (id: string) => {
     setOpenAccordion(openAccordion === id ? null : id);
   };
@@ -162,8 +199,8 @@ function ProductDetailInner({
       <Navbar solidOnTop onOpenConsultation={() => setIsConsultationOpen(true)} />
 
       {/* Main PDP Content */}
-      <div className="pt-16 sm:pt-24 md:pt-28 pb-16 sm:pb-20 max-w-7xl mx-auto w-full flex-grow">
-        {/* Editorial Breadcrumb Navigation */}
+      <div className="pt-14 sm:pt-24 md:pt-28 pb-24 sm:pb-20 max-w-7xl mx-auto w-full flex-grow">
+        {/* Editorial Breadcrumb Navigation (Desktop / Tablet) */}
         <nav
           aria-label="Breadcrumb"
           className="hidden sm:flex items-center justify-between py-2.5 mb-5 sm:mb-8 border-b border-[#E6DCB8]/60 text-[11px] uppercase tracking-[0.2em] font-sans px-4 sm:px-6 lg:px-8"
@@ -257,8 +294,19 @@ function ProductDetailInner({
               </div>
             </div>
 
-            {/* Mobile Full-Width Swipeable Gallery */}
+            {/* Mobile Full-Width Swipeable Gallery with Edge-to-Edge Experience */}
             <div className="sm:hidden w-full relative">
+              {/* Mobile Back Button */}
+              <button
+                type="button"
+                onClick={() => router.back()}
+                aria-label="Go back"
+                className="absolute top-3.5 left-3.5 z-20 w-9 h-9 rounded-full bg-white/85 backdrop-blur-md border border-[#E6DCB8]/60 flex items-center justify-center shadow-xs cursor-pointer active:scale-90 transition-transform"
+              >
+                <ArrowLeft className="w-4 h-4 text-[#171717]" />
+              </button>
+
+              {/* Mobile Wishlist Floating Button */}
               <button
                 type="button"
                 onClick={() => toggleWishlist(product.id || product.slug)}
@@ -279,6 +327,14 @@ function ProductDetailInner({
                 />
               </button>
 
+              {/* Mobile Image Counter Pill */}
+              {uniqueImages.length > 1 && (
+                <div className="absolute bottom-3.5 right-3.5 z-20 px-2.5 py-0.5 rounded-full bg-[#171717]/65 backdrop-blur-md text-[#FAF6F0] text-[10px] tracking-widest font-mono font-medium border border-white/20 pointer-events-none">
+                  {activeImageIndex + 1} / {uniqueImages.length}
+                </div>
+              )}
+
+              {/* Swipeable Carousel */}
               <div
                 ref={mobileCarouselRef}
                 onScroll={handleMobileScroll}
@@ -310,19 +366,49 @@ function ProductDetailInner({
                 ))}
               </div>
 
-              {/* Mobile Pagination Dots */}
+              {/* Mobile Thumbnail Strip & Clickable Pagination Dots */}
               {uniqueImages.length > 1 && (
-                <div className="flex items-center justify-center gap-1.5 mt-3">
-                  {uniqueImages.map((_, idx) => (
-                    <span
-                      key={idx}
-                      className={`h-1.5 rounded-full transition-all duration-300 ${
-                        activeImageIndex === idx
-                          ? "w-5 bg-[#5A1F2B]"
-                          : "w-1.5 bg-[#855D25]/30"
-                      }`}
-                    />
-                  ))}
+                <div className="pt-3 px-4">
+                  {/* Clickable Dots */}
+                  <div className="flex items-center justify-center gap-1.5 mb-2.5">
+                    {uniqueImages.map((_, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => scrollToMobileImage(idx)}
+                        aria-label={`Go to slide ${idx + 1}`}
+                        className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer p-0 border-none ${
+                          activeImageIndex === idx
+                            ? "w-6 bg-[#5A1F2B]"
+                            : "w-1.5 bg-[#855D25]/30 hover:bg-[#855D25]/60"
+                        }`}
+                      />
+                    ))}
+                  </div>
+
+                  {/* Horizontal Mini Thumbnails */}
+                  <div className="flex items-center justify-center gap-2 overflow-x-auto no-scrollbar py-1">
+                    {uniqueImages.map((img, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => scrollToMobileImage(idx)}
+                        className={`relative w-12 aspect-[3/4] rounded-xs overflow-hidden flex-shrink-0 transition-all duration-200 cursor-pointer ${
+                          activeImageIndex === idx
+                            ? "border-2 border-[#855D25] shadow-xs scale-105 opacity-100"
+                            : "border border-[#E6DCB8]/80 opacity-60 hover:opacity-100"
+                        }`}
+                      >
+                        <Image
+                          src={img}
+                          alt=""
+                          fill
+                          sizes="48px"
+                          className="object-cover"
+                        />
+                      </button>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
@@ -368,7 +454,7 @@ function ProductDetailInner({
 
               return (
                 <div className="mb-3 space-y-1">
-                  <div className="flex items-baseline gap-3 flex-wrap">
+                  <div className="flex items-baseline gap-2.5 sm:gap-3 flex-wrap">
                     <span className="font-sans text-xl sm:text-2xl lg:text-[26px] text-[#171717] font-medium tracking-wide">
                       {product.priceFormatted || product.price}
                     </span>
@@ -395,49 +481,64 @@ function ProductDetailInner({
               );
             })()}
 
-            {/* 4. SHORT DESCRIPTION */}
-            <p className="font-serif italic text-[13.5px] sm:text-[15.5px] text-[#171717]/85 leading-relaxed font-light line-clamp-2 sm:line-clamp-none mb-4">
-              {product.description}
-            </p>
+            {/* 4. SHORT DESCRIPTION (With Mobile Read More Toggle) */}
+            <div className="mb-4">
+              <p
+                className={`font-serif italic text-[13.5px] sm:text-[15.5px] text-[#171717]/85 leading-relaxed font-light ${
+                  !isDescriptionExpanded ? "line-clamp-2 sm:line-clamp-none" : ""
+                }`}
+              >
+                {product.description}
+              </p>
+              {product.description && product.description.length > 120 && (
+                <button
+                  type="button"
+                  onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+                  className="sm:hidden mt-1 text-[11px] uppercase tracking-wider text-[#855D25] font-semibold hover:text-[#5A1F2B] transition-colors"
+                >
+                  {isDescriptionExpanded ? "Show Less" : "Read More"}
+                </button>
+              )}
+            </div>
 
-            {/* 5. DETAILS TABLE (Matching exact screenshot layout) */}
+            {/* 5. DETAILS TABLE (Responsive layout with safe spacing) */}
             <div className="py-4 border-t border-[#E6DCB8]/60 space-y-0">
               <span className="text-[11px] sm:text-xs uppercase tracking-[0.22em] text-[#855D25] font-semibold block mb-2.5 font-sans">
                 DETAILS
               </span>
               <div className="divide-y divide-[#E6DCB8]/50 text-xs sm:text-[13px] font-sans">
-                <div className="py-2.5 flex justify-between items-center">
-                  <span className="text-[#8A796B]">Type</span>
-                  <span className="text-[#171717] font-medium">
+                <div className="py-2.5 flex justify-between items-center gap-3">
+                  <span className="text-[#8A796B] flex-shrink-0">Type</span>
+                  <span className="text-[#171717] font-medium text-right">
                     {product.type || (isStitchedPoshak ? "Stitched" : "Stitched")}
                   </span>
                 </div>
-                <div className="py-2.5 flex justify-between items-center">
-                  <span className="text-[#8A796B]">Fabric</span>
+                <div className="py-2.5 flex justify-between items-start gap-3">
+                  <span className="text-[#8A796B] flex-shrink-0">Fabric</span>
                   <span className="text-[#171717] font-medium text-right">
                     {product.fabric || "Pure Georgette & Satin Magji"}
                   </span>
                 </div>
-                <div className="py-2.5 flex justify-between items-center">
-                  <span className="text-[#8A796B]">Quality</span>
-                  <span className="text-[#171717] font-medium">
+                <div className="py-2.5 flex justify-between items-center gap-3">
+                  <span className="text-[#8A796B] flex-shrink-0">Quality</span>
+                  <span className="text-[#171717] font-medium text-right">
                     {product.quality || "Pure Poshak"}
                   </span>
                 </div>
-                <div className="py-2.5 flex justify-between items-start gap-4">
+                <div className="py-2.5 flex justify-between items-start gap-3">
                   <span className="text-[#8A796B] flex-shrink-0">Work</span>
                   <span className="text-[#171717] font-medium text-right">
                     {product.work || product.craft || "Handcrafted Peacock Gotapatti, Kasab Zari & Dabka"}
                   </span>
                 </div>
-                <div className="py-2.5 flex justify-between items-center">
-                  <span className="text-[#8A796B]">Odhna</span>
+                <div className="py-2.5 flex justify-between items-start gap-3">
+                  <span className="text-[#8A796B] flex-shrink-0">Odhna</span>
                   <span className="text-[#171717] font-medium text-right">
                     {product.odhna || "Four-side border with Gota Kiran"}
                   </span>
                 </div>
-                <div className="py-2.5 flex justify-between items-center">
-                  <span className="text-[#8A796B]">Best For</span>
+                <div className="py-2.5 flex justify-between items-center gap-3">
+                  <span className="text-[#8A796B] flex-shrink-0">Best For</span>
                   <span className="text-[#171717] font-medium text-right">
                     {product.bestFor || product.subCategory || product.category || "Bridal"}
                   </span>
@@ -445,13 +546,13 @@ function ProductDetailInner({
               </div>
             </div>
 
-            {/* 6. SIZE SELECTOR (Matching exact screenshot layout) */}
+            {/* 6. SIZE SELECTOR (Mobile wrap-safe) */}
             {!isJewellery && (
               <div className="pt-2 pb-5">
                 <span className="text-[11px] sm:text-xs uppercase tracking-[0.22em] text-[#855D25] font-semibold block mb-2.5 font-sans">
                   SIZE
                 </span>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
                   {availableSizes.map((sz: string) => {
                     const isSelected = selectedSize === sz;
                     return (
@@ -459,7 +560,7 @@ function ProductDetailInner({
                         key={sz}
                         type="button"
                         onClick={() => setSelectedSize(sz)}
-                        className={`w-14 h-11 flex items-center justify-center text-xs font-semibold uppercase tracking-wider border rounded-xs transition-all cursor-pointer ${
+                        className={`w-13 sm:w-14 h-10 sm:h-11 flex items-center justify-center text-xs font-semibold uppercase tracking-wider border rounded-xs transition-all cursor-pointer ${
                           isSelected
                             ? "border-[#5A1F2B] bg-[#5A1F2B] text-white shadow-xs"
                             : "border-[#E6DCB8] bg-white text-[#171717] hover:border-[#855D25]"
@@ -473,8 +574,6 @@ function ProductDetailInner({
               </div>
             )}
 
-
-
             {/* 7. PRIMARY & SECONDARY ACTIONS */}
             <div className="space-y-2.5 mb-6">
               {/* Single Row: Add to Bag + Buy Now + Wishlist */}
@@ -484,7 +583,7 @@ function ProductDetailInner({
                   type="button"
                   onClick={handleAddToBag}
                   disabled={!product.inStock}
-                  className={`flex-1 h-[48px] sm:h-[50px] px-2 sm:px-3 text-[11px] sm:text-xs uppercase tracking-[0.14em] sm:tracking-[0.18em] font-medium transition-all duration-300 flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer font-sans shadow-xs disabled:opacity-50 disabled:cursor-not-allowed ${
+                  className={`flex-1 h-[48px] sm:h-[50px] px-2 sm:px-3 text-[11px] sm:text-xs uppercase tracking-[0.12em] sm:tracking-[0.18em] font-medium transition-all duration-300 flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer font-sans shadow-xs whitespace-nowrap active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed ${
                     isAdded
                       ? "bg-[#2E5A36] text-white"
                       : "bg-[#5A1F2B] hover:bg-[#481822] text-[#FAF6F0]"
@@ -492,15 +591,15 @@ function ProductDetailInner({
                 >
                   {isAdded ? (
                     <>
-                      <Check className="w-3.5 h-3.5" />
-                      <span className="truncate">Added to Bag</span>
+                      <Check className="w-3.5 h-3.5 flex-shrink-0" />
+                      <span>Added to Bag</span>
                     </>
                   ) : !product.inStock ? (
-                    <span className="truncate">Out of Stock</span>
+                    <span>Out of Stock</span>
                   ) : (
                     <>
                       <ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
-                      <span className="truncate">Add to Bag</span>
+                      <span>Add to Bag</span>
                     </>
                   )}
                 </button>
@@ -510,9 +609,9 @@ function ProductDetailInner({
                   type="button"
                   onClick={handleBuyNow}
                   disabled={!product.inStock}
-                  className="flex-1 h-[48px] sm:h-[50px] px-2 sm:px-3 text-[11px] sm:text-xs uppercase tracking-[0.22em] font-semibold bg-[#855D25] hover:bg-[#704C1C] text-[#FAF6F0] transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer font-sans shadow-xs active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed border border-[#704C1C]/30"
+                  className="flex-1 h-[48px] sm:h-[50px] px-2 sm:px-3 text-[11px] sm:text-xs uppercase tracking-[0.14em] sm:tracking-[0.22em] font-semibold bg-[#855D25] hover:bg-[#704C1C] text-[#FAF6F0] transition-all duration-300 flex items-center justify-center cursor-pointer font-sans shadow-xs whitespace-nowrap active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed border border-[#704C1C]/30"
                 >
-                  <span className="truncate">Buy Now</span>
+                  <span>Buy Now</span>
                 </button>
 
                 {/* 3. Wishlist Heart Button */}
@@ -525,7 +624,7 @@ function ProductDetailInner({
                       : `Add ${product.name} to wishlist`
                   }
                   title={isWishlisted ? "In Wishlist" : "Save to Wishlist"}
-                  className="w-[48px] h-[48px] sm:w-[50px] sm:h-[50px] flex-shrink-0 flex items-center justify-center border border-[#E6DCB8] hover:border-[#855D25] bg-white transition-colors cursor-pointer"
+                  className="w-[44px] h-[48px] sm:w-[50px] sm:h-[50px] flex-shrink-0 flex items-center justify-center border border-[#E6DCB8] hover:border-[#855D25] bg-white transition-colors cursor-pointer active:scale-95"
                 >
                   <Heart
                     className={`w-4 h-4 sm:w-5 sm:h-5 stroke-[1.3] transition-colors ${
@@ -537,15 +636,27 @@ function ProductDetailInner({
                 </button>
               </div>
 
-              {/* WhatsApp Concierge CTA */}
-              <button
-                type="button"
-                onClick={handleWhatsAppInquiry}
-                className="w-full h-[44px] sm:h-[46px] text-xs uppercase tracking-[0.18em] font-medium border border-[#E6DCB8] hover:border-[#855D25] text-[#171717] bg-white/60 hover:bg-white transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer font-sans"
-              >
-                <MessageCircle className="w-4 h-4 text-[#855D25]" />
-                <span>Inquire via WhatsApp Concierge</span>
-              </button>
+              {/* Secondary Row: WhatsApp Concierge + Share */}
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleWhatsAppInquiry}
+                  className="flex-1 h-[44px] sm:h-[46px] text-xs uppercase tracking-[0.14em] sm:tracking-[0.18em] font-medium border border-[#E6DCB8] hover:border-[#855D25] text-[#171717] bg-white/60 hover:bg-white transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer font-sans active:scale-[0.99]"
+                >
+                  <MessageCircle className="w-4 h-4 text-[#855D25] flex-shrink-0" />
+                  <span className="truncate">Inquire via WhatsApp Concierge</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleShareProduct}
+                  title="Share this ensemble"
+                  aria-label="Share this ensemble"
+                  className="w-[44px] h-[44px] sm:h-[46px] flex-shrink-0 flex items-center justify-center border border-[#E6DCB8] hover:border-[#855D25] bg-white/60 hover:bg-white text-[#171717]/70 hover:text-[#855D25] transition-colors cursor-pointer active:scale-95"
+                >
+                  <Share2 className="w-4 h-4" />
+                </button>
+              </div>
             </div>
 
             {/* 8. ACCORDIONS */}
@@ -615,13 +726,70 @@ function ProductDetailInner({
               </h2>
             </div>
 
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
               {relatedProducts.map((p, idx) => (
                 <ProductCard key={p.id || p.slug} product={p} index={idx} />
               ))}
             </div>
           </section>
         )}
+      </div>
+
+      {/* Mobile Floating Sticky Purchase Bar (Appears when scrolled past top hero/actions) */}
+      <div
+        className={`sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#FAF6F0]/95 backdrop-blur-md border-t border-[#E6DCB8] px-3.5 py-2.5 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] transition-all duration-300 ease-in-out ${
+          showStickyBar
+            ? "translate-y-0 opacity-100"
+            : "translate-y-full opacity-0 pointer-events-none"
+        }`}
+        style={{ paddingBottom: "max(0.625rem, env(safe-area-inset-bottom))" }}
+      >
+        <div className="flex items-center gap-2.5">
+          {/* Price & Size preview */}
+          <div className="flex flex-col min-w-0 pr-1">
+            <span className="font-sans text-sm font-semibold text-[#171717] tracking-tight leading-tight truncate">
+              {product.priceFormatted || product.price}
+            </span>
+            <span className="text-[10px] text-[#855D25] font-medium uppercase tracking-wider truncate">
+              {isJewellery ? "Free Size" : `Size: ${selectedSize}`}
+            </span>
+          </div>
+
+          {/* Action Buttons in Sticky Bar */}
+          <div className="flex items-center gap-2 flex-1">
+            <button
+              type="button"
+              onClick={handleAddToBag}
+              disabled={!product.inStock}
+              className={`flex-1 h-10 px-2 text-[10px] uppercase tracking-[0.12em] font-medium transition-all duration-200 flex items-center justify-center gap-1 cursor-pointer font-sans whitespace-nowrap active:scale-95 disabled:opacity-50 ${
+                isAdded
+                  ? "bg-[#2E5A36] text-white"
+                  : "bg-[#5A1F2B] text-[#FAF6F0]"
+              }`}
+            >
+              {isAdded ? (
+                <>
+                  <Check className="w-3 h-3 flex-shrink-0" />
+                  <span>Added</span>
+                </>
+              ) : (
+                <>
+                  <ShoppingBag className="w-3 h-3 flex-shrink-0" />
+                  <span>Add to Bag</span>
+                </>
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={handleBuyNow}
+              disabled={!product.inStock}
+              className="flex-1 h-10 px-2 text-[10px] uppercase tracking-[0.14em] font-semibold bg-[#855D25] active:bg-[#704C1C] text-[#FAF6F0] transition-all duration-200 flex items-center justify-center cursor-pointer font-sans whitespace-nowrap active:scale-95 disabled:opacity-50 border border-[#704C1C]/30"
+            >
+              <span>Buy Now</span>
+            </button>
+          </div>
+        </div>
       </div>
 
       <Footer />

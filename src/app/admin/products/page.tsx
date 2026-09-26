@@ -168,40 +168,42 @@ export default function AdminProductsPage() {
 
         {/* Dropdown Filters */}
         <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
-          <div className="flex items-center gap-1.5 text-xs text-[#6B5E55]">
-            <Filter className="w-3.5 h-3.5 text-[#855D25]" />
-            <span>Category:</span>
+          <div className="flex items-center gap-1.5 flex-1 sm:flex-initial min-w-[140px]">
+            <Filter className="w-3.5 h-3.5 text-[#855D25] flex-shrink-0" />
+            <span className="text-xs text-[#6B5E55] whitespace-nowrap">Category:</span>
+            <select
+              value={category}
+              onChange={(e) => {
+                setCategory(e.target.value);
+                setPage(1);
+              }}
+              className="w-full sm:w-auto bg-[#FCFAF6] border border-[#D9C4B0] text-xs py-2 px-2.5 rounded-sm text-[#171717] focus:outline-none focus:ring-1 focus:ring-[#855D25]"
+            >
+              <option value="ALL">All Categories</option>
+              <option value="Traditional">Traditional</option>
+              <option value="Unstitched">Unstitched</option>
+              <option value="Stitched">Stitched</option>
+            </select>
           </div>
-          <select
-            value={category}
-            onChange={(e) => {
-              setCategory(e.target.value);
-              setPage(1);
-            }}
-            className="bg-[#FCFAF6] border border-[#D9C4B0] text-xs py-2 px-2.5 rounded-sm text-[#171717] focus:outline-none focus:ring-1 focus:ring-[#855D25]"
-          >
-            <option value="ALL">All Categories</option>
-            <option value="Traditional">Traditional</option>
-            <option value="Unstitched">Unstitched</option>
-            <option value="Stitched">Stitched</option>
-          </select>
 
-          <span className="text-[#D9C4B0]">|</span>
+          <span className="hidden sm:inline text-[#D9C4B0]">|</span>
 
-          <span className="text-xs text-[#6B5E55]">Status:</span>
-          <select
-            value={status}
-            onChange={(e) => {
-              setStatus(e.target.value);
-              setPage(1);
-            }}
-            className="bg-[#FCFAF6] border border-[#D9C4B0] text-xs py-2 px-2.5 rounded-sm text-[#171717] focus:outline-none focus:ring-1 focus:ring-[#855D25]"
-          >
-            <option value="ALL">All Statuses</option>
-            <option value="PUBLISHED">Published</option>
-            <option value="DRAFT">Draft</option>
-            <option value="ARCHIVED">Archived</option>
-          </select>
+          <div className="flex items-center gap-1.5 flex-1 sm:flex-initial min-w-[140px]">
+            <span className="text-xs text-[#6B5E55] whitespace-nowrap">Status:</span>
+            <select
+              value={status}
+              onChange={(e) => {
+                setStatus(e.target.value);
+                setPage(1);
+              }}
+              className="w-full sm:w-auto bg-[#FCFAF6] border border-[#D9C4B0] text-xs py-2 px-2.5 rounded-sm text-[#171717] focus:outline-none focus:ring-1 focus:ring-[#855D25]"
+            >
+              <option value="ALL">All Statuses</option>
+              <option value="PUBLISHED">Published</option>
+              <option value="DRAFT">Draft</option>
+              <option value="ARCHIVED">Archived</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -242,7 +244,7 @@ export default function AdminProductsPage() {
         /* Product Table */
         <div className="bg-white border border-[#EBD9C8] rounded-sm shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs">
+            <table className="w-full min-w-[680px] text-left border-collapse text-xs">
               <thead>
                 <tr className="bg-[#F8F1E7] border-b border-[#EBD9C8] text-[#4A3E37] uppercase tracking-wider text-[11px] font-medium">
                   <th className="py-3 px-4">Product</th>

@@ -156,7 +156,7 @@ function OrderConfirmationContent() {
             <button
               type="button"
               onClick={handleManualDownload}
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#6D1A2A] hover:bg-[#581522] text-white text-xs uppercase tracking-wider font-medium rounded-sm shadow-xs transition-colors cursor-pointer"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#6D1A2A] hover:bg-[#581522] text-white text-xs uppercase tracking-wider font-medium rounded-sm shadow-xs transition-colors cursor-pointer"
             >
               <Download className="w-4 h-4" />
               <span>Download Official Receipt (PDF)</span>
@@ -164,7 +164,7 @@ function OrderConfirmationContent() {
 
             <Link
               href={`/order/${order.id}${token ? `?token=${token}` : ""}`}
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#FAF5EE] hover:bg-[#F3EBE1] text-[#855D25] border border-[#855D25] text-xs uppercase tracking-wider font-semibold rounded-sm shadow-2xs transition-colors"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#FAF5EE] hover:bg-[#F3EBE1] text-[#855D25] border border-[#855D25] text-xs uppercase tracking-wider font-semibold rounded-sm shadow-2xs transition-colors"
             >
               <Truck className="w-4 h-4" />
               <span>Track Live Delivery Status &rarr;</span>
@@ -192,7 +192,7 @@ function OrderConfirmationContent() {
         </div>
 
         {/* Order Details & Summary Card */}
-        <div className="mt-8 bg-white border border-[#EBD9C8] rounded-sm shadow-sm p-6 sm:p-8 space-y-6">
+        <div className="mt-8 bg-white border border-[#EBD9C8] rounded-sm shadow-sm p-4 sm:p-8 space-y-6">
           {/* Ordered Items */}
           <div>
             <div className="flex items-center justify-between pb-3 border-b border-[#F0E5D8]">
@@ -310,11 +310,11 @@ function OrderConfirmationContent() {
               <span>Razorpay Verified Payment &bull; Insured Delivery</span>
             </span>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 w-full sm:w-auto">
               <button
                 type="button"
                 onClick={handleManualDownload}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 border border-[#855D25] text-[#855D25] hover:bg-[#FAF5EE] text-xs font-medium rounded-sm transition-colors"
+                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2 border border-[#855D25] text-[#855D25] hover:bg-[#FAF5EE] text-xs font-medium rounded-sm transition-colors"
               >
                 <FileText className="w-3.5 h-3.5" />
                 <span>Receipt</span>
@@ -322,7 +322,7 @@ function OrderConfirmationContent() {
 
               <Link
                 href="/collection"
-                className="inline-flex items-center gap-1.5 px-5 py-2 bg-[#6D1A2A] text-white text-xs uppercase tracking-wider font-medium hover:bg-[#581522] rounded-sm transition-colors"
+                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-5 py-2 bg-[#6D1A2A] text-white text-xs uppercase tracking-wider font-medium hover:bg-[#581522] rounded-sm transition-colors text-center"
               >
                 <span>Continue Shopping</span>
                 <ArrowRight className="w-3.5 h-3.5" />

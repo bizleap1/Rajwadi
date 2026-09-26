@@ -115,8 +115,8 @@ export default function ExchangeRequestModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in overflow-y-auto">
-      <div className="bg-[#FDFBF7] border border-[#C6A15B]/50 w-full max-w-xl shadow-2xl relative my-8 p-6 sm:p-8 text-[#171717] rounded-none max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in overflow-y-auto">
+      <div className="bg-[#FDFBF7] border border-[#C6A15B]/50 w-full max-w-xl shadow-2xl relative my-4 sm:my-8 p-4 sm:p-6 text-[#171717] rounded-sm max-h-[90vh] overflow-y-auto">
         {/* Close Button */}
         <button
           type="button"
@@ -271,18 +271,18 @@ export default function ExchangeRequestModal({
               </div>
 
               {/* Action Buttons */}
-              <div className="pt-2 flex items-center justify-end gap-3 border-t border-[#EBD9C8]">
+              <div className="pt-2 flex flex-col-reverse sm:flex-row items-center sm:justify-end gap-2 sm:gap-3 border-t border-[#EBD9C8]">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-4 py-2 text-xs uppercase tracking-wider text-[#6B5E55] hover:text-[#171717] font-medium"
+                  className="w-full sm:w-auto px-4 py-2 text-xs uppercase tracking-wider text-[#6B5E55] hover:text-[#171717] font-medium text-center"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-6 py-2.5 bg-[#6D1A2A] hover:bg-[#581522] text-white text-xs uppercase tracking-wider font-medium rounded transition-colors flex items-center gap-2 shadow-sm disabled:opacity-50"
+                  className="w-full sm:w-auto px-6 py-2.5 bg-[#6D1A2A] hover:bg-[#581522] text-white text-xs uppercase tracking-wider font-medium rounded transition-colors flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
                 >
                   {isSubmitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                   <span>Submit Exchange Request</span>

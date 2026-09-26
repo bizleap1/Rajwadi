@@ -377,11 +377,11 @@ export default function AdminDiscountsPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5 flex-wrap">
+        <div className="flex items-center gap-2.5 flex-wrap w-full sm:w-auto">
           {coupons.length === 0 && !isLoading && (
             <button
               onClick={handleSeedStarters}
-              className="px-3.5 py-2 bg-white border border-[#855D25]/40 text-[#855D25] hover:bg-[#855D25]/10 text-xs uppercase tracking-wider font-semibold rounded-sm transition-colors flex items-center gap-1.5 cursor-pointer"
+              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2 bg-white border border-[#855D25]/40 text-[#855D25] hover:bg-[#855D25]/10 text-xs uppercase tracking-wider font-semibold rounded-sm transition-colors cursor-pointer"
             >
               <Sparkles className="w-3.5 h-3.5" />
               <span>Load Starter Royal Offers</span>
@@ -390,7 +390,7 @@ export default function AdminDiscountsPage() {
 
           <button
             onClick={openCreateModal}
-            className="px-4 py-2 bg-[#6D1A2A] hover:bg-[#551320] text-white text-xs uppercase tracking-wider font-semibold shadow-xs rounded-sm transition-colors flex items-center gap-1.5 cursor-pointer"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-[#6D1A2A] hover:bg-[#551320] text-white text-xs uppercase tracking-wider font-semibold shadow-xs rounded-sm transition-colors cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Create Discount Offer</span>

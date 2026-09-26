@@ -236,41 +236,45 @@ export default function AdminOrdersPage() {
 
         {/* Dropdown Filters */}
         <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
-          <span className="text-xs text-[#6B5E55]">Payment:</span>
-          <select
-            value={paymentStatus}
-            onChange={(e) => {
-              setPaymentStatus(e.target.value);
-              setPage(1);
-            }}
-            className="bg-[#FCFAF6] border border-[#D9C4B0] text-xs py-2 px-2.5 rounded-sm text-[#171717] focus:outline-none focus:ring-1 focus:ring-[#855D25]"
-          >
-            <option value="ALL">All Payments</option>
-            <option value="PAID">Paid</option>
-            <option value="PENDING">Pending</option>
-            <option value="FAILED">Failed</option>
-            <option value="CANCELLED">Cancelled</option>
-          </select>
+          <div className="flex items-center gap-1.5 flex-1 sm:flex-initial min-w-[140px]">
+            <span className="text-xs text-[#6B5E55] whitespace-nowrap">Payment:</span>
+            <select
+              value={paymentStatus}
+              onChange={(e) => {
+                setPaymentStatus(e.target.value);
+                setPage(1);
+              }}
+              className="w-full sm:w-auto bg-[#FCFAF6] border border-[#D9C4B0] text-xs py-2 px-2.5 rounded-sm text-[#171717] focus:outline-none focus:ring-1 focus:ring-[#855D25]"
+            >
+              <option value="ALL">All Payments</option>
+              <option value="PAID">Paid</option>
+              <option value="PENDING">Pending</option>
+              <option value="FAILED">Failed</option>
+              <option value="CANCELLED">Cancelled</option>
+            </select>
+          </div>
 
-          <span className="text-[#D9C4B0]">|</span>
+          <span className="hidden sm:inline text-[#D9C4B0]">|</span>
 
-          <span className="text-xs text-[#6B5E55]">Fulfilment:</span>
-          <select
-            value={fulfilmentStatus}
-            onChange={(e) => {
-              setFulfilmentStatus(e.target.value);
-              setPage(1);
-            }}
-            className="bg-[#FCFAF6] border border-[#D9C4B0] text-xs py-2 px-2.5 rounded-sm text-[#171717] focus:outline-none focus:ring-1 focus:ring-[#855D25]"
-          >
-            <option value="ALL">All Fulfilment</option>
-            <option value="PENDING">Pending</option>
-            <option value="IN_ATELIER">In Atelier</option>
-            <option value="READY_TO_DISPATCH">Quality Check</option>
-            <option value="DISPATCHED">Dispatched</option>
-            <option value="DELIVERED">Delivered</option>
-            <option value="CANCELLED">Cancelled</option>
-          </select>
+          <div className="flex items-center gap-1.5 flex-1 sm:flex-initial min-w-[140px]">
+            <span className="text-xs text-[#6B5E55] whitespace-nowrap">Fulfilment:</span>
+            <select
+              value={fulfilmentStatus}
+              onChange={(e) => {
+                setFulfilmentStatus(e.target.value);
+                setPage(1);
+              }}
+              className="w-full sm:w-auto bg-[#FCFAF6] border border-[#D9C4B0] text-xs py-2 px-2.5 rounded-sm text-[#171717] focus:outline-none focus:ring-1 focus:ring-[#855D25]"
+            >
+              <option value="ALL">All Fulfilment</option>
+              <option value="PENDING">Pending</option>
+              <option value="IN_ATELIER">In Atelier</option>
+              <option value="READY_TO_DISPATCH">Quality Check</option>
+              <option value="DISPATCHED">Dispatched</option>
+              <option value="DELIVERED">Delivered</option>
+              <option value="CANCELLED">Cancelled</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -304,7 +308,7 @@ export default function AdminOrdersPage() {
         /* Orders Table */
         <div className="bg-white border border-[#EBD9C8] rounded-sm shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs">
+            <table className="w-full min-w-[780px] text-left border-collapse text-xs">
               <thead>
                 <tr className="bg-[#F8F1E7] border-b border-[#EBD9C8] text-[#4A3E37] uppercase tracking-wider text-[11px] font-medium">
                   <th className="py-3 px-4">Order #</th>
