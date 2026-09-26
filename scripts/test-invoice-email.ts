@@ -59,7 +59,9 @@ async function runSelfCheck() {
   assert(customerHtml.includes("6204"), "HTML must contain HSN code 6204");
   assert(customerHtml.includes("Banna Yuvraj Singh"), "HTML must include patron name");
   assert(customerHtml.includes("Royal Order Confirmation"), "Customer HTML must include royal customer confirmation banner");
-  console.log("  ✓ Customer Invoice HTML generated and verified");
+  assert(customerHtml.includes("rajwadi_royal_logo.png"), "HTML must embed authentic Rajwadi logo");
+  assert(!customerHtml.includes("brand-monogram-initials"), "HTML must not have dummy CSS monogram");
+  console.log("  ✓ Customer Invoice HTML generated with official Rajwadi Royal Logo");
 
   // 4. Verify Owner Email HTML Generation
   const ownerHtml = generateReceiptHtml(mockOrder, {

@@ -52,6 +52,7 @@ export {
 export {
   generateReceiptHtml,
   downloadReceipt,
+  RAJWADI_LOGO_URL,
   type ReceiptOrderData,
 } from "./services/receipt";
 

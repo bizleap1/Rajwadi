@@ -71,6 +71,9 @@ const STATE_CODES: Record<string, string> = {
   "chandigarh": "04",
 };
 
+export const RAJWADI_LOGO_URL =
+  "https://res.cloudinary.com/i4irbhvz/image/upload/v1790443636/rajwadi/brand/rajwadi_royal_logo.png";
+
 export interface ReceiptHtmlOptions {
   isEmail?: boolean;
   emailRecipientType?: "customer" | "owner";
@@ -268,43 +271,21 @@ export function generateReceiptHtml(order: ReceiptOrderData, options?: ReceiptHt
     }
 
     .brand-logo-cell {
-      width: 65px;
-      vertical-align: top;
-      padding-right: 12px;
+      width: 70px;
+      vertical-align: middle;
+      padding-right: 14px;
     }
 
-    .brand-monogram {
-      width: 58px;
-      height: 58px;
-      border: 1.5px solid #855D25;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      background: #FAF6F0;
-    }
-
-    .brand-monogram-initials {
-      font-family: 'Playfair Display', Georgia, serif;
-      font-size: 24px;
-      font-weight: 700;
-      line-height: 1;
-      color: #581522;
-      letter-spacing: 1px;
-    }
-
-    .brand-monogram-tag {
-      font-size: 6.5px;
-      font-weight: 700;
-      color: #855D25;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      margin-top: 2px;
+    .brand-logo-img {
+      width: 62px;
+      height: auto;
+      max-height: 74px;
+      object-fit: contain;
+      display: block;
     }
 
     .brand-info-cell {
-      vertical-align: top;
+      vertical-align: middle;
     }
 
     .brand-title {
@@ -691,11 +672,15 @@ export function generateReceiptHtml(order: ReceiptOrderData, options?: ReceiptHt
     <!-- 1. HEADER SECTION -->
     <table class="header-table">
       <tr>
-        <td class="brand-logo-cell">
-          <div class="brand-monogram">
-            <div class="brand-monogram-initials">RW</div>
-            <div class="brand-monogram-tag">ATELIER</div>
-          </div>
+        <td class="brand-logo-cell" style="width: 70px; vertical-align: middle; padding-right: 14px;">
+          <img
+            src="${RAJWADI_LOGO_URL}"
+            alt="Rajwadi Haute Couture Atelier Logo"
+            width="62"
+            height="73"
+            class="brand-logo-img"
+            style="width: 62px; height: auto; max-height: 74px; object-fit: contain; display: block;"
+          />
         </td>
         <td class="brand-info-cell">
           <div class="brand-title">RAJWADI</div>
