@@ -24,7 +24,11 @@ import {
   Layers,
   ChevronRight,
   ShieldCheck,
+  Download,
+  FileSpreadsheet,
+  FileText,
 } from "lucide-react";
+import AdminMonthlyReportModal from "@/components/AdminMonthlyReportModal";
 
 interface DashboardData {
   metrics: {
@@ -95,6 +99,7 @@ export default function AdminDashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
   const fetchDashboard = useCallback(async (isManual = false) => {
     if (isManual) setIsRefreshing(true);
@@ -172,6 +177,16 @@ export default function AdminDashboardPage() {
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? "animate-spin text-[#6D1A2A]" : ""}`} />
             <span>Refresh</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setIsReportModalOpen(true)}
+            className="flex-1 sm:flex-initial justify-center px-3.5 py-2 bg-white border border-[#855D25] hover:bg-[#FAF6F0] text-[#855D25] hover:text-[#6D1A2A] text-xs uppercase tracking-wider font-semibold rounded-sm transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs"
+            title="Download Monthly Audit Report & Order Ledger"
+          >
+            <Download className="w-3.5 h-3.5 text-[#6D1A2A]" />
+            <span>Monthly Report</span>
           </button>
 
           <Link
@@ -808,6 +823,22 @@ export default function AdminDashboardPage() {
                       </span>
                     </div>
                   </Link>
+
+                  <button
+                    type="button"
+                    onClick={() => setIsReportModalOpen(true)}
+                    className="p-3 bg-[#FAF6F0] border border-[#855D25]/40 hover:border-[#855D25] rounded-sm transition-all group flex flex-col justify-between text-left cursor-pointer"
+                  >
+                    <FileText className="w-4 h-4 text-[#6D1A2A] mb-2 group-hover:scale-110 transition-transform" />
+                    <div>
+                      <span className="text-xs font-semibold text-[#6D1A2A] block">
+                        Monthly Report
+                      </span>
+                      <span className="text-[10px] text-[#855D25]">
+                        PDF & CSV Export
+                      </span>
+                    </div>
+                  </button>
                 </div>
 
                 <div className="mt-3 pt-3 border-t border-[#F3EBE1]">
@@ -826,6 +857,12 @@ export default function AdminDashboardPage() {
           </div>
         </>
       ) : null}
+
+      {/* Monthly Audit Report Download Modal */}
+      <AdminMonthlyReportModal
+        isOpen={isReportModalOpen}
+        onClose={() => setIsReportModalOpen(false)}
+      />
     </div>
   );
 }
