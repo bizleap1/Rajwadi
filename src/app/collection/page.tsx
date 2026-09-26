@@ -461,7 +461,9 @@ function CollectionContent() {
               transition={{ duration: 0.6, delay: 0.1 }}
               className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-[52px] font-normal tracking-[0.08em] text-[#FAF6F0] mb-2.5 uppercase"
             >
-              Collection
+              {activeCategory === "ALL"
+                ? "Rajputi Poshak Collection"
+                : `${categories.find((c) => c.key === activeCategory)?.label || ""} Poshaks`}
             </motion.h1>
 
             {/* Subtitle */}
