@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, ChevronRight, Heart, ShoppingBag, ChevronDown, X, MessageCircle, Tag } from "lucide-react";
+import { ArrowRight, ChevronRight, Heart, ShoppingBag, ChevronDown, X, MessageCircle, Tag, Check, Copy, Sparkles } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import ProductCard from "@/components/ProductCard";
 import { REAL_POSHAKS, PoshakProduct } from "@/data/products";
@@ -111,6 +111,18 @@ const SORT_OPTIONS: { id: SortOption; label: string }[] = [
   { id: "price-desc", label: "Price: High to Low" },
 ];
 
+interface PromoCoupon {
+  id: string;
+  code: string;
+  discountType: "PERCENTAGE" | "FIXED_AMOUNT" | "FREE_SHIPPING";
+  discountValue: number;
+  description: string | null;
+  showOnCollection?: boolean;
+  minOrderValueInPaise?: number;
+  maxDiscountInPaise?: number | null;
+  endDate?: string | null;
+}
+
 function CollectionContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -127,6 +139,44 @@ function CollectionContent() {
     null
   );
   const [sortBy, setSortBy] = useState<SortOption>("featured");
+
+  // Promotional Discounts from Admin
+  const [promoCoupons, setPromoCoupons] = useState<PromoCoupon[]>([]);
+  const [copiedCouponCode, setCopiedCouponCode] = useState<string | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    async function loadPromos() {
+      try {
+        const res = await fetch("/api/coupons/active");
+        if (res.ok) {
+          const data = await res.json();
+          if (isMounted && Array.isArray(data.coupons)) {
+            const collectionCoupons = data.coupons.filter(
+              (c: PromoCoupon) => c.showOnCollection === true
+            );
+            setPromoCoupons(collectionCoupons);
+          }
+        }
+      } catch (err) {
+        console.error("Error loading promo coupons", err);
+      }
+    }
+    loadPromos();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const handleCopyPromo = (code: string) => {
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(code);
+    }
+    setCopiedCouponCode(code);
+    setTimeout(() => {
+      setCopiedCouponCode(null);
+    }, 2500);
+  };
 
   useEffect(() => {
     if (categoryQuery) {
@@ -475,6 +525,76 @@ function CollectionContent() {
             >
               Poshaks chosen for celebrations, traditions, and moments that matter.
             </motion.p>
+
+            {/* Customer Promotional Discount Badges (Admin Controlled) */}
+            {promoCoupons.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.96, y: 12 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.25 }}
+                className="mt-5 sm:mt-6 flex flex-wrap items-center justify-center gap-3 max-w-3xl mx-auto px-2"
+              >
+                {promoCoupons.map((coupon) => {
+                  const isCopied = copiedCouponCode === coupon.code;
+                  const discountHeadline =
+                    coupon.discountType === "PERCENTAGE"
+                      ? `${coupon.discountValue}% OFF`
+                      : coupon.discountType === "FIXED_AMOUNT"
+                      ? `FLAT ₹${(coupon.discountValue / 100).toLocaleString("en-IN")} OFF`
+                      : "FREE EXPRESS SHIPPING";
+
+                  const conditionSubtext =
+                    coupon.minOrderValueInPaise && coupon.minOrderValueInPaise > 0
+                      ? `on orders above ₹${(coupon.minOrderValueInPaise / 100).toLocaleString("en-IN")}`
+                      : "on all royal poshak orders";
+
+                  return (
+                    <div
+                      key={coupon.id}
+                      className="group relative inline-flex items-center gap-2.5 sm:gap-3.5 pl-3.5 sm:pl-4 pr-2 sm:pr-2.5 py-1.5 sm:py-2 rounded-full bg-black/45 backdrop-blur-md border border-[#C6A15B]/50 hover:border-[#E6C687] shadow-[0_4px_25px_rgba(0,0,0,0.4)] transition-all duration-300"
+                    >
+                      {/* Left Icon & Details */}
+                      <div className="flex items-center gap-2 sm:gap-2.5">
+                        <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#C6A15B]/25 text-[#E6C687] text-xs">
+                          <Tag className="w-3 h-3 text-[#E6C687]" />
+                        </span>
+                        <div className="text-left">
+                          <div className="text-xs sm:text-[13px] font-serif font-bold tracking-wider text-[#FAF6F0] flex items-center gap-1.5 leading-tight">
+                            <span className="text-[#E6C687]">{discountHeadline}</span>
+                          </div>
+                          <div className="text-[10px] sm:text-[10.5px] text-[#FAF6F0]/80 font-sans tracking-wide">
+                            {coupon.description || conditionSubtext}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Right 1-Click Code Box */}
+                      <button
+                        type="button"
+                        onClick={() => handleCopyPromo(coupon.code)}
+                        className={`inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-xs font-mono font-bold tracking-wider transition-all duration-200 cursor-pointer shadow-xs ${
+                          isCopied
+                            ? "bg-emerald-600 text-white border border-emerald-400"
+                            : "bg-gradient-to-r from-[#D8AF67] to-[#C6A15B] hover:from-[#E6C687] hover:to-[#D8AF67] text-[#2A0E17] border border-[#E6C687]"
+                        }`}
+                        title="Click to copy coupon code"
+                      >
+                        <span>{coupon.code}</span>
+                        {isCopied ? (
+                          <span className="text-[10px] font-sans font-medium flex items-center gap-0.5">
+                            <Check className="w-3 h-3" /> Copied!
+                          </span>
+                        ) : (
+                          <span className="text-[9.5px] font-sans uppercase font-bold tracking-tight opacity-90 flex items-center gap-1">
+                            <Copy className="w-2.5 h-2.5" /> Copy
+                          </span>
+                        )}
+                      </button>
+                    </div>
+                  );
+                })}
+              </motion.div>
+            )}
           </div>
         </section>
 

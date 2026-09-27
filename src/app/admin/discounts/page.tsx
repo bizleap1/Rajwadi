@@ -22,6 +22,9 @@ import {
   Loader2,
   AlertCircle,
   X,
+  Eye,
+  EyeOff,
+  Globe,
 } from "lucide-react";
 
 interface CouponItem {
@@ -38,6 +41,7 @@ interface CouponItem {
   startDate: string;
   endDate: string | null;
   isActive: boolean;
+  showOnCollection?: boolean;
   createdAt: string;
   updatedAt: string;
   _count?: { orders: number };
@@ -89,6 +93,7 @@ export default function AdminDiscountsPage() {
     startDate: new Date().toISOString().slice(0, 10),
     endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
     isActive: true,
+    showOnCollection: false,
   });
 
   // Fetch Discounts
@@ -165,6 +170,34 @@ export default function AdminDiscountsPage() {
     }
   };
 
+  const handleToggleCollectionBanner = async (coupon: CouponItem) => {
+    try {
+      const nextVal = !coupon.showOnCollection;
+      setCoupons((prev) =>
+        prev.map((c) => (c.id === coupon.id ? { ...c, showOnCollection: nextVal } : c))
+      );
+
+      const res = await fetch(`/api/admin/discounts/${coupon.id}/toggle`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ field: "showOnCollection" }),
+      });
+
+      if (!res.ok) {
+        fetchDiscounts();
+      } else {
+        const data = await res.json();
+        setCoupons((prev) =>
+          prev.map((c) =>
+            c.id === coupon.id ? { ...c, showOnCollection: data.showOnCollection } : c
+          )
+        );
+      }
+    } catch (err) {
+      fetchDiscounts();
+    }
+  };
+
   const openCreateModal = () => {
     setEditingCoupon(null);
     setFormError("");
@@ -181,6 +214,7 @@ export default function AdminDiscountsPage() {
       startDate: new Date().toISOString().slice(0, 10),
       endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
       isActive: true,
+      showOnCollection: false,
     });
     setIsModalOpen(true);
   };
@@ -217,6 +251,7 @@ export default function AdminDiscountsPage() {
         ? new Date(coupon.endDate).toISOString().slice(0, 10)
         : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
       isActive: coupon.isActive,
+      showOnCollection: Boolean(coupon.showOnCollection),
     });
 
     setIsModalOpen(true);
@@ -274,6 +309,7 @@ export default function AdminDiscountsPage() {
             ? new Date(formData.endDate).toISOString()
             : undefined,
         isActive: formData.isActive,
+        showOnCollection: formData.showOnCollection,
         applicableScope: "ALL",
       };
 
@@ -594,6 +630,12 @@ export default function AdminDiscountsPage() {
                           Active
                         </span>
                       )}
+                      {coupon.showOnCollection && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-50 text-[#855D25] text-[10px] uppercase tracking-wider font-semibold rounded-xs border border-amber-300">
+                          <Sparkles className="w-2.5 h-2.5 text-[#855D25]" />
+                          On Collection
+                        </span>
+                      )}
                     </div>
 
                     {/* Active Switch */}
@@ -697,6 +739,42 @@ export default function AdminDiscountsPage() {
                           : "No Expiration"}
                       </span>
                     </div>
+                  </div>
+
+                  {/* Collection Banner Quick Toggle */}
+                  <div className="mt-3 pt-2.5 border-t border-[#F3EBE1] flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <Globe className="w-3.5 h-3.5 text-[#855D25]" />
+                      <span className="text-[11px] text-[#4A3E37] font-medium">
+                        Collection Banner:
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleToggleCollectionBanner(coupon)}
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-semibold rounded-xs transition-all cursor-pointer border ${
+                        coupon.showOnCollection
+                          ? "bg-amber-100/90 border-amber-300 text-[#855D25] hover:bg-amber-200"
+                          : "bg-[#FAF6F0] border-[#EBD9C8] text-[#8A796B] hover:text-[#171717] hover:bg-white"
+                      }`}
+                      title={
+                        coupon.showOnCollection
+                          ? "Click to hide from customer Collection banner"
+                          : "Click to show on customer Collection banner"
+                      }
+                    >
+                      {coupon.showOnCollection ? (
+                        <>
+                          <Check className="w-3 h-3 text-amber-700" />
+                          <span>Visible to Customers</span>
+                        </>
+                      ) : (
+                        <>
+                          <EyeOff className="w-3 h-3 text-gray-400" />
+                          <span>Hidden (Click to Show)</span>
+                        </>
+                      )}
+                    </button>
                   </div>
                 </div>
 
@@ -1045,6 +1123,37 @@ export default function AdminDiscountsPage() {
                     </div>
                   )}
                 </div>
+              </div>
+
+              {/* Show on Collection Page Banner Option */}
+              <div className="p-4 bg-gradient-to-r from-amber-50/80 to-[#FAF6F0] border border-amber-200/90 rounded-sm flex items-start justify-between gap-4">
+                <div className="flex gap-3">
+                  <div className="p-2 bg-amber-100/80 text-[#855D25] rounded-xs mt-0.5 shrink-0">
+                    <Sparkles className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="text-xs uppercase tracking-wider font-bold text-[#171717] flex items-center gap-2">
+                      <span>Show on Collection Banner</span>
+                      <span className="text-[10px] px-1.5 py-0.5 bg-[#855D25] text-white font-medium rounded-xs">
+                        Customer Offer
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-[#6B5E55] mt-1 leading-relaxed">
+                      Show this discount code prominently on the top banner of the Rajputi Poshak Collection page so customers can see and copy it with 1 tap.
+                    </p>
+                  </div>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer shrink-0 mt-1">
+                  <input
+                    type="checkbox"
+                    checked={formData.showOnCollection}
+                    onChange={(e) =>
+                      setFormData({ ...formData, showOnCollection: e.target.checked })
+                    }
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#6D1A2A]"></div>
+                </label>
               </div>
 
               {/* Live Card Preview */}

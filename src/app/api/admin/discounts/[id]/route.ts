@@ -120,6 +120,7 @@ export async function PUT(
         startDate: data.startDate ? new Date(data.startDate) : new Date(),
         endDate: data.endDate ? new Date(data.endDate) : null,
         isActive: data.isActive,
+        showOnCollection: Boolean(data.showOnCollection),
         applicableScope: data.applicableScope || "ALL",
         applicableProducts: data.applicableProducts ? data.applicableProducts : undefined,
         applicableCategories: data.applicableCategories ? data.applicableCategories : undefined,

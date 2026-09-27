@@ -270,6 +270,7 @@ model Coupon {
   startDate             DateTime    @default(now())
   endDate               DateTime?   // Expiry date (null = no expiration)
   isActive              Boolean     @default(true) // Admin status toggle
+  showOnCollection      Boolean     @default(false) // Toggle to feature discount on Collection page banner
   applicableScope       String      @default("ALL") // "ALL" | "SPECIFIC_PRODUCTS" | "SPECIFIC_CATEGORIES"
   applicableProducts    Json?       // String array of product IDs/slugs e.g. ["morbagh-rajputi-poshak"]
   applicableCategories  Json?       // String array of categories e.g. ["Stitched", "Unstitched"] (null = all)

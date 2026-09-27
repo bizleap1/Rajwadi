@@ -22,6 +22,10 @@ export async function GET() {
         discountValue: true,
         description: true,
         applicableScope: true,
+        showOnCollection: true,
+        minOrderValueInPaise: true,
+        maxDiscountInPaise: true,
+        endDate: true,
       },
       orderBy: { createdAt: "desc" },
     });

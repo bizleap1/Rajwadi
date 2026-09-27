@@ -22,6 +22,24 @@ export async function PATCH(
       return NextResponse.json({ error: "Discount coupon not found" }, { status: 404 });
     }
 
+    const url = new URL(req.url);
+    const fieldParam = url.searchParams.get("field");
+    const body = await req.json().catch(() => ({}));
+    const targetField = fieldParam || body.field;
+
+    if (targetField === "showOnCollection") {
+      const updated = await prisma.coupon.update({
+        where: { id },
+        data: { showOnCollection: !existing.showOnCollection },
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: `Coupon "${updated.code}" collection banner is now ${updated.showOnCollection ? "VISIBLE" : "HIDDEN"}.`,
+        showOnCollection: updated.showOnCollection,
+      });
+    }
+
     const updated = await prisma.coupon.update({
       where: { id },
       data: { isActive: !existing.isActive },

@@ -38,6 +38,7 @@ export const CouponFormSchema = z.object({
   startDate: z.string().optional().nullable(),
   endDate: z.string().optional().nullable(),
   isActive: z.boolean().optional().default(true),
+  showOnCollection: z.boolean().optional().default(false),
   applicableScope: z.enum(["ALL", "SPECIFIC_PRODUCTS", "SPECIFIC_CATEGORIES"]).default("ALL"),
   applicableProducts: z.array(z.string()).optional().nullable(),
   applicableCategories: z.array(z.string()).optional().nullable(),
