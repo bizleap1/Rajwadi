@@ -157,6 +157,15 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    try {
+      const { revalidatePath } = await import("next/cache");
+      revalidatePath("/collection");
+      revalidatePath("/api/products");
+      revalidatePath("/");
+    } catch (e) {
+      console.warn("Revalidation warning:", e);
+    }
+
     return NextResponse.json({ product: created }, { status: 201 });
   } catch (error) {
     console.error("POST /api/admin/products error:", error);

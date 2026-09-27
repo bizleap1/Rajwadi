@@ -28,6 +28,7 @@ export interface PoshakProduct {
   bestFor?: string;
   soldOut?: boolean;
   stitchingAvailable?: boolean;
+  createdAt?: string;
 }
 
 export function getPoshakDisplayName(product: { name: string; type?: string; category?: string }): string {

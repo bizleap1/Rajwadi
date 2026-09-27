@@ -186,6 +186,15 @@ export async function PUT(
       }
     }
 
+    try {
+      const { revalidatePath } = await import("next/cache");
+      revalidatePath("/collection");
+      revalidatePath("/api/products");
+      revalidatePath("/");
+    } catch (e) {
+      console.warn("Revalidation warning:", e);
+    }
+
     return NextResponse.json({ product: updated });
   } catch (error) {
     console.error("PUT /api/admin/products/[id] error:", error);
@@ -253,6 +262,15 @@ export async function DELETE(
       deleteCloudinaryAsset(pid).catch((err) =>
         console.warn("Cloudinary asset cleanup error:", err)
       );
+    }
+
+    try {
+      const { revalidatePath } = await import("next/cache");
+      revalidatePath("/collection");
+      revalidatePath("/api/products");
+      revalidatePath("/");
+    } catch (e) {
+      console.warn("Revalidation warning:", e);
     }
 
     return NextResponse.json({

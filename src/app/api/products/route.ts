@@ -39,15 +39,12 @@ export async function GET(req: NextRequest) {
     }
 
     let orderBy: any = [];
-    if (sort === "featured") {
-      orderBy = [{ isFeatured: "desc" }, { featuredOrder: "asc" }, { createdAt: "desc" }];
-    } else if (sort === "newest") {
-      orderBy = [{ createdAt: "desc" }];
-    } else if (sort === "price-asc") {
-      orderBy = [{ priceInPaise: "asc" }];
+    if (sort === "price-asc") {
+      orderBy = [{ priceInPaise: "asc" }, { createdAt: "desc" }];
     } else if (sort === "price-desc") {
-      orderBy = [{ priceInPaise: "desc" }];
+      orderBy = [{ priceInPaise: "desc" }, { createdAt: "desc" }];
     } else {
+      // Default ("featured" / "newest"): newly added poshaks always appear at the top!
       orderBy = [{ createdAt: "desc" }];
     }
 
@@ -72,9 +69,15 @@ export async function GET(req: NextRequest) {
         slug: p.slug,
         name: p.name,
         category: p.category,
+        subCategory: p.subCategory || undefined,
+        type: p.type || "Stitched",
         priceInPaise: p.priceInPaise,
         priceFormatted: `₹ ${(p.priceInPaise / 100).toLocaleString("en-IN")}`,
         price: `₹ ${(p.priceInPaise / 100).toLocaleString("en-IN")}`, // Legacy string field
+        originalPrice: p.compareAtPriceInPaise
+          ? `₹ ${(p.compareAtPriceInPaise / 100).toLocaleString("en-IN")}`
+          : undefined,
+        priceNote: p.priceNote || undefined,
         fabric: p.fabric,
         craft: p.craft,
         color: p.color,
@@ -87,6 +90,7 @@ export async function GET(req: NextRequest) {
         imageScale: p.imageScale,
         inStock: p.inStock && p.stock > 0,
         stock: p.stock,
+        soldOut: p.soldOut || !p.inStock || p.stock <= 0,
         stitchingAvailable: p.stitchingAvailable,
         stitchingPriceInPaise: p.stitchingPriceInPaise,
         stitchingPriceFormatted: `₹ ${(p.stitchingPriceInPaise / 100).toLocaleString("en-IN")}`,
@@ -102,7 +106,7 @@ export async function GET(req: NextRequest) {
       },
       {
         headers: {
-          "Cache-Control": "public, s-maxage=30, stale-while-revalidate=60",
+          "Cache-Control": "no-store, must-revalidate",
         },
       }
     );

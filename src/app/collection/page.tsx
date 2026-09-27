@@ -140,6 +140,30 @@ function CollectionContent() {
   );
   const [sortBy, setSortBy] = useState<SortOption>("featured");
 
+  // Dynamic products state: initialized with REAL_POSHAKS, synchronized with database
+  const [allProducts, setAllProducts] = useState<PoshakProduct[]>(REAL_POSHAKS);
+
+  useEffect(() => {
+    let isMounted = true;
+    async function loadProducts() {
+      try {
+        const res = await fetch("/api/products", { cache: "no-store" });
+        if (res.ok) {
+          const data = await res.json();
+          if (isMounted && Array.isArray(data.products) && data.products.length > 0) {
+            setAllProducts(data.products);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load products from API:", err);
+      }
+    }
+    loadProducts();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   // Promotional Discounts from Admin
   const [promoCoupons, setPromoCoupons] = useState<PromoCoupon[]>([]);
   const [copiedCouponCode, setCopiedCouponCode] = useState<string | null>(null);
@@ -277,37 +301,37 @@ function CollectionContent() {
   const categories: { key: CategoryFilter; label: string; count: number }[] =
     useMemo(
       () => [
-        { key: "ALL", label: "All", count: REAL_POSHAKS.length },
+        { key: "ALL", label: "All", count: allProducts.length },
         {
           key: "BRIDAL",
           label: "Heavy Poshak",
-          count: REAL_POSHAKS.filter(
-            (p) => p.category.toUpperCase() === "BRIDAL"
+          count: allProducts.filter(
+            (p) => (p.category || "").toUpperCase() === "BRIDAL"
           ).length,
         },
         {
           key: "EVERYDAY",
           label: "Classic Poshak",
-          count: REAL_POSHAKS.filter(
-            (p) => p.category.toUpperCase() === "EVERYDAY"
+          count: allProducts.filter(
+            (p) => (p.category || "").toUpperCase() === "EVERYDAY"
           ).length,
         },
         {
           key: "FESTIVE",
           label: "Festive",
-          count: REAL_POSHAKS.filter(
-            (p) => p.category.toUpperCase() === "FESTIVE"
+          count: allProducts.filter(
+            (p) => (p.category || "").toUpperCase() === "FESTIVE"
           ).length,
         },
         {
           key: "JEWELLERY",
           label: "Jewellery",
-          count: REAL_POSHAKS.filter(
-            (p) => p.category.toUpperCase() === "JEWELLERY"
+          count: allProducts.filter(
+            (p) => (p.category || "").toUpperCase() === "JEWELLERY"
           ).length,
         },
       ],
-      []
+      [allProducts]
     );
 
   // Product Type Filter: Stitched, Poshak Material, Jewellery
@@ -315,27 +339,27 @@ function CollectionContent() {
     useMemo(() => {
       const baseList =
         activeCategory === "ALL"
-          ? REAL_POSHAKS
-          : REAL_POSHAKS.filter((p) => p.category.toUpperCase() === activeCategory);
+          ? allProducts
+          : allProducts.filter((p) => (p.category || "").toUpperCase() === activeCategory);
 
       return [
         {
           key: "STITCHED",
           label: "Stitched",
-          count: baseList.filter((p) => p.type.toUpperCase() === "STITCHED").length,
+          count: baseList.filter((p) => (p.type || "").toUpperCase() === "STITCHED").length,
         },
         {
           key: "UNSTITCHED",
           label: "Semi-Stitched",
-          count: baseList.filter((p) => p.type.toUpperCase() === "UNSTITCHED").length,
+          count: baseList.filter((p) => (p.type || "").toUpperCase() === "UNSTITCHED").length,
         },
         {
           key: "JEWELLERY",
           label: "Jewellery",
-          count: baseList.filter((p) => p.type.toUpperCase() === "JEWELLERY").length,
+          count: baseList.filter((p) => (p.type || "").toUpperCase() === "JEWELLERY").length,
         },
       ];
-    }, [activeCategory]);
+    }, [activeCategory, allProducts]);
 
   const parsePrice = (priceStr: string, origPriceStr?: string): number => {
     const num = priceStr.replace(/[^0-9]/g, "");
@@ -349,7 +373,7 @@ function CollectionContent() {
 
   // Filter and sort products strictly according to criteria
   const filteredAndSortedProducts = useMemo(() => {
-    let list = REAL_POSHAKS;
+    let list = allProducts;
 
     // 0. Search Query Filter
     if (searchQuery) {
@@ -357,7 +381,7 @@ function CollectionContent() {
       const terms = cleanQ.split(/\s+/).filter(Boolean);
       list = list.filter((p) => {
         const name = p.name.toLowerCase();
-        const cat = p.category.toLowerCase();
+        const cat = (p.category || "").toLowerCase();
         const sub = (p.subCategory || "").toLowerCase();
         const col = (p.color || "").toLowerCase();
         const crf = (p.craft || "").toLowerCase();
@@ -374,12 +398,12 @@ function CollectionContent() {
 
     // 1. Category Filter
     if (activeCategory !== "ALL") {
-      list = list.filter((p) => p.category.toUpperCase() === activeCategory);
+      list = list.filter((p) => (p.category || "").toUpperCase() === activeCategory);
     }
 
     // 2. Product Type Filter
     if (activeType !== "ALL") {
-      list = list.filter((p) => p.type.toUpperCase() === activeType);
+      list = list.filter((p) => (p.type || "").toUpperCase() === activeType);
     }
 
     // 2. Colour Filter
@@ -398,12 +422,9 @@ function CollectionContent() {
       }
     }
 
-    // 4. Sorting
+    // 4. Sorting: Newly added products appear at the TOP by default!
     const sorted = [...list];
     switch (sortBy) {
-      case "newest":
-        sorted.reverse();
-        break;
       case "price-asc":
         sorted.sort((a, b) => parsePrice(a.price, a.originalPrice) - parsePrice(b.price, b.originalPrice));
         break;
@@ -411,12 +432,20 @@ function CollectionContent() {
         sorted.sort((a, b) => parsePrice(b.price, b.originalPrice) - parsePrice(a.price, a.originalPrice));
         break;
       case "featured":
+      case "newest":
       default:
+        // Newly added poshaks ALWAYS appear at the top!
+        sorted.sort((a, b) => {
+          const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+          const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+          if (timeA !== timeB) return timeB - timeA;
+          return 0;
+        });
         break;
     }
 
     return sorted;
-  }, [activeCategory, activeType, selectedColor, selectedPriceRange, sortBy, searchQuery]);
+  }, [allProducts, activeCategory, activeType, selectedColor, selectedPriceRange, sortBy, searchQuery]);
 
   const handleCategorySelect = (cat: CategoryFilter) => {
     setActiveCategory(cat);
