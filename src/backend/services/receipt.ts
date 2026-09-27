@@ -98,13 +98,13 @@ export function generateReceiptHtml(order: ReceiptOrderData, options?: ReceiptHt
   const patronPhone = addr.phone || addr.mobile || order.user?.phone || "+91";
   const patronAddress = addr.address || addr.street || "Address on Record";
   const patronCity = addr.city || "Nagpur";
-  const patronState = addr.state || "Rajasthan";
+  const patronState = addr.state || "Maharashtra";
   const patronPincode = addr.pincode || addr.pin || "";
   const patronEmail = order.guestEmail || addr.email || order.user?.email || "N/A";
 
   const cleanStateKey = patronState.trim().toLowerCase();
-  const stateCode = STATE_CODES[cleanStateKey] || "08";
-  const isIntraState = stateCode === "08";
+  const stateCode = STATE_CODES[cleanStateKey] || "27";
+  const isIntraState = stateCode === "27";
 
   const orderNum = order.orderNumber || order.id || "ORD-9999";
   const cleanOrderNum = String(orderNum).replace(/[^0-9A-Z]/gi, "");
@@ -203,7 +203,7 @@ export function generateReceiptHtml(order: ReceiptOrderData, options?: ReceiptHt
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Tax Invoice ${invoiceNo} — Rajwadi Haute Couture</title>
+  <title>Tax Invoice ${invoiceNo} — Rajwadi Rajputi Poshak</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Montserrat:wght@400;500;600;700&display=swap');
 
@@ -631,7 +631,7 @@ export function generateReceiptHtml(order: ReceiptOrderData, options?: ReceiptHt
 </head>
 <body>
   <div class="invoice-wrapper">
-    <div class="watermark-emblem">RAJWADI</div>
+    <div class="watermark-emblem">RAJWADI RAJPUTI POSHAK</div>
 
     ${options?.isEmail
       ? (options.emailRecipientType === "owner"
@@ -647,10 +647,10 @@ export function generateReceiptHtml(order: ReceiptOrderData, options?: ReceiptHt
           : `<!-- Customer Confirmation Email Banner -->
     <div style="background-color: #FAF6F0; border: 1px solid #EBD9C8; padding: 14px 18px; border-radius: 4px; margin-bottom: 16px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
       <div style="font-family: 'Playfair Display', Georgia, serif; font-size: 16px; font-weight: 700; letter-spacing: 0.05em; color: #581522; text-transform: uppercase;">
-        👑 Royal Order Confirmation &bull; Rajwadi Haute Couture
+        👑 Royal Order Confirmation &bull; Rajwadi Rajputi Poshak
       </div>
       <div style="font-size: 12px; color: #66584F; margin-top: 4px; line-height: 1.5;">
-        Valued Patron <strong>${patronName}</strong>, your couture order has been placed successfully. Please find your official tax invoice below.
+        Valued Patron <strong>${patronName}</strong>, your Rajputi poshak order has been placed successfully. Please find your official tax invoice below.
       </div>
     </div>`)
       : `<!-- Onscreen Print Button Toolbar (Hidden in print/pdf) -->
@@ -683,12 +683,12 @@ export function generateReceiptHtml(order: ReceiptOrderData, options?: ReceiptHt
           />
         </td>
         <td class="brand-info-cell">
-          <div class="brand-title">RAJWADI</div>
-          <div class="brand-sub">HAUTE COUTURE &amp; LUXURY RAJPUTI ATELIER</div>
+          <div class="brand-title">RAJWADI RAJPUTI POSHAK</div>
+          <div class="brand-sub">AUTHENTIC IMPERIAL RAJPUTI ATELIER</div>
           <div class="brand-address">
-            Flagship Atelier: Johari Bazaar, Pink City, Jaipur, Rajasthan 302001<br>
-            GSTIN: 08AAACR1234F1Z8 | State: 08 (Rajasthan) | Ph: +91 98290 00000<br>
-            Web: www.rajwadirajputiposhak.com | Email: royal@rajwadirajputiposhak.com
+            Store Address: EWS 41, near Maheshwari Bhawan, Hiwari Layout, Uday Nagar, Padole Nagar, Nagpur, Maharashtra 440008<br>
+            GSTIN: 27AAACR1234F1Z8 | State: 27 (Maharashtra) | Ph: +91 8766667101<br>
+            Web: www.rajwadirajputiposhak.com | Email: support@rajwadirajputiposhak.com
           </div>
         </td>
         <td class="meta-cell">
@@ -779,11 +779,11 @@ export function generateReceiptHtml(order: ReceiptOrderData, options?: ReceiptHt
         ${isIntraState
           ? `
             <div class="summary-row">
-              <span>CGST (9% Central GST - RJ):</span>
+              <span>CGST (9% Central GST - MH):</span>
               <span style="font-family: monospace;">Rs. ${halfGst.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
             </div>
             <div class="summary-row">
-              <span>SGST (9% State GST - RJ):</span>
+              <span>SGST (9% State GST - MH):</span>
               <span style="font-family: monospace;">Rs. ${halfGst.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
             </div>
           `
@@ -837,14 +837,14 @@ export function generateReceiptHtml(order: ReceiptOrderData, options?: ReceiptHt
       <div class="terms-cell">
         <div class="terms-title">BOUTIQUE TERMS &amp; CARE INSTRUCTIONS</div>
         <ol class="terms-list">
-          <li>All handcrafted couture ensembles are tailored with bespoke artistry. Strictly Professional Dry Clean Only.</li>
-          <li>Alteration and fitment requests are honored within 7 days of delivery at our Jaipur atelier.</li>
+          <li>All handcrafted Rajputi poshak ensembles are tailored with bespoke artistry. Strictly Professional Dry Clean Only.</li>
+          <li>Alteration and fitment requests are honored within 7 days of delivery at our Rajputi poshak atelier.</li>
           <li>This document serves as an authentic Computer-Generated Tax Invoice under Indian GST regulations.</li>
         </ol>
       </div>
 
       <div class="seal-cell">
-        <div class="seal-title">FOR RAJWADI BY ATELIER</div>
+        <div class="seal-title">FOR RAJWADI RAJPUTI POSHAK</div>
         <div class="seal-sub">Digitally Certified &amp; Approved</div>
         <div class="seal-stamp-box">
           OFFICIAL DIGITAL ATELIER SEAL
@@ -854,9 +854,9 @@ export function generateReceiptHtml(order: ReceiptOrderData, options?: ReceiptHt
 
     <!-- 6. FOOTER -->
     <div class="footer-bar">
-      <div>RAJWADI BY ATELIER</div>
+      <div>RAJWADI RAJPUTI POSHAK</div>
       <div>www.rajwadirajputiposhak.com</div>
-      <div>JAIPUR | RAJASTHAN</div>
+      <div>NAGPUR | MAHARASHTRA</div>
     </div>
   </div>
 </body>

@@ -29,10 +29,10 @@ async function runSelfCheck() {
     shippingAddress: {
       fullName: "Banna Yuvraj Singh",
       phone: "+91 98290 12345",
-      address: "Civil Lines, Royal Palace Road",
-      city: "Jaipur",
-      state: "Rajasthan",
-      pincode: "302006",
+      address: "Civil Lines, Palace Road",
+      city: "Nagpur",
+      state: "Maharashtra",
+      pincode: "440008",
       email: "customer@example.com",
     },
     items: [
@@ -60,8 +60,13 @@ async function runSelfCheck() {
   assert(customerHtml.includes("Banna Yuvraj Singh"), "HTML must include patron name");
   assert(customerHtml.includes("Royal Order Confirmation"), "Customer HTML must include royal customer confirmation banner");
   assert(customerHtml.includes("rajwadi_royal_logo.png"), "HTML must embed authentic Rajwadi logo");
-  assert(!customerHtml.includes("brand-monogram-initials"), "HTML must not have dummy CSS monogram");
-  console.log("  ✓ Customer Invoice HTML generated with official Rajwadi Royal Logo");
+  assert(customerHtml.includes("RAJWADI RAJPUTI POSHAK"), "HTML must contain RAJWADI RAJPUTI POSHAK brand title");
+  assert(customerHtml.includes("EWS 41"), "HTML must contain exact store address EWS 41");
+  assert(customerHtml.includes("Nagpur, Maharashtra 440008"), "HTML must contain Nagpur, Maharashtra 440008");
+  assert(customerHtml.includes("8766667101"), "HTML must contain store phone 8766667101");
+  assert(!customerHtml.includes("Johari Bazaar"), "HTML must not contain Johari Bazaar");
+  assert(!customerHtml.includes("Jaipur, Rajasthan"), "HTML must not contain Jaipur, Rajasthan");
+  console.log("  ✓ Customer Invoice HTML verified with exact Rajputi Poshak store address & brand identity");
 
   // 4. Verify Owner Email HTML Generation
   const ownerHtml = generateReceiptHtml(mockOrder, {

@@ -81,7 +81,7 @@ function getOtpEmailHtml(otp: string, type: string): string {
                 ${title}
               </h2>
               <p style="margin: 0 0 28px 0; font-size: 14px; line-height: 1.6; color: #555555;">
-                Welcome to the world of imperial Rajasthani craftsmanship. Please use the verification code below to securely sign into your Rajwadi account.
+                Welcome to the world of authentic Rajputi craftsmanship. Please use the verification code below to securely sign into your Rajwadi account.
               </p>
 
               <!-- 6-digit OTP Box -->
@@ -104,10 +104,10 @@ function getOtpEmailHtml(otp: string, type: string): string {
           <tr>
             <td style="background-color: #F8F5F0; border-top: 1px solid #EAE5DE; padding: 24px; text-align: center;">
               <p style="margin: 0 0 6px 0; font-size: 11px; letter-spacing: 0.1em; color: #777777; text-transform: uppercase;">
-                Rajwadi Luxury Couture Atelier
+                Rajwadi Rajputi Poshak Atelier
               </p>
               <p style="margin: 0; font-size: 11px; color: #999999;">
-                Jaipur, Rajasthan, India • support@rajwadi.com
+                Nagpur, Maharashtra, India • +91 8766667101 • support@rajwadirajputiposhak.com
               </p>
             </td>
           </tr>
@@ -426,15 +426,15 @@ export async function sendOrderInvoiceEmail(
     console.log("=======================================================\n");
 
     // 1. Generate Customer Confirmation Email
-    const customerSubject = `👑 Order Confirmed: Your Rajwadi Couture Tax Invoice #${orderNum}`;
+    const customerSubject = `👑 Order Confirmed: Your Rajwadi Rajputi Poshak Tax Invoice #${orderNum}`;
     const customerHtml = generateReceiptHtml(orderData, {
       isEmail: true,
       emailRecipientType: "customer",
     });
-    const customerText = `Rajwadi Rajputi Poshak — Order Confirmation\nOrder Reference: #${orderNum}\nTotal Amount: ₹${totalRupees}\nStatus: ${orderData.paymentStatus || "PENDING"}\n\nDear ${patronName},\nThank you for placing your order with Rajwadi Haute Couture. Your official tax invoice has been generated.\nFor any assistance, please write to royal@rajwadirajputiposhak.com.`;
+    const customerText = `Rajwadi Rajputi Poshak — Order Confirmation\nOrder Reference: #${orderNum}\nTotal Amount: ₹${totalRupees}\nStatus: ${orderData.paymentStatus || "PENDING"}\n\nDear ${patronName},\nThank you for placing your order with Rajwadi Rajputi Poshak. Your official tax invoice has been generated.\nFor any assistance, please write to support@rajwadirajputiposhak.com or call +91 8766667101.`;
 
     // 2. Generate Owner Alert Email
-    const ownerSubject = `👑 [New Order Alert] Rajwadi #${orderNum} — ₹${totalRupees}`;
+    const ownerSubject = `👑 [New Order Alert] Rajwadi Rajputi Poshak #${orderNum} — ₹${totalRupees}`;
     const ownerHtml = generateReceiptHtml(orderData, {
       isEmail: true,
       emailRecipientType: "owner",
