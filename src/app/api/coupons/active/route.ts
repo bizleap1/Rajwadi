@@ -26,7 +26,7 @@ export async function GET() {
         minOrderValueInPaise: true,
         maxDiscountInPaise: true,
         endDate: true,
-      },
+      } as any,
       orderBy: { createdAt: "desc" },
     });
 
