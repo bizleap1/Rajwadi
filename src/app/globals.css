@@ -206,7 +206,7 @@ div[data-nextjs-portal] {
 }
 
 .poshak-img-unstitched {
-  object-position: center center !important;
+  object-position: center 0% !important;
 }
 
 /* Bulletproof Footer Responsive Grid (Stacked on Mobile, 3-Col on Desktop) */
