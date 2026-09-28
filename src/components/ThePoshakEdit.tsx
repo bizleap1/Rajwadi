@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, ShoppingBag } from "lucide-react";
+import { Heart, ShoppingBag, MessageCircle } from "lucide-react";
 import { useWishlist } from "@/context/WishlistContext";
 import { useCart } from "@/context/CartContext";
 
@@ -182,9 +182,28 @@ export default function ThePoshakEdit({ onSelectProduct }: ThePoshakEditProps) {
                             {product.craft || product.fabric}
                           </p>
 
-                          <p className="font-sans font-medium text-[13px] sm:text-[14px] text-[#171717] tracking-wide mt-1">
-                            {product.priceFormatted || product.price}
-                          </p>
+                          {((product.category || "").toLowerCase() === "jewellery" || (product.type || "").toLowerCase() === "jewellery") ? (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                const msg = encodeURIComponent(
+                                  `Pranam Rajwadi! I am interested in inquiring about "${product.name}". Could you please share price and details?`
+                                );
+                                window.open(`https://wa.me/918766667101?text=${msg}`, "_blank");
+                              }}
+                              className="inline-flex items-center gap-1.5 px-2.5 py-1 mt-1 rounded-xs bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#128C7E] border border-[#25D366]/30 text-[10px] sm:text-[10.5px] font-semibold tracking-wider uppercase font-sans transition-colors cursor-pointer"
+                              title="Enquiry on WhatsApp"
+                            >
+                              <MessageCircle className="w-3.5 h-3.5 text-[#25D366]" />
+                              <span>Enquiry to WhatsApp</span>
+                            </button>
+                          ) : (
+                            <p className="font-sans font-medium text-[13px] sm:text-[14px] text-[#171717] tracking-wide mt-1">
+                              {product.priceFormatted || product.price}
+                            </p>
+                          )}
                         </div>
 
                         {/* Action Icons */}
@@ -213,20 +232,22 @@ export default function ThePoshakEdit({ onSelectProduct }: ThePoshakEditProps) {
                             />
                           </button>
 
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              addToCart(product);
-                              setIsCartOpen(true);
-                            }}
-                            aria-label={`Add ${product.name} to royal bag`}
-                            title="Add to Royal Bag"
-                            className="p-1 text-[#333333] hover:text-[#5A1F2B] transition-colors cursor-pointer"
-                          >
-                            <ShoppingBag className="w-[18px] h-[18px] stroke-[1.25]" />
-                          </button>
+                          {!((product.category || "").toLowerCase() === "jewellery" || (product.type || "").toLowerCase() === "jewellery") && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                addToCart(product);
+                                setIsCartOpen(true);
+                              }}
+                              aria-label={`Add ${product.name} to royal bag`}
+                              title="Add to Royal Bag"
+                              className="p-1 text-[#333333] hover:text-[#5A1F2B] transition-colors cursor-pointer"
+                            >
+                              <ShoppingBag className="w-[18px] h-[18px] stroke-[1.25]" />
+                            </button>
+                          )}
                         </div>
                       </div>
                     </Link>

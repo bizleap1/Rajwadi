@@ -3,7 +3,7 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Heart, ShoppingBag } from "lucide-react";
+import { Heart, ShoppingBag, MessageCircle } from "lucide-react";
 import { PoshakProduct } from "@/data/products";
 import { useWishlist } from "@/context/WishlistContext";
 import { useCart } from "@/context/CartContext";
@@ -31,6 +31,10 @@ export default function ProductCard({
   const { addToCart, setIsCartOpen } = useCart();
   const isWishlisted = isInWishlist(product.id);
 
+  const isJewellery =
+    (product.category || "").toLowerCase() === "jewellery" ||
+    (product.type || "").toLowerCase() === "jewellery";
+
   const secondaryImage =
     product.additionalImages && product.additionalImages.length > 1
       ? product.additionalImages[1]
@@ -38,14 +42,14 @@ export default function ProductCard({
 
   // Calculate discount percentage if original price is provided
   const discountPercent = React.useMemo(() => {
-    if (!product.price || !product.originalPrice) return null;
+    if (isJewellery || !product.price || !product.originalPrice) return null;
     const currentNum = parseInt(product.price.replace(/[^0-9]/g, ""), 10);
     const originalNum = parseInt(product.originalPrice.replace(/[^0-9]/g, ""), 10);
     if (originalNum > currentNum && originalNum > 0) {
       return Math.round(((originalNum - currentNum) / originalNum) * 100);
     }
     return null;
-  }, [product.price, product.originalPrice]);
+  }, [product.price, product.originalPrice, isJewellery]);
 
   const handleWishlistClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -61,6 +65,15 @@ export default function ProductCard({
     e.stopPropagation();
     addToCart(product);
     setIsCartOpen(true);
+  };
+
+  const handleWhatsAppEnquiry = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const message = encodeURIComponent(
+      `Pranam Rajwadi! I am interested in inquiring about "${product.name}". Could you please share price and details?`
+    );
+    window.open(`https://wa.me/918766667101?text=${message}`, "_blank");
   };
 
   return (
@@ -138,11 +151,11 @@ export default function ProductCard({
           </button>
         )}
 
-        {/* VIEW POSHAK → Subtle Overlay CTA */}
+        {/* VIEW POSHAK / JEWELLERY → Subtle Overlay CTA */}
         {showOverlayCTA && (
           <div className="absolute inset-x-0 bottom-0 py-2 sm:py-2.5 px-2.5 bg-gradient-to-t from-black/75 via-black/35 to-transparent flex items-center justify-center gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10">
             <span className="text-[9.5px] sm:text-[10.5px] uppercase tracking-[0.2em] text-[#FAF6F0] font-sans font-medium">
-              VIEW POSHAK
+              {isJewellery ? "VIEW JEWELLERY" : "VIEW POSHAK"}
             </span>
             <span className="text-[10px] sm:text-[11px] text-[#FAF6F0] transition-transform duration-300 group-hover:translate-x-0.5">
               →
@@ -167,7 +180,7 @@ export default function ProductCard({
             </h3>
           </div>
 
-          {/* If heart is at bottom, show side-by-side with bag icon */}
+          {/* If heart is at bottom, show side-by-side with bag icon (hidden for jewellery) */}
           {heartPosition === "bottom" && (
             <div className="flex items-center gap-1.5 flex-shrink-0 pt-0.5">
               <button
@@ -189,15 +202,17 @@ export default function ProductCard({
                   }`}
                 />
               </button>
-              <button
-                type="button"
-                onClick={handleAddToCartClick}
-                aria-label={`Add ${product.name} to royal bag`}
-                title="Add to Royal Bag"
-                className="p-1 text-[#333333] hover:text-[#5A1F2B] transition-colors cursor-pointer"
-              >
-                <ShoppingBag className="w-[17px] h-[17px] stroke-[1.25]" />
-              </button>
+              {!isJewellery && (
+                <button
+                  type="button"
+                  onClick={handleAddToCartClick}
+                  aria-label={`Add ${product.name} to royal bag`}
+                  title="Add to Royal Bag"
+                  className="p-1 text-[#333333] hover:text-[#5A1F2B] transition-colors cursor-pointer"
+                >
+                  <ShoppingBag className="w-[17px] h-[17px] stroke-[1.25]" />
+                </button>
+              )}
             </div>
           )}
         </div>
@@ -212,43 +227,71 @@ export default function ProductCard({
         {/* Price & Bag Row (when heart is top-right) */}
         {heartPosition === "top-right" && (
           <div className="flex items-center justify-between mt-1 pt-0.5">
-            <div className="flex items-baseline gap-1.5 flex-wrap">
-              <span className="font-sans font-medium text-[13px] sm:text-[14px] text-[#171717] tracking-wide">
-                {product.price}
-              </span>
-              {product.originalPrice && (
-                <span className="text-[11px] sm:text-[12px] text-[#8A796B] line-through font-sans">
-                  {product.originalPrice}
-                </span>
-              )}
-            </div>
-            <button
-              type="button"
-              onClick={handleAddToCartClick}
-              aria-label={`Add ${product.name} to royal bag`}
-              title="Add to Royal Bag"
-              className="p-1 -mr-1 text-[#333333] hover:text-[#5A1F2B] transition-colors cursor-pointer active:scale-95"
-            >
-              <ShoppingBag className="w-[17px] h-[17px] stroke-[1.25]" />
-            </button>
+            {isJewellery ? (
+              <button
+                type="button"
+                onClick={handleWhatsAppEnquiry}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xs bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#128C7E] border border-[#25D366]/30 text-[10px] sm:text-[10.5px] font-semibold tracking-wider uppercase font-sans transition-colors cursor-pointer"
+                title="Enquiry on WhatsApp"
+              >
+                <MessageCircle className="w-3.5 h-3.5 text-[#25D366]" />
+                <span>Enquiry to WhatsApp</span>
+              </button>
+            ) : (
+              <>
+                <div className="flex items-baseline gap-1.5 flex-wrap">
+                  <span className="font-sans font-medium text-[13px] sm:text-[14px] text-[#171717] tracking-wide">
+                    {product.price}
+                  </span>
+                  {product.originalPrice && (
+                    <span className="text-[11px] sm:text-[12px] text-[#8A796B] line-through font-sans">
+                      {product.originalPrice}
+                    </span>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={handleAddToCartClick}
+                  aria-label={`Add ${product.name} to royal bag`}
+                  title="Add to Royal Bag"
+                  className="p-1 -mr-1 text-[#333333] hover:text-[#5A1F2B] transition-colors cursor-pointer active:scale-95"
+                >
+                  <ShoppingBag className="w-[17px] h-[17px] stroke-[1.25]" />
+                </button>
+              </>
+            )}
           </div>
         )}
 
         {/* Price only (when heart is bottom) */}
         {heartPosition === "bottom" && (
-          <div className="flex items-baseline gap-2 mt-1">
-            <span className="font-sans font-medium text-[13px] sm:text-[14px] text-[#171717] tracking-wide">
-              {product.price}
-            </span>
-            {product.originalPrice && (
-              <span className="text-[11px] sm:text-[12px] text-[#8A796B] line-through font-sans">
-                {product.originalPrice}
-              </span>
-            )}
-            {discountPercent !== null && (
-              <span className="text-[10px] font-semibold text-[#6D1A2A] uppercase tracking-wider font-sans">
-                ({discountPercent}% off)
-              </span>
+          <div className="flex items-center gap-2 mt-1">
+            {isJewellery ? (
+              <button
+                type="button"
+                onClick={handleWhatsAppEnquiry}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xs bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#128C7E] border border-[#25D366]/30 text-[10px] sm:text-[10.5px] font-semibold tracking-wider uppercase font-sans transition-colors cursor-pointer"
+                title="Enquiry on WhatsApp"
+              >
+                <MessageCircle className="w-3.5 h-3.5 text-[#25D366]" />
+                <span>Enquiry to WhatsApp</span>
+              </button>
+            ) : (
+              <>
+                <span className="font-sans font-medium text-[13px] sm:text-[14px] text-[#171717] tracking-wide">
+                  {product.price}
+                </span>
+                {product.originalPrice && (
+                  <span className="text-[11px] sm:text-[12px] text-[#8A796B] line-through font-sans">
+                    {product.originalPrice}
+                  </span>
+                )}
+                {discountPercent !== null && (
+                  <span className="text-[10px] font-semibold text-[#6D1A2A] uppercase tracking-wider font-sans">
+                    ({discountPercent}% off)
+                  </span>
+                )}
+              </>
             )}
           </div>
         )}

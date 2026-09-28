@@ -168,8 +168,9 @@ function ProductDetailInner({
 
   const handleWhatsAppInquiry = () => {
     const sizeNote = isJewellery ? "" : ` (Size: ${selectedSize})`;
+    const priceText = isJewellery ? "" : ` (${product.price || product.priceFormatted}${sizeNote})`;
     const message = encodeURIComponent(
-      `Pranam Rajwadi! I am interested in inquiring about "${product.name}" (${product.price || product.priceFormatted}${sizeNote}). Could you please share more details?`
+      `Pranam Rajwadi! I am interested in inquiring about "${product.name}"${priceText}. Could you please share more details and price?`
     );
     window.open(`https://wa.me/918766667101?text=${message}`, "_blank");
   };
@@ -427,7 +428,19 @@ function ProductDetailInner({
             </h1>
 
             {/* 3. PRICE & DISCOUNT */}
-            {(() => {
+            {isJewellery ? (
+              <div className="mb-4">
+                <button
+                  type="button"
+                  onClick={handleWhatsAppInquiry}
+                  className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xs bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#128C7E] border border-[#25D366]/35 text-xs sm:text-sm font-semibold tracking-wider uppercase font-sans transition-all cursor-pointer shadow-2xs hover:shadow-xs active:scale-[0.99]"
+                  title="Enquiry on WhatsApp"
+                >
+                  <MessageCircle className="w-4 h-4 text-[#25D366]" />
+                  <span>Enquiry to WhatsApp</span>
+                </button>
+              </div>
+            ) : (() => {
               const originalPriceStr =
                 product.originalPrice ||
                 (product.compareAtPriceInPaise
@@ -576,43 +589,56 @@ function ProductDetailInner({
 
             {/* 7. PRIMARY & SECONDARY ACTIONS */}
             <div className="space-y-2.5 mb-6">
-              {/* Single Row: Add to Bag + Buy Now + Wishlist */}
+              {/* Single Row: Add to Bag + Buy Now + Wishlist (or WhatsApp Enquiry for Jewellery) */}
               <div className="flex items-center gap-2 sm:gap-2.5">
-                {/* 1. Add to Royal Bag */}
-                <button
-                  type="button"
-                  onClick={handleAddToBag}
-                  disabled={!product.inStock}
-                  className={`flex-1 h-[48px] sm:h-[50px] px-2 sm:px-3 text-[11px] sm:text-xs uppercase tracking-[0.12em] sm:tracking-[0.18em] font-medium transition-all duration-300 flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer font-sans shadow-xs whitespace-nowrap active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed ${
-                    isAdded
-                      ? "bg-[#2E5A36] text-white"
-                      : "bg-[#5A1F2B] hover:bg-[#481822] text-[#FAF6F0]"
-                  }`}
-                >
-                  {isAdded ? (
-                    <>
-                      <Check className="w-3.5 h-3.5 flex-shrink-0" />
-                      <span>Added to Bag</span>
-                    </>
-                  ) : !product.inStock ? (
-                    <span>Out of Stock</span>
-                  ) : (
-                    <>
-                      <ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
-                      <span>Add to Bag</span>
-                    </>
-                  )}
-                </button>
+                {isJewellery ? (
+                  <button
+                    type="button"
+                    onClick={handleWhatsAppInquiry}
+                    className="flex-1 h-[48px] sm:h-[50px] px-3 sm:px-4 text-xs sm:text-[13px] uppercase tracking-[0.16em] sm:tracking-[0.2em] font-semibold bg-[#25D366] hover:bg-[#20BD5A] text-white transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer font-sans whitespace-nowrap shadow-xs active:scale-[0.99]"
+                  >
+                    <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5 text-white flex-shrink-0" />
+                    <span>Enquiry to WhatsApp</span>
+                  </button>
+                ) : (
+                  <>
+                    {/* 1. Add to Royal Bag */}
+                    <button
+                      type="button"
+                      onClick={handleAddToBag}
+                      disabled={!product.inStock}
+                      className={`flex-1 h-[48px] sm:h-[50px] px-2 sm:px-3 text-[11px] sm:text-xs uppercase tracking-[0.12em] sm:tracking-[0.18em] font-medium transition-all duration-300 flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer font-sans shadow-xs whitespace-nowrap active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed ${
+                        isAdded
+                          ? "bg-[#2E5A36] text-white"
+                          : "bg-[#5A1F2B] hover:bg-[#481822] text-[#FAF6F0]"
+                      }`}
+                    >
+                      {isAdded ? (
+                        <>
+                          <Check className="w-3.5 h-3.5 flex-shrink-0" />
+                          <span>Added to Bag</span>
+                        </>
+                      ) : !product.inStock ? (
+                        <span>Out of Stock</span>
+                      ) : (
+                        <>
+                          <ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
+                          <span>Add to Bag</span>
+                        </>
+                      )}
+                    </button>
 
-                {/* 2. Buy Now (Instant Checkout - Royal Antique Gold) */}
-                <button
-                  type="button"
-                  onClick={handleBuyNow}
-                  disabled={!product.inStock}
-                  className="flex-1 h-[48px] sm:h-[50px] px-2 sm:px-3 text-[11px] sm:text-xs uppercase tracking-[0.14em] sm:tracking-[0.22em] font-semibold bg-[#855D25] hover:bg-[#704C1C] text-[#FAF6F0] transition-all duration-300 flex items-center justify-center cursor-pointer font-sans shadow-xs whitespace-nowrap active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed border border-[#704C1C]/30"
-                >
-                  <span>Buy Now</span>
-                </button>
+                    {/* 2. Buy Now (Instant Checkout - Royal Antique Gold) */}
+                    <button
+                      type="button"
+                      onClick={handleBuyNow}
+                      disabled={!product.inStock}
+                      className="flex-1 h-[48px] sm:h-[50px] px-2 sm:px-3 text-[11px] sm:text-xs uppercase tracking-[0.14em] sm:tracking-[0.22em] font-semibold bg-[#855D25] hover:bg-[#704C1C] text-[#FAF6F0] transition-all duration-300 flex items-center justify-center cursor-pointer font-sans shadow-xs whitespace-nowrap active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed border border-[#704C1C]/30"
+                    >
+                      <span>Buy Now</span>
+                    </button>
+                  </>
+                )}
 
                 {/* 3. Wishlist Heart Button */}
                 <button
@@ -638,23 +664,26 @@ function ProductDetailInner({
 
               {/* Secondary Row: WhatsApp Concierge + Share */}
               <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={handleWhatsAppInquiry}
-                  className="flex-1 h-[44px] sm:h-[46px] text-xs uppercase tracking-[0.14em] sm:tracking-[0.18em] font-medium border border-[#E6DCB8] hover:border-[#855D25] text-[#171717] bg-white/60 hover:bg-white transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer font-sans active:scale-[0.99]"
-                >
-                  <MessageCircle className="w-4 h-4 text-[#855D25] flex-shrink-0" />
-                  <span className="truncate">Inquire via WhatsApp Concierge</span>
-                </button>
+                {!isJewellery && (
+                  <button
+                    type="button"
+                    onClick={handleWhatsAppInquiry}
+                    className="flex-1 h-[44px] sm:h-[46px] text-xs uppercase tracking-[0.14em] sm:tracking-[0.18em] font-medium border border-[#E6DCB8] hover:border-[#855D25] text-[#171717] bg-white/60 hover:bg-white transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer font-sans active:scale-[0.99]"
+                  >
+                    <MessageCircle className="w-4 h-4 text-[#855D25] flex-shrink-0" />
+                    <span className="truncate">Inquire via WhatsApp Concierge</span>
+                  </button>
+                )}
 
                 <button
                   type="button"
                   onClick={handleShareProduct}
                   title="Share this ensemble"
                   aria-label="Share this ensemble"
-                  className="w-[44px] h-[44px] sm:h-[46px] flex-shrink-0 flex items-center justify-center border border-[#E6DCB8] hover:border-[#855D25] bg-white/60 hover:bg-white text-[#171717]/70 hover:text-[#855D25] transition-colors cursor-pointer active:scale-95"
+                  className={`${isJewellery ? "w-full" : "w-[44px] sm:w-[46px]"} h-[44px] sm:h-[46px] flex-shrink-0 flex items-center justify-center border border-[#E6DCB8] hover:border-[#855D25] bg-white/60 hover:bg-white text-[#171717]/70 hover:text-[#855D25] transition-colors cursor-pointer active:scale-95`}
                 >
                   <Share2 className="w-4 h-4" />
+                  {isJewellery && <span className="ml-2 text-xs uppercase tracking-wider font-sans font-medium text-[#171717]">Share Jewellery</span>}
                 </button>
               </div>
             </div>
@@ -747,47 +776,73 @@ function ProductDetailInner({
         <div className="flex items-center gap-2.5">
           {/* Price & Size preview */}
           <div className="flex flex-col min-w-0 pr-1">
-            <span className="font-sans text-sm font-semibold text-[#171717] tracking-tight leading-tight truncate">
-              {product.priceFormatted || product.price}
-            </span>
-            <span className="text-[10px] text-[#855D25] font-medium uppercase tracking-wider truncate">
-              {isJewellery ? "Free Size" : `Size: ${selectedSize}`}
-            </span>
+            {isJewellery ? (
+              <>
+                <span className="font-sans text-xs font-semibold text-[#128C7E] tracking-tight leading-tight truncate">
+                  WhatsApp Enquiry
+                </span>
+                <span className="text-[10px] text-[#855D25] font-medium uppercase tracking-wider truncate">
+                  Jewellery
+                </span>
+              </>
+            ) : (
+              <>
+                <span className="font-sans text-sm font-semibold text-[#171717] tracking-tight leading-tight truncate">
+                  {product.priceFormatted || product.price}
+                </span>
+                <span className="text-[10px] text-[#855D25] font-medium uppercase tracking-wider truncate">
+                  {`Size: ${selectedSize}`}
+                </span>
+              </>
+            )}
           </div>
 
           {/* Action Buttons in Sticky Bar */}
           <div className="flex items-center gap-2 flex-1">
-            <button
-              type="button"
-              onClick={handleAddToBag}
-              disabled={!product.inStock}
-              className={`flex-1 h-10 px-2 text-[10px] uppercase tracking-[0.12em] font-medium transition-all duration-200 flex items-center justify-center gap-1 cursor-pointer font-sans whitespace-nowrap active:scale-95 disabled:opacity-50 ${
-                isAdded
-                  ? "bg-[#2E5A36] text-white"
-                  : "bg-[#5A1F2B] text-[#FAF6F0]"
-              }`}
-            >
-              {isAdded ? (
-                <>
-                  <Check className="w-3 h-3 flex-shrink-0" />
-                  <span>Added</span>
-                </>
-              ) : (
-                <>
-                  <ShoppingBag className="w-3 h-3 flex-shrink-0" />
-                  <span>Add to Bag</span>
-                </>
-              )}
-            </button>
+            {isJewellery ? (
+              <button
+                type="button"
+                onClick={handleWhatsAppInquiry}
+                className="flex-1 h-10 px-3 text-xs uppercase tracking-[0.14em] font-semibold bg-[#25D366] active:bg-[#20BD5A] text-white transition-all duration-200 flex items-center justify-center gap-1.5 cursor-pointer font-sans whitespace-nowrap active:scale-95 shadow-xs"
+              >
+                <MessageCircle className="w-4 h-4 text-white flex-shrink-0" />
+                <span>Enquiry to WhatsApp</span>
+              </button>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={handleAddToBag}
+                  disabled={!product.inStock}
+                  className={`flex-1 h-10 px-2 text-[10px] uppercase tracking-[0.12em] font-medium transition-all duration-200 flex items-center justify-center gap-1 cursor-pointer font-sans whitespace-nowrap active:scale-95 disabled:opacity-50 ${
+                    isAdded
+                      ? "bg-[#2E5A36] text-white"
+                      : "bg-[#5A1F2B] text-[#FAF6F0]"
+                  }`}
+                >
+                  {isAdded ? (
+                    <>
+                      <Check className="w-3 h-3 flex-shrink-0" />
+                      <span>Added</span>
+                    </>
+                  ) : (
+                    <>
+                      <ShoppingBag className="w-3 h-3 flex-shrink-0" />
+                      <span>Add to Bag</span>
+                    </>
+                  )}
+                </button>
 
-            <button
-              type="button"
-              onClick={handleBuyNow}
-              disabled={!product.inStock}
-              className="flex-1 h-10 px-2 text-[10px] uppercase tracking-[0.14em] font-semibold bg-[#855D25] active:bg-[#704C1C] text-[#FAF6F0] transition-all duration-200 flex items-center justify-center cursor-pointer font-sans whitespace-nowrap active:scale-95 disabled:opacity-50 border border-[#704C1C]/30"
-            >
-              <span>Buy Now</span>
-            </button>
+                <button
+                  type="button"
+                  onClick={handleBuyNow}
+                  disabled={!product.inStock}
+                  className="flex-1 h-10 px-2 text-[10px] uppercase tracking-[0.14em] font-semibold bg-[#855D25] active:bg-[#704C1C] text-[#FAF6F0] transition-all duration-200 flex items-center justify-center cursor-pointer font-sans whitespace-nowrap active:scale-95 disabled:opacity-50 border border-[#704C1C]/30"
+                >
+                  <span>Buy Now</span>
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>
