@@ -90,12 +90,12 @@ export async function GET(req: NextRequest) {
         imageScale: p.imageScale,
         inStock: p.inStock && p.stock > 0,
         stock: p.stock,
-        soldOut: p.soldOut || !p.inStock || p.stock <= 0,
+        soldOut: (p as any).soldOut || !p.inStock || p.stock <= 0,
         stitchingAvailable: p.stitchingAvailable,
         stitchingPriceInPaise: p.stitchingPriceInPaise,
         stitchingPriceFormatted: `₹ ${(p.stitchingPriceInPaise / 100).toLocaleString("en-IN")}`,
         isFeatured: p.isFeatured,
-        enquiryOnly: p.enquiryOnly ?? ((p.category || "").toLowerCase() === "jewellery" || (p.type || "").toLowerCase() === "jewellery"),
+        enquiryOnly: (p as any).enquiryOnly ?? ((p.category || "").toLowerCase() === "jewellery" || (p.type || "").toLowerCase() === "jewellery"),
         createdAt: p.createdAt.toISOString(),
       };
     });
