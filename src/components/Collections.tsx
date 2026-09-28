@@ -18,6 +18,14 @@ export default function Collections() {
     return "object-center";
   };
 
+  const getCollectionHref = (item: CollectionItem) => {
+    if (item.id === "bridal-poshaks") return "/collection?category=bridal";
+    if (item.id === "everyday-poshaks") return "/collection?category=everyday";
+    if (item.id === "festive-poshaks") return "/collection?category=festive";
+    if (item.id === "jewellery") return "/collection?category=jewellery";
+    return "/collection";
+  };
+
   const renderCard = (
     item: CollectionItem,
     isFeaturedWide = false,
@@ -32,7 +40,7 @@ export default function Collections() {
         className="w-full"
       >
         <Link
-          href="#featured"
+          href={getCollectionHref(item)}
           className="group block relative overflow-hidden focus:outline-none focus-visible:ring-1 focus-visible:ring-[#C6A15B]"
           aria-label={`Explore ${item.title}`}
         >

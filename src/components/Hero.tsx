@@ -87,7 +87,7 @@ export default function Hero() {
             className="flex items-center"
           >
             <Link
-              href="#collections"
+              href="/collection"
               className="inline-flex items-center justify-center px-6 py-2.5 min-[375px]:px-7 min-[375px]:py-3 bg-heritage-maroon hover:bg-[#431520] text-royal-ivory text-[10.5px] min-[375px]:text-[11px] md:text-xs tracking-[0.2em] font-medium border border-antique-gold hover:border-antique-gold-light transition-all duration-300 shadow-[0_4px_20px_rgba(90,31,43,0.4)] group active:scale-[0.98]"
             >
               <span>Explore Collection</span>
