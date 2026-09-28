@@ -43,7 +43,7 @@ const config: Config = {
         },
       },
       fontFamily: {
-        serif: ["CleanNumeralFont", "var(--font-cormorant)", "Cormorant Garamond", "Georgia", "serif"],
+        serif: ["var(--font-cormorant)", "Cormorant Garamond", "Georgia", "serif"],
         sans: ["var(--font-inter)", "Inter", "sans-serif"],
       },
       letterSpacing: {
