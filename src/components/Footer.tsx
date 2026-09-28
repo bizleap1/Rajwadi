@@ -158,7 +158,7 @@ export default function Footer({ onOpenConsultation }: FooterProps) {
                           href="/our-heritage"
                           className="hover:text-[#C6A15B] transition-colors duration-200 block"
                         >
-                          Our Story
+                          Our Heritage
                         </Link>
                       </li>
                       <li>
@@ -323,7 +323,7 @@ export default function Footer({ onOpenConsultation }: FooterProps) {
                     href="/our-heritage"
                     className="hover:text-[#C6A15B] transition-colors duration-200 block"
                   >
-                    Our Story
+                    Our Heritage
                   </Link>
                 </li>
                 <li>
