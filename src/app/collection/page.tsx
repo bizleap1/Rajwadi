@@ -665,8 +665,8 @@ function CollectionContent() {
           <div className="flex flex-col lg:flex-row items-start gap-6 lg:gap-8 xl:gap-10 w-full">
             {/* Desktop Left-Side Sticky Filter (~16-18% width, compact with independent scrolling) */}
             <aside
-              className={`hidden lg:block w-[185px] xl:w-[205px] flex-shrink-0 sticky self-start pt-0 transition-[top] duration-300 ease-in-out ${
-                isNavbarVisible ? "top-[82px]" : "top-5"
+              className={`hidden lg:block w-[185px] xl:w-[205px] flex-shrink-0 sticky self-start z-20 pt-0 transition-[top] duration-300 ease-in-out ${
+                isNavbarVisible ? "top-[88px]" : "top-5"
               }`}
             >
               <div
