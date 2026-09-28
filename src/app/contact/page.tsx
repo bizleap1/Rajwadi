@@ -3,7 +3,16 @@
 import React, { useState } from "react";
 import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
-import { CheckCircle2, MapPin } from "lucide-react";
+import {
+  CheckCircle2,
+  MapPin,
+  Navigation,
+  ExternalLink,
+  Clock,
+  Phone,
+  MessageCircle,
+  Layers,
+} from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
@@ -86,8 +95,18 @@ export default function ContactPage() {
     setIsSubmitted(false);
   };
 
+  const [mapMode, setMapMode] = useState<"roadmap" | "satellite">("roadmap");
+
   const GOOGLE_MAPS_URL =
     "https://maps.google.com/?q=Rajwadi+Rajputi+Poshak,+EWS+41,+near+Maheshwari+bhawan,+Hiwari+Layout,+Uday+Nagar,+Padole+Nagar,+Nagpur,+Maharashtra+440008";
+
+  const GOOGLE_MAPS_DIRECTIONS_URL =
+    "https://www.google.com/maps/dir/?api=1&destination=Rajwadi+Rajputi+Poshak,+EWS+41,+near+Maheshwari+bhawan,+Hiwari+Layout,+Nagpur,+Maharashtra+440008";
+
+  const googleMapsEmbedUrl =
+    mapMode === "satellite"
+      ? "https://maps.google.com/maps?q=Rajwadi+Rajputi+Poshak,+EWS+41,+near+Maheshwari+Bhawan,+Hiwari+Layout,+Nagpur,+Maharashtra+440008&t=k&z=17&ie=UTF8&iwloc=&output=embed"
+      : "https://maps.google.com/maps?q=Rajwadi+Rajputi+Poshak,+EWS+41,+near+Maheshwari+Bhawan,+Hiwari+Layout,+Nagpur,+Maharashtra+440008&t=m&z=16&ie=UTF8&iwloc=&output=embed";
 
   const WHATSAPP_URL =
     "https://wa.me/918766667101?text=Hello%20Rajwadi%2C%20I%20would%20like%20to%20inquire%20about%20a%20poshak.";
@@ -442,76 +461,175 @@ export default function ContactPage() {
 
       {/* ────────────────────────────────────────────────────────────────────── */}
       {/* 4. STORE LOCATION & MAP                                               */}
-      {/* (40–50% width clean map + address layout, not full-screen giant map)  */}
       {/* ────────────────────────────────────────────────────────────────────── */}
       <section className="py-12 sm:py-16 md:py-20 bg-[#FDFBF7]">
         <div className="max-w-6xl mx-auto px-5 sm:px-8 md:px-12">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
             
             {/* Left: Store Visit Editorial Details (5 cols) */}
             <div className="lg:col-span-5 text-left space-y-4">
               <div className="flex items-center gap-2.5 mb-1">
                 <span className="h-[1px] w-5 bg-[#855D25]" />
                 <span className="text-[10px] sm:text-[11px] uppercase tracking-[0.28em] text-[#855D25] font-semibold font-sans">
-                  STORE LOCATION
+                  FLAGSHIP ATELIER
                 </span>
               </div>
 
               <h2 className="font-serif text-3xl sm:text-4xl text-[#171717] font-light tracking-wide leading-tight">
-                VISIT US
+                VISIT US IN NAGPUR
               </h2>
 
               <address className="not-italic text-[13px] sm:text-[14px] text-[#4A423B] font-light leading-relaxed font-sans space-y-0.5 pt-1">
-                <p className="font-serif text-base text-[#171717] font-normal mb-1">
+                <p className="font-serif text-base text-[#171717] font-medium mb-1">
                   Rajwadi Rajputi Poshak
                 </p>
                 <p>EWS 41, near Maheshwari Bhawan,</p>
-                <p>Hiwari Layout, Uday Nagar,</p>
-                <p>Padole Nagar, Nagpur,</p>
-                <p>Maharashtra 440008</p>
+                <p>Hiwari Layout, Uday Nagar, Padole Nagar,</p>
+                <p>Nagpur, Maharashtra 440008</p>
               </address>
 
-              <p className="text-xs text-[#6B635B] font-light leading-relaxed font-sans pt-1">
-                Private bridal viewings and fabric draping consultations. For personal concierge attention, we encourage connecting via WhatsApp prior to your visit.
-              </p>
+              {/* Atelier Highlights Card */}
+              <div className="p-3.5 bg-[#FAF6F0] border border-[#E6DCB8]/80 rounded-xs space-y-2 text-xs text-[#5A4F46] font-sans">
+                <div className="flex items-center gap-2 text-[#855D25]">
+                  <Clock className="w-3.5 h-3.5 flex-shrink-0" />
+                  <span className="font-medium">Open Daily: 11:00 AM – 8:30 PM</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Phone className="w-3.5 h-3.5 flex-shrink-0 text-[#855D25]" />
+                  <span>Concierge: +91 8766667101</span>
+                </div>
+                <p className="text-[11.5px] text-[#7A6F66] pt-0.5 leading-normal">
+                  Private bridal viewings, custom fittings & kasab zari consultations.
+                </p>
+              </div>
 
-              <div className="pt-2">
+              <div className="pt-2 flex items-center gap-2.5 flex-wrap">
                 <a
-                  href={GOOGLE_MAPS_URL}
+                  href={GOOGLE_MAPS_DIRECTIONS_URL}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-6 py-3 border border-[#855D25] text-[#855D25] hover:bg-[#855D25] hover:text-[#FAF6F0] text-xs uppercase tracking-[0.2em] font-medium font-sans transition-all duration-300 group cursor-pointer"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#855D25] hover:bg-[#704C1C] text-[#FAF6F0] text-xs uppercase tracking-[0.16em] font-semibold font-sans transition-all duration-300 shadow-xs cursor-pointer active:scale-95"
                 >
-                  <MapPin className="w-3.5 h-3.5" />
+                  <Navigation className="w-3.5 h-3.5" />
                   <span>GET DIRECTIONS</span>
-                  <span className="transition-transform duration-200 group-hover:translate-x-1">
-                    &rarr;
-                  </span>
+                </a>
+
+                <a
+                  href={WHATSAPP_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 border border-[#25D366]/40 hover:bg-[#25D366]/10 text-[#128C7E] text-xs uppercase tracking-[0.14em] font-semibold font-sans transition-all duration-300 cursor-pointer active:scale-95"
+                >
+                  <MessageCircle className="w-3.5 h-3.5 text-[#25D366]" />
+                  <span>WHATSAPP</span>
                 </a>
               </div>
             </div>
 
-            {/* Right: Clean Map Display (~45-50% width on desktop) */}
+            {/* Right: Modern High-Definition Google Maps Experience (7 cols) */}
             <div className="lg:col-span-7">
-              <div className="relative w-full aspect-[16/11] sm:aspect-[16/10] overflow-hidden bg-[#FAF5EE] border border-[#E6DCB8] shadow-xs">
-                <iframe
-                  title="Rajwadi Boutique Nagpur Location Map"
-                  src="https://www.openstreetmap.org/export/embed.html?bbox=79.1100%2C21.1270%2C79.1250%2C21.1380&layer=mapnik&marker=21.1326%2C79.1172"
-                  className="w-full h-full border-0"
-                  loading="lazy"
-                />
+              <div className="relative w-full rounded-sm overflow-hidden bg-[#FAF5EE] border border-[#C6A15B]/50 shadow-md">
                 
-                {/* Overlay link banner directly to Google Maps */}
-                <div className="absolute bottom-3 right-3 bg-white/95 backdrop-blur-xs border border-[#E6DCB8] px-3 py-1.5 text-[11px] font-sans font-medium text-[#5A1F2B] hover:text-[#855D25] shadow-xs transition-colors">
-                  <a
-                    href={GOOGLE_MAPS_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1.5"
-                  >
-                    <span>Open in Google Maps</span>
-                    <span>&rarr;</span>
-                  </a>
+                {/* 1. Atelier Location Header Bar with View Toggle */}
+                <div className="px-3.5 sm:px-4 py-2.5 bg-[#FAF6F0] border-b border-[#E6DCB8] flex items-center justify-between gap-2.5 flex-wrap">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="w-6 h-6 rounded-full bg-[#855D25]/15 border border-[#855D25]/30 flex items-center justify-center text-[#855D25] flex-shrink-0">
+                      <MapPin className="w-3.5 h-3.5" />
+                    </div>
+                    <div className="truncate">
+                      <span className="font-serif text-[13px] sm:text-[14px] text-[#171717] font-medium block leading-tight truncate">
+                        Rajwadi Rajputi Poshak Atelier
+                      </span>
+                      <span className="text-[9.5px] sm:text-[10px] text-[#855D25] font-sans font-medium uppercase tracking-wider block">
+                        Nagpur, Maharashtra · Google Maps Verified
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    {/* Map / Satellite Mode Toggle */}
+                    <div className="inline-flex items-center p-0.5 bg-white border border-[#E6DCB8] rounded-xs text-[10px] font-sans font-medium">
+                      <button
+                        type="button"
+                        onClick={() => setMapMode("roadmap")}
+                        className={`px-2 py-0.5 rounded-xs transition-colors cursor-pointer ${
+                          mapMode === "roadmap"
+                            ? "bg-[#855D25] text-white font-semibold"
+                            : "text-[#6B635B] hover:text-[#171717]"
+                        }`}
+                      >
+                        Map
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setMapMode("satellite")}
+                        className={`px-2 py-0.5 rounded-xs transition-colors cursor-pointer ${
+                          mapMode === "satellite"
+                            ? "bg-[#855D25] text-white font-semibold"
+                            : "text-[#6B635B] hover:text-[#171717]"
+                        }`}
+                      >
+                        Satellite
+                      </button>
+                    </div>
+
+                    {/* Open Live Badge */}
+                    <div className="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 bg-emerald-50 border border-emerald-200/80 rounded-full text-emerald-800 text-[10px] font-sans font-medium">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      <span>Open Today</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2. Interactive Map Container */}
+                <div className="relative w-full aspect-[16/11] sm:aspect-[16/10] bg-[#EAE0D2]">
+                  <iframe
+                    key={mapMode}
+                    title="Rajwadi Rajputi Poshak Nagpur Google Maps Location"
+                    src={googleMapsEmbedUrl}
+                    className="w-full h-full border-0"
+                    loading="lazy"
+                    allowFullScreen
+                    referrerPolicy="no-referrer-when-downgrade"
+                  />
+
+                  {/* 3. Floating Bottom Navigation Banner (Glassmorphic) */}
+                  <div className="absolute inset-x-2.5 bottom-2.5 sm:inset-x-3 sm:bottom-3 pointer-events-none z-10">
+                    <div className="pointer-events-auto bg-white/95 backdrop-blur-md border border-[#C6A15B]/40 px-3.5 py-2.5 rounded-xs shadow-md flex items-center justify-between gap-3 flex-wrap">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[11px] sm:text-xs text-[#171717] font-medium font-sans truncate">
+                          EWS 41, near Maheshwari Bhawan, Hiwari Layout, Nagpur
+                        </p>
+                        <p className="text-[9.5px] sm:text-[10px] text-[#6B635B] font-sans">
+                          Free valet & customer parking · 10 mins from Great Nag Road
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-1.5 flex-shrink-0">
+                        <a
+                          href={GOOGLE_MAPS_DIRECTIONS_URL}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 px-3 py-1.5 bg-[#855D25] hover:bg-[#704C1C] text-white text-[10.5px] uppercase tracking-wider font-semibold font-sans rounded-xs shadow-xs transition-colors cursor-pointer"
+                        >
+                          <Navigation className="w-3 h-3" />
+                          <span>Directions</span>
+                        </a>
+
+                        <a
+                          href={GOOGLE_MAPS_URL}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-white hover:bg-[#FAF6F0] text-[#5A1F2B] border border-[#E6DCB8] text-[10.5px] font-sans font-medium rounded-xs transition-colors cursor-pointer"
+                          title="Open Full Google Maps"
+                        >
+                          <span>Full Map</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+
                 </div>
               </div>
             </div>
