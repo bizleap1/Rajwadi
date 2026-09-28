@@ -7,13 +7,21 @@ import { motion } from "framer-motion";
 import { COLLECTIONS_DATA, CollectionItem } from "@/data/products";
 
 export default function Collections() {
-  const heavyPoshakItem = COLLECTIONS_DATA.find((i) => i.id === "bridal-poshaks") || COLLECTIONS_DATA[0];
-  const classicPoshakItem = COLLECTIONS_DATA.find((i) => i.id === "everyday-poshaks") || COLLECTIONS_DATA[1];
-  const jewelleryItem = COLLECTIONS_DATA.find((i) => i.id === "jewellery") || COLLECTIONS_DATA[3];
+  const heavyPoshakItem =
+    COLLECTIONS_DATA.find((i) => i.id === "bridal-poshaks") || COLLECTIONS_DATA[0];
+  const classicPoshakItem =
+    COLLECTIONS_DATA.find((i) => i.id === "everyday-poshaks") || COLLECTIONS_DATA[1];
+  const festivePoshakItem =
+    COLLECTIONS_DATA.find((i) => i.id === "festive-poshaks") || COLLECTIONS_DATA[2];
+  const jewelleryItem =
+    COLLECTIONS_DATA.find((i) => i.id === "jewellery") || COLLECTIONS_DATA[3];
 
   const getFramingClass = (id: string) => {
     if (id === "jewellery") return "object-center";
-    return "object-top";
+    if (id === "festive-poshaks") return "poshak-img-traditional";
+    if (id === "bridal-poshaks") return "poshak-img-stitched";
+    if (id === "everyday-poshaks") return "poshak-img-unstitched";
+    return "object-center";
   };
 
   const getCollectionHref = (item: CollectionItem) => {
@@ -116,16 +124,23 @@ export default function Collections() {
 
         {/* Asymmetric Editorial Composition: Ultra-Slim Seamless Gap */}
         <div className="space-y-3.5 sm:space-y-4">
-          {/* Top Row: Heavy Poshak + Classic Poshak side by side */}
+          {/* Top Row: Heavy Poshak + Classic Poshak side by side with ultra-slim 10-12px gap */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 sm:gap-3 md:gap-3 lg:gap-3.5">
             {heavyPoshakItem && renderCard(heavyPoshakItem, false, 0.05)}
             {classicPoshakItem && renderCard(classicPoshakItem, false, 0.1)}
           </div>
 
-          {/* Bottom Row: Jewellery as wide featured editorial banner */}
+          {/* Third Section: Festive Poshak as a wider, shorter featured image */}
+          {festivePoshakItem && (
+            <div className="w-full">
+              {renderCard(festivePoshakItem, true, 0.15)}
+            </div>
+          )}
+
+          {/* Fourth Section: Jewellery as wide featured editorial banner */}
           {jewelleryItem && (
             <div className="w-full">
-              {renderCard(jewelleryItem, true, 0.15)}
+              {renderCard(jewelleryItem, true, 0.2)}
             </div>
           )}
         </div>
