@@ -122,27 +122,12 @@ export default function Collections() {
           </h2>
         </div>
 
-        {/* Asymmetric Editorial Composition: Ultra-Slim Seamless Gap */}
-        <div className="space-y-3.5 sm:space-y-4">
-          {/* Top Row: Heavy Poshak + Classic Poshak side by side with ultra-slim 10-12px gap */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 sm:gap-3 md:gap-3 lg:gap-3.5">
-            {heavyPoshakItem && renderCard(heavyPoshakItem, false, 0.05)}
-            {classicPoshakItem && renderCard(classicPoshakItem, false, 0.1)}
-          </div>
-
-          {/* Third Section: Festive Poshak as a wider, shorter featured image */}
-          {festivePoshakItem && (
-            <div className="w-full">
-              {renderCard(festivePoshakItem, true, 0.15)}
-            </div>
-          )}
-
-          {/* Fourth Section: Jewellery as wide featured editorial banner */}
-          {jewelleryItem && (
-            <div className="w-full">
-              {renderCard(jewelleryItem, true, 0.2)}
-            </div>
-          )}
+        {/* 2 Boxes Per Line: Row 1 (Heavy & Classic Poshak) + Row 2 (Festive Poshak & Jewellery) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 sm:gap-3 md:gap-3 lg:gap-3.5">
+          {heavyPoshakItem && renderCard(heavyPoshakItem, false, 0.05)}
+          {classicPoshakItem && renderCard(classicPoshakItem, false, 0.1)}
+          {festivePoshakItem && renderCard(festivePoshakItem, false, 0.15)}
+          {jewelleryItem && renderCard(jewelleryItem, false, 0.2)}
         </div>
       </div>
     </section>
