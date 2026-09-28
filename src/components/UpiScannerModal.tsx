@@ -116,7 +116,7 @@ export default function UpiScannerModal({
             <span className="text-[11px] uppercase tracking-[0.2em] text-[#855D25] font-semibold block">
               Total Amount Payable
             </span>
-            <div className="text-3xl font-serif font-bold text-[#6D1A2A] mt-1 font-mono">
+            <div className="text-3xl font-sans font-bold text-[#6D1A2A] mt-1">
               ₹ {formattedAmount}
             </div>
             <p className="text-[11px] text-[#8A796B] mt-0.5">

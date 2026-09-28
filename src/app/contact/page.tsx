@@ -178,7 +178,7 @@ export default function ContactPage() {
                 </span>
                 <a
                   href="tel:+918766667101"
-                  className="font-serif text-2xl sm:text-[26px] text-[#171717] hover:text-[#855D25] font-light transition-colors block leading-tight"
+                  className="font-sans text-2xl sm:text-[26px] text-[#171717] hover:text-[#855D25] font-light tracking-wide transition-colors block leading-tight"
                 >
                   +91 8766667101
                 </a>
