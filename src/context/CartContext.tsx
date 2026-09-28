@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from "react";
+import { isProductAvailableIn10Days } from "@/data/products";
 
 export interface CartItem {
   productId: string;
@@ -225,6 +226,16 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     ) {
       const msg = encodeURIComponent(
         `Pranam Rajwadi! I am interested in inquiring about "${product.name}". Could you please share price and details?`
+      );
+      if (typeof window !== "undefined") {
+        window.open(`https://wa.me/918766667101?text=${msg}`, "_blank");
+      }
+      return;
+    }
+
+    if (isProductAvailableIn10Days(product)) {
+      const msg = encodeURIComponent(
+        `Pranam Rajwadi! I want to order/book "${product.name}" (Available within 10 days). Could you please guide me on how to book this ensemble?`
       );
       if (typeof window !== "undefined") {
         window.open(`https://wa.me/918766667101?text=${msg}`, "_blank");

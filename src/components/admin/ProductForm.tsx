@@ -1417,7 +1417,7 @@ export default function ProductForm({ initialData, isEdit }: ProductFormProps) {
                 className="w-4 h-4 text-[#6D1A2A] rounded border-[#D9C4B0] focus:ring-[#855D25]"
               />
               <label htmlFor="soldOutToggle" className="text-xs text-[#6D1A2A] font-semibold cursor-pointer">
-                Mark as Sold Out
+                Mark as Available within 10 days (Sold Out / Made-to-Order)
               </label>
             </div>
           </div>

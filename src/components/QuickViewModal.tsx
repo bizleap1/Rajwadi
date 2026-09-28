@@ -3,8 +3,8 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Check, ShoppingBag, ArrowRight } from "lucide-react";
-import { PoshakProduct } from "@/data/products";
+import { X, Check, ShoppingBag, ArrowRight, MessageCircle } from "lucide-react";
+import { PoshakProduct, isProductAvailableIn10Days, isProductEnquiryOnly } from "@/data/products";
 import { useCart } from "@/context/CartContext";
 
 interface QuickViewModalProps {
@@ -112,9 +112,26 @@ export default function QuickViewModal({
                   {product.name}
                 </h3>
 
-                <p className="font-sans text-xl text-[#171717] font-medium tracking-wide mb-4">
-                  {product.price}
-                </p>
+                {isProductEnquiryOnly(product) ? (
+                  <p className="font-sans text-base text-[#128C7E] font-semibold tracking-wide mb-4">
+                    Price on Enquiry (WhatsApp)
+                  </p>
+                ) : isProductAvailableIn10Days(product) ? (
+                  <div className="mb-4">
+                    <p className="font-sans text-base font-semibold text-[#855D25] tracking-wide">
+                      Available within 10 days
+                    </p>
+                    {product.price && !product.price.toLowerCase().includes("available") && (
+                      <p className="font-sans text-sm text-[#171717]/70">
+                        {product.price}
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <p className="font-sans text-xl text-[#171717] font-medium tracking-wide mb-4">
+                    {product.price}
+                  </p>
+                )}
 
                 <p className="text-xs text-[#171717]/75 font-sans font-light leading-relaxed mb-6 border-b border-[#E6DCB8]/80 pb-4">
                   {product.description}
@@ -155,27 +172,57 @@ export default function QuickViewModal({
 
               {/* Action Buttons */}
               <div className="space-y-3 pt-4 border-t border-[#E6DCB8]/80">
-                {/* [ ADD TO BAG ] Button */}
-                <button
-                  onClick={handleAddToBag}
-                  className={`w-full py-3.5 text-xs uppercase tracking-[0.22em] font-medium border border-[#C6A15B] shadow-md transition-all duration-300 flex items-center justify-center gap-2 ${
-                    isAdded
-                      ? "bg-[#2E5A36] text-white border-transparent"
-                      : "bg-[#5A1F2B] hover:bg-[#431520] text-[#FAF5EE]"
-                  }`}
-                >
-                  {isAdded ? (
-                    <>
-                      <Check className="w-4 h-4" />
-                      <span>Added To Royal Bag!</span>
-                    </>
-                  ) : (
-                    <>
-                      <ShoppingBag className="w-4 h-4 stroke-[1.4]" />
-                      <span>Add To Bag</span>
-                    </>
-                  )}
-                </button>
+                {/* [ ACTION BUTTON ] */}
+                {isProductEnquiryOnly(product) ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const msg = encodeURIComponent(
+                        `Pranam Rajwadi! I am interested in inquiring about "${product.name}". Could you please share price and details?`
+                      );
+                      window.open(`https://wa.me/918766667101?text=${msg}`, "_blank");
+                    }}
+                    className="w-full py-3.5 text-xs uppercase tracking-[0.2em] font-semibold bg-[#25D366] hover:bg-[#20BD5A] text-white shadow-md transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <MessageCircle className="w-4 h-4 text-white" />
+                    <span>Enquiry to WhatsApp</span>
+                  </button>
+                ) : isProductAvailableIn10Days(product) ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const msg = encodeURIComponent(
+                        `Pranam Rajwadi! I want to order/book "${product.name}" (Size: ${selectedSize}) which is Available within 10 days. Could you please guide me?`
+                      );
+                      window.open(`https://wa.me/918766667101?text=${msg}`, "_blank");
+                    }}
+                    className="w-full py-3.5 text-xs uppercase tracking-[0.16em] font-semibold bg-[#855D25] hover:bg-[#704C1C] text-[#FAF5EE] shadow-md transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer border border-[#704C1C]/30"
+                  >
+                    <MessageCircle className="w-4 h-4 text-[#25D366]" />
+                    <span>Available within 10 days — Book</span>
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleAddToBag}
+                    className={`w-full py-3.5 text-xs uppercase tracking-[0.22em] font-medium border border-[#C6A15B] shadow-md transition-all duration-300 flex items-center justify-center gap-2 ${
+                      isAdded
+                        ? "bg-[#2E5A36] text-white border-transparent"
+                        : "bg-[#5A1F2B] hover:bg-[#431520] text-[#FAF5EE]"
+                    }`}
+                  >
+                    {isAdded ? (
+                      <>
+                        <Check className="w-4 h-4" />
+                        <span>Added To Royal Bag!</span>
+                      </>
+                    ) : (
+                      <>
+                        <ShoppingBag className="w-4 h-4 stroke-[1.4]" />
+                        <span>Add To Bag</span>
+                      </>
+                    )}
+                  </button>
+                )}
 
                 {/* View Full Details → Link */}
                 <div className="text-center pt-1">

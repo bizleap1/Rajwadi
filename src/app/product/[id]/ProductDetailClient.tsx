@@ -14,6 +14,7 @@ import {
   ArrowRight,
   ArrowLeft,
   Share2,
+  Clock,
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
@@ -22,7 +23,7 @@ import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import CartDrawer from "@/components/CartDrawer";
 import TalkToDesignerModal from "@/components/TalkToDesignerModal";
-import { isProductEnquiryOnly } from "@/data/products";
+import { isProductEnquiryOnly, isProductAvailableIn10Days } from "@/data/products";
 
 interface ProductDetailClientProps {
   product: any;
@@ -75,6 +76,10 @@ function ProductDetailInner({
 
   const isEnquiryOnly = useMemo(() => {
     return isProductEnquiryOnly(product);
+  }, [product]);
+
+  const isAvailableIn10Days = useMemo(() => {
+    return isProductAvailableIn10Days(product);
   }, [product]);
 
   const availableSizes = useMemo(() => {
@@ -153,8 +158,20 @@ function ProductDetailInner({
     }
   };
 
+  const handleWhatsAppBooking = () => {
+    const sizeNote = isJewellery ? "" : ` (Size: ${selectedSize})`;
+    const priceText = product.priceFormatted || product.price ? ` (${product.priceFormatted || product.price})` : "";
+    const message = encodeURIComponent(
+      `Pranam Rajwadi! I want to order/book "${product.name}"${priceText}${sizeNote} which is Available within 10 days. Could you please guide me on how to book this ensemble?`
+    );
+    window.open(`https://wa.me/918766667101?text=${message}`, "_blank");
+  };
+
   const handleAddToBag = () => {
-    if (!product.inStock) return;
+    if (!product.inStock || isAvailableIn10Days) {
+      handleWhatsAppBooking();
+      return;
+    }
     const formatLabel = isJewellery ? "Standard" : `Size: ${selectedSize}`;
 
     addToCart(product, selectedSize || formatLabel, 1, false);
@@ -164,7 +181,10 @@ function ProductDetailInner({
   };
 
   const handleBuyNow = () => {
-    if (!product.inStock) return;
+    if (!product.inStock || isAvailableIn10Days) {
+      handleWhatsAppBooking();
+      return;
+    }
     const formatLabel = isJewellery ? "Standard" : `Size: ${selectedSize}`;
 
     addToCart(product, selectedSize || formatLabel, 1, false);
@@ -471,7 +491,14 @@ function ProductDetailInner({
               }
 
               return (
-                <div className="mb-3 space-y-1">
+                <div className="mb-3 space-y-1.5">
+                  {isAvailableIn10Days && (
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 mb-1 rounded-xs bg-[#855D25]/10 border border-[#855D25]/30 text-[#855D25] text-xs font-semibold uppercase tracking-wider font-sans">
+                      <Clock className="w-3.5 h-3.5 flex-shrink-0" />
+                      <span>Available within 10 days (Made to Order)</span>
+                    </div>
+                  )}
+
                   <div className="flex items-baseline gap-2.5 sm:gap-3 flex-wrap">
                     <span className="font-sans text-xl sm:text-2xl lg:text-[26px] text-[#171717] font-medium tracking-wide">
                       {product.priceFormatted || product.price}
@@ -483,14 +510,14 @@ function ProductDetailInner({
                       </span>
                     )}
 
-                    {discountPercent !== null && (
+                    {discountPercent !== null && !isAvailableIn10Days && (
                       <span className="px-2 py-0.5 bg-[#6D1A2A]/10 text-[#6D1A2A] text-xs font-semibold uppercase tracking-wider rounded-xs border border-[#6D1A2A]/25">
                         {discountPercent}% OFF
                       </span>
                     )}
                   </div>
 
-                  {savingsInRupees !== null && savingsInRupees > 0 && (
+                  {savingsInRupees !== null && savingsInRupees > 0 && !isAvailableIn10Days && (
                     <p className="text-[11px] text-[#2E5A36] font-medium font-sans">
                       You save ₹{savingsInRupees.toLocaleString("en-IN")} on this royal ensemble
                     </p>
@@ -605,6 +632,15 @@ function ProductDetailInner({
                     <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5 text-white flex-shrink-0" />
                     <span>Enquiry to WhatsApp</span>
                   </button>
+                ) : isAvailableIn10Days ? (
+                  <button
+                    type="button"
+                    onClick={handleWhatsAppBooking}
+                    className="flex-1 h-[48px] sm:h-[50px] px-3 sm:px-4 text-xs sm:text-[12.5px] uppercase tracking-[0.14em] sm:tracking-[0.18em] font-semibold bg-[#855D25] hover:bg-[#704C1C] text-[#FAF6F0] transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer font-sans whitespace-nowrap shadow-xs active:scale-[0.99] border border-[#704C1C]/30"
+                  >
+                    <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5 text-[#25D366] flex-shrink-0" />
+                    <span>Available within 10 days — Book on WhatsApp</span>
+                  </button>
                 ) : (
                   <>
                     {/* 1. Add to Royal Bag */}
@@ -623,8 +659,6 @@ function ProductDetailInner({
                           <Check className="w-3.5 h-3.5 flex-shrink-0" />
                           <span>Added to Bag</span>
                         </>
-                      ) : !product.inStock ? (
-                        <span>Out of Stock</span>
                       ) : (
                         <>
                           <ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
@@ -790,6 +824,15 @@ function ProductDetailInner({
                   {isJewellery ? "Jewellery" : `Size: ${selectedSize}`}
                 </span>
               </>
+            ) : isAvailableIn10Days ? (
+              <>
+                <span className="font-sans text-[11px] font-semibold text-[#855D25] tracking-tight leading-tight truncate">
+                  Available in 10 Days
+                </span>
+                <span className="text-[10px] text-[#8A796B] font-medium truncate">
+                  {product.priceFormatted || product.price}
+                </span>
+              </>
             ) : (
               <>
                 <span className="font-sans text-sm font-semibold text-[#171717] tracking-tight leading-tight truncate">
@@ -812,6 +855,15 @@ function ProductDetailInner({
               >
                 <MessageCircle className="w-4 h-4 text-white flex-shrink-0" />
                 <span>Enquiry to WhatsApp</span>
+              </button>
+            ) : isAvailableIn10Days ? (
+              <button
+                type="button"
+                onClick={handleWhatsAppBooking}
+                className="flex-1 h-10 px-2 text-[10.5px] uppercase tracking-[0.12em] font-semibold bg-[#855D25] active:bg-[#704C1C] text-[#FAF6F0] transition-all duration-200 flex items-center justify-center gap-1.5 cursor-pointer font-sans whitespace-nowrap active:scale-95 shadow-xs"
+              >
+                <MessageCircle className="w-3.5 h-3.5 text-[#25D366] flex-shrink-0" />
+                <span>Available within 10 days</span>
               </button>
             ) : (
               <>

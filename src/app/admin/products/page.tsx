@@ -28,6 +28,7 @@ interface ProductRow {
   status: "DRAFT" | "PUBLISHED" | "ARCHIVED";
   stock: number;
   inStock: boolean;
+  soldOut?: boolean;
   isFeatured: boolean;
   enquiryOnly?: boolean;
   images: { id: string; secureUrl: string; displayOrder: number }[];
@@ -338,13 +339,13 @@ export default function AdminProductsPage() {
 
                       {/* Stock / Availability */}
                       <td className="py-3.5 px-3">
-                        {product.inStock && product.stock > 0 ? (
+                        {product.inStock && product.stock > 0 && !product.soldOut ? (
                           <span className="text-emerald-700 font-medium">
                             {product.stock} in stock
                           </span>
                         ) : (
-                          <span className="text-red-600 font-medium">
-                            Out of stock
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 text-amber-800 border border-amber-300">
+                            Available within 10 days
                           </span>
                         )}
                       </td>

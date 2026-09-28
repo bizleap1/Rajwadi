@@ -45,6 +45,41 @@ export function isProductEnquiryOnly(product: {
   return cat === "jewellery" || typ === "jewellery";
 }
 
+export function isProductAvailableIn10Days(product?: {
+  soldOut?: boolean;
+  inStock?: boolean;
+  stock?: number;
+  price?: string;
+  priceFormatted?: string;
+  priceNote?: string;
+} | null): boolean {
+  if (!product) return false;
+  if (product.soldOut) return true;
+  if (product.inStock === false) return true;
+  if (typeof product.stock === "number" && product.stock <= 0) return true;
+  const p = (product.priceFormatted || product.price || "").toLowerCase();
+  const pn = (product.priceNote || "").toLowerCase();
+  if (
+    p.includes("sold out") ||
+    p.includes("out of stock") ||
+    p.includes("available with in 10 days") ||
+    p.includes("available within 10 days") ||
+    p.includes("available in 10 days")
+  ) {
+    return true;
+  }
+  if (
+    pn.includes("sold out") ||
+    pn.includes("out of stock") ||
+    pn.includes("available with in 10 days") ||
+    pn.includes("available within 10 days") ||
+    pn.includes("available in 10 days")
+  ) {
+    return true;
+  }
+  return false;
+}
+
 export function getPoshakDisplayName(product: { name: string; type?: string; category?: string }): string {
   const isJewellery =
     (product.category || "").toLowerCase() === "jewellery" ||
@@ -231,8 +266,8 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     type: "Stitched",
     subCategory: "Bridal",
 
-    price: "Sold Out",
-    priceNote: "Currently out of stock",
+    price: "Available within 10 days",
+    priceNote: "Available within 10 days",
     soldOut: true,
     fabric: "Pure Georgette & Heritage Satin Magji",
     craft: "Handcrafted Gota Patti & Kasab Zari",
@@ -491,8 +526,8 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     category: "Bridal",
     type: "Stitched",
 
-    price: "Sold Out",
-    priceNote: "Currently out of stock",
+    price: "Available within 10 days",
+    priceNote: "Available within 10 days",
     soldOut: true,
     fabric: "Fine Georgette & Pure Silk Magji",
     craft: "Modern Gotapatti Flowers & Silver Kasab",

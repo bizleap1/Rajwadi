@@ -217,6 +217,9 @@ export default async function ProductPage({
       imageScale: dbProduct.imageScale,
       inStock: dbProduct.inStock && dbProduct.stock > 0,
       stock: dbProduct.stock,
+      soldOut: dbProduct.soldOut || !dbProduct.inStock || dbProduct.stock <= 0,
+      priceNote: dbProduct.priceNote || undefined,
+      enquiryOnly: dbProduct.enquiryOnly ?? ((dbProduct.category || "").toLowerCase() === "jewellery" || (dbProduct.type || "").toLowerCase() === "jewellery"),
       stitchingAvailable: dbProduct.stitchingAvailable,
       stitchingPriceInPaise: dbProduct.stitchingPriceInPaise,
       stitchingPriceFormatted: `₹ ${(dbProduct.stitchingPriceInPaise / 100).toLocaleString("en-IN")}`,
@@ -234,6 +237,8 @@ export default async function ProductPage({
       priceFormatted: fallbackProduct.price,
       compareAtPriceInPaise: compareAtPaise,
       inStock: !fallbackProduct.soldOut,
+      soldOut: fallbackProduct.soldOut ?? false,
+      enquiryOnly: fallbackProduct.enquiryOnly ?? ((fallbackProduct.category || "").toLowerCase() === "jewellery" || (fallbackProduct.type || "").toLowerCase() === "jewellery"),
       stitchingPriceInPaise: 250000,
       stitchingPriceFormatted: "₹ 2,500",
     };

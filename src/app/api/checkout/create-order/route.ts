@@ -90,10 +90,10 @@ export async function POST(req: NextRequest) {
     for (const item of items) {
       const product = productMap.get(item.productId);
 
-      if (!product || !product.inStock || product.stock < item.quantity) {
+      if (!product || !product.inStock || product.stock < item.quantity || product.soldOut) {
         return NextResponse.json(
           {
-            error: `Product "${product?.name || item.productId}" is out of stock or does not have sufficient inventory.`,
+            error: `Product "${product?.name || item.productId}" is available within 10 days (made-to-order). Please contact us via WhatsApp to place this order.`,
           },
           { status: 400 }
         );

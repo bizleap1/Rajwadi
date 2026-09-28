@@ -76,8 +76,8 @@ export async function POST(req: NextRequest) {
         continue;
       }
 
-      if (!product.inStock || product.stock <= 0) {
-        warnings.push(`"${product.name}" is currently out of stock.`);
+      if (!product.inStock || product.stock <= 0 || product.soldOut) {
+        warnings.push(`"${product.name}" is made-to-order and available within 10 days.`);
         continue;
       }
 

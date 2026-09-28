@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Heart, ShoppingBag, MessageCircle } from "lucide-react";
 import { useWishlist } from "@/context/WishlistContext";
 import { useCart } from "@/context/CartContext";
-import { isProductEnquiryOnly } from "@/data/products";
+import { isProductEnquiryOnly, isProductAvailableIn10Days } from "@/data/products";
 
 interface ThePoshakEditProps {
   onSelectProduct?: (product: any) => void;
@@ -200,6 +200,10 @@ export default function ThePoshakEdit({ onSelectProduct }: ThePoshakEditProps) {
                               <MessageCircle className="w-3.5 h-3.5 text-[#25D366]" />
                               <span>Enquiry to WhatsApp</span>
                             </button>
+                          ) : isProductAvailableIn10Days(product) ? (
+                            <p className="font-sans font-medium text-[11px] sm:text-[12px] text-[#855D25] tracking-wide mt-1">
+                              Available within 10 days
+                            </p>
                           ) : (
                             <p className="font-sans font-medium text-[13px] sm:text-[14px] text-[#171717] tracking-wide mt-1">
                               {product.priceFormatted || product.price}
@@ -239,14 +243,33 @@ export default function ThePoshakEdit({ onSelectProduct }: ThePoshakEditProps) {
                               onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                addToCart(product);
-                                setIsCartOpen(true);
+                                if (isProductAvailableIn10Days(product)) {
+                                  const msg = encodeURIComponent(
+                                    `Pranam Rajwadi! I want to order/book "${product.name}" (Available within 10 days). Could you please guide me with booking?`
+                                  );
+                                  window.open(`https://wa.me/918766667101?text=${msg}`, "_blank");
+                                } else {
+                                  addToCart(product);
+                                  setIsCartOpen(true);
+                                }
                               }}
-                              aria-label={`Add ${product.name} to royal bag`}
-                              title="Add to Royal Bag"
+                              aria-label={
+                                isProductAvailableIn10Days(product)
+                                  ? `Book ${product.name} on WhatsApp`
+                                  : `Add ${product.name} to royal bag`
+                              }
+                              title={
+                                isProductAvailableIn10Days(product)
+                                  ? "Book on WhatsApp (Available within 10 days)"
+                                  : "Add to Royal Bag"
+                              }
                               className="p-1 text-[#333333] hover:text-[#5A1F2B] transition-colors cursor-pointer"
                             >
-                              <ShoppingBag className="w-[18px] h-[18px] stroke-[1.25]" />
+                              {isProductAvailableIn10Days(product) ? (
+                                <MessageCircle className="w-[18px] h-[18px] stroke-[1.25] text-[#25D366]" />
+                              ) : (
+                                <ShoppingBag className="w-[18px] h-[18px] stroke-[1.25]" />
+                              )}
                             </button>
                           )}
                         </div>

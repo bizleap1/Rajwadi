@@ -55,6 +55,8 @@ export async function GET(
       imageScale: product.imageScale,
       inStock: product.inStock && product.stock > 0,
       stock: product.stock,
+      soldOut: product.soldOut || !product.inStock || product.stock <= 0,
+      priceNote: product.priceNote || undefined,
       stitchingAvailable: product.stitchingAvailable,
       stitchingPriceInPaise: product.stitchingPriceInPaise,
       stitchingPriceFormatted: `₹ ${(product.stitchingPriceInPaise / 100).toLocaleString("en-IN")}`,

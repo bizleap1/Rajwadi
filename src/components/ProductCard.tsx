@@ -4,7 +4,7 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Heart, ShoppingBag, MessageCircle } from "lucide-react";
-import { PoshakProduct, isProductEnquiryOnly } from "@/data/products";
+import { PoshakProduct, isProductEnquiryOnly, isProductAvailableIn10Days } from "@/data/products";
 import { useWishlist } from "@/context/WishlistContext";
 import { useCart } from "@/context/CartContext";
 
@@ -32,6 +32,7 @@ export default function ProductCard({
   const isWishlisted = isInWishlist(product.id);
 
   const isEnquiryOnly = isProductEnquiryOnly(product);
+  const isAvailableIn10Days = isProductAvailableIn10Days(product);
   const isJewellery =
     (product.category || "").toLowerCase() === "jewellery" ||
     (product.type || "").toLowerCase() === "jewellery";
@@ -43,14 +44,14 @@ export default function ProductCard({
 
   // Calculate discount percentage if original price is provided
   const discountPercent = React.useMemo(() => {
-    if (isEnquiryOnly || !product.price || !product.originalPrice) return null;
+    if (isEnquiryOnly || isAvailableIn10Days || !product.price || !product.originalPrice) return null;
     const currentNum = parseInt(product.price.replace(/[^0-9]/g, ""), 10);
     const originalNum = parseInt(product.originalPrice.replace(/[^0-9]/g, ""), 10);
     if (originalNum > currentNum && originalNum > 0) {
       return Math.round(((originalNum - currentNum) / originalNum) * 100);
     }
     return null;
-  }, [product.price, product.originalPrice, isEnquiryOnly]);
+  }, [product.price, product.originalPrice, isEnquiryOnly, isAvailableIn10Days]);
 
   const handleWishlistClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -73,6 +74,15 @@ export default function ProductCard({
     e.stopPropagation();
     const message = encodeURIComponent(
       `Pranam Rajwadi! I am interested in inquiring about "${product.name}". Could you please share price and details?`
+    );
+    window.open(`https://wa.me/918766667101?text=${message}`, "_blank");
+  };
+
+  const handleWhatsAppBooking = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const message = encodeURIComponent(
+      `Pranam Rajwadi! I want to order/book "${product.name}" (Available within 10 days). Could you please guide me with booking?`
     );
     window.open(`https://wa.me/918766667101?text=${message}`, "_blank");
   };
@@ -122,12 +132,16 @@ export default function ProductCard({
           )}
         </div>
 
-        {/* Top-Left Discount Badge */}
-        {discountPercent !== null && (
+        {/* Top-Left Badge: Available within 10 days OR Discount */}
+        {isAvailableIn10Days ? (
+          <div className="absolute top-2 left-2 sm:top-2.5 sm:left-2.5 z-20 px-2 py-0.5 bg-[#855D25] text-[#FAF6F0] text-[8.5px] sm:text-[9.5px] uppercase font-bold tracking-wider rounded-xs shadow-xs flex items-center gap-1 border border-[#855D25]/40">
+            <span>Available within 10 days</span>
+          </div>
+        ) : discountPercent !== null ? (
           <div className="absolute top-2 left-2 sm:top-2.5 sm:left-2.5 z-20 px-2 py-0.5 bg-[#6D1A2A] text-[#FAF6F0] text-[9px] sm:text-[10px] uppercase font-bold tracking-wider rounded-xs shadow-xs flex items-center gap-1">
             <span>{discountPercent}% OFF</span>
           </div>
-        )}
+        ) : null}
 
         {/* Top-Right Heart Icon if heartPosition === "top-right" */}
         {heartPosition === "top-right" && (
@@ -181,7 +195,7 @@ export default function ProductCard({
             </h3>
           </div>
 
-          {/* If heart is at bottom, show side-by-side with bag icon (hidden for jewellery) */}
+          {/* If heart is at bottom, show side-by-side with bag/booking icon (hidden for jewellery) */}
           {heartPosition === "bottom" && (
             <div className="flex items-center gap-1.5 flex-shrink-0 pt-0.5">
               <button
@@ -206,12 +220,24 @@ export default function ProductCard({
               {!isEnquiryOnly && (
                 <button
                   type="button"
-                  onClick={handleAddToCartClick}
-                  aria-label={`Add ${product.name} to royal bag`}
-                  title="Add to Royal Bag"
+                  onClick={isAvailableIn10Days ? handleWhatsAppBooking : handleAddToCartClick}
+                  aria-label={
+                    isAvailableIn10Days
+                      ? `Book ${product.name} (Available within 10 days)`
+                      : `Add ${product.name} to royal bag`
+                  }
+                  title={
+                    isAvailableIn10Days
+                      ? "Book on WhatsApp (Available within 10 days)"
+                      : "Add to Royal Bag"
+                  }
                   className="p-1 text-[#333333] hover:text-[#5A1F2B] transition-colors cursor-pointer"
                 >
-                  <ShoppingBag className="w-[17px] h-[17px] stroke-[1.25]" />
+                  {isAvailableIn10Days ? (
+                    <MessageCircle className="w-[17px] h-[17px] stroke-[1.25] text-[#25D366]" />
+                  ) : (
+                    <ShoppingBag className="w-[17px] h-[17px] stroke-[1.25]" />
+                  )}
                 </button>
               )}
             </div>
@@ -238,6 +264,21 @@ export default function ProductCard({
                 <MessageCircle className="w-3.5 h-3.5 text-[#25D366]" />
                 <span>Enquiry to WhatsApp</span>
               </button>
+            ) : isAvailableIn10Days ? (
+              <div className="flex items-center justify-between w-full">
+                <span className="text-[10.5px] sm:text-[11.5px] font-semibold text-[#855D25] font-sans tracking-tight">
+                  Available within 10 days
+                </span>
+                <button
+                  type="button"
+                  onClick={handleWhatsAppBooking}
+                  title="Book on WhatsApp (Available within 10 days)"
+                  className="inline-flex items-center gap-1 px-2 py-1 rounded-xs bg-[#855D25]/10 hover:bg-[#855D25]/20 text-[#855D25] border border-[#855D25]/30 text-[9.5px] sm:text-[10px] font-semibold tracking-wider uppercase font-sans transition-colors cursor-pointer active:scale-95"
+                >
+                  <MessageCircle className="w-3 h-3 text-[#25D366]" />
+                  <span>Book</span>
+                </button>
+              </div>
             ) : (
               <>
                 <div className="flex items-baseline gap-1.5 flex-wrap">
@@ -277,6 +318,10 @@ export default function ProductCard({
                 <MessageCircle className="w-3.5 h-3.5 text-[#25D366]" />
                 <span>Enquiry to WhatsApp</span>
               </button>
+            ) : isAvailableIn10Days ? (
+              <span className="text-[10.5px] sm:text-[11.5px] font-semibold text-[#855D25] font-sans tracking-tight">
+                Available within 10 days
+              </span>
             ) : (
               <>
                 <span className="font-sans font-medium text-[13px] sm:text-[14px] text-[#171717] tracking-wide">
