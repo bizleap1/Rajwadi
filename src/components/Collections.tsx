@@ -7,15 +7,13 @@ import { motion } from "framer-motion";
 import { COLLECTIONS_DATA, CollectionItem } from "@/data/products";
 
 export default function Collections() {
-  const stitchedItem = COLLECTIONS_DATA[0];
-  const unstitchedItem = COLLECTIONS_DATA[1];
-  const traditionalItem = COLLECTIONS_DATA[2];
+  const heavyPoshakItem = COLLECTIONS_DATA.find((i) => i.id === "bridal-poshaks") || COLLECTIONS_DATA[0];
+  const classicPoshakItem = COLLECTIONS_DATA.find((i) => i.id === "everyday-poshaks") || COLLECTIONS_DATA[1];
+  const jewelleryItem = COLLECTIONS_DATA.find((i) => i.id === "jewellery") || COLLECTIONS_DATA[3];
 
   const getFramingClass = (id: string) => {
-    if (id === "traditional-poshaks") return "poshak-img-traditional";
-    if (id === "stitched-poshaks") return "poshak-img-stitched";
-    if (id === "unstitched-poshaks") return "poshak-img-unstitched";
-    return "object-center";
+    if (id === "jewellery") return "object-center";
+    return "object-top";
   };
 
   const getCollectionHref = (item: CollectionItem) => {
@@ -118,16 +116,16 @@ export default function Collections() {
 
         {/* Asymmetric Editorial Composition: Ultra-Slim Seamless Gap */}
         <div className="space-y-3.5 sm:space-y-4">
-          {/* Top Row: Stitched + Unstitched side by side with ultra-slim 10-12px gap */}
+          {/* Top Row: Heavy Poshak + Classic Poshak side by side */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 sm:gap-3 md:gap-3 lg:gap-3.5">
-            {stitchedItem && renderCard(stitchedItem, false, 0.05)}
-            {unstitchedItem && renderCard(unstitchedItem, false, 0.1)}
+            {heavyPoshakItem && renderCard(heavyPoshakItem, false, 0.05)}
+            {classicPoshakItem && renderCard(classicPoshakItem, false, 0.1)}
           </div>
 
-          {/* Bottom Row: Traditional as a wider, shorter featured image */}
-          {traditionalItem && (
+          {/* Bottom Row: Jewellery as wide featured editorial banner */}
+          {jewelleryItem && (
             <div className="w-full">
-              {renderCard(traditionalItem, true, 0.15)}
+              {renderCard(jewelleryItem, true, 0.15)}
             </div>
           )}
         </div>
