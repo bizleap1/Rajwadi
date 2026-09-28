@@ -22,6 +22,7 @@ export interface ReceiptOrderData {
   shippingFormatted?: string;
   discountFormatted?: string;
   totalFormatted?: string;
+  couponCode?: string;
   shippingAddress?: any;
   user?: {
     name?: string;
@@ -122,24 +123,35 @@ export function generateReceiptHtml(order: ReceiptOrderData, options?: ReceiptHt
         year: "numeric",
       });
 
-  // Calculate safe financials
-  const subtotalPaise = order.subtotalInPaise || order.totalInPaise || 0;
+  // ── Financial calculations (all amounts in rupees, math in paise for precision) ──
   const stitchingPaise = order.stitchingInPaise || 0;
-  const shippingPaise = order.shippingInPaise || 0;
-  const discountPaise = order.discountInPaise || 0;
-  const totalPaise =
-    order.totalInPaise != null
-      ? order.totalInPaise
-      : Math.max(0, subtotalPaise + stitchingPaise + shippingPaise - discountPaise);
+  const discountPaise  = order.discountInPaise  || 0;
+  const totalPaise     = order.totalInPaise     ?? 0;
 
-  const totalInRupees = totalPaise / 100;
-  const stitchingInRupees = stitchingPaise / 100;
-  const discountInRupees = discountPaise / 100;
+  // subtotalInPaise = MRP of goods before discount (sent by API)
+  // fallback: back-calculate from total
+  const subtotalPaise =
+    order.subtotalInPaise != null
+      ? order.subtotalInPaise
+      : Math.max(0, totalPaise - stitchingPaise + discountPaise);
 
-  // 18% Inclusive GST breakdown
-  const taxableBase = Math.round((totalInRupees / 1.18) * 100) / 100;
-  const totalGst = Math.round((totalInRupees - taxableBase) * 100) / 100;
-  const halfGst = Math.round((totalGst / 2) * 100) / 100;
+  const subtotalRs    = subtotalPaise    / 100;
+  const stitchingRs   = stitchingPaise   / 100;
+  const discountRs    = discountPaise    / 100;
+  const totalRs       = totalPaise       / 100;
+
+  // Net taxable goods value = subtotal minus coupon discount (tax is on discounted price)
+  const netGoodsRs = Math.max(0, subtotalRs - discountRs);
+
+  // 18% GST is INCLUSIVE in the product price.
+  // taxableBase = net / 1.18;  totalGst = net - taxableBase
+  const taxableBase = Math.round((netGoodsRs / 1.18) * 100) / 100;
+  const totalGst    = Math.round((netGoodsRs - taxableBase) * 100) / 100;
+  // Split exactly: CGST = floor-half, SGST = remainder (avoids ₹0.01 drift)
+  const cgst = Math.round((totalGst / 2) * 100) / 100;
+  const sgst = Math.round((totalGst - cgst) * 100) / 100;
+
+  const couponCode = order.couponCode || null;
 
   // Items rows
   const items = order.items && order.items.length > 0 ? order.items : [
@@ -771,63 +783,58 @@ export function generateReceiptHtml(order: ReceiptOrderData, options?: ReceiptHt
 
       <div class="summary-card">
         <div class="card-label">INVOICE SUMMARY</div>
+
+        <!-- Row 1: MRP Subtotal (goods) -->
         <div class="summary-row">
-          <span>Taxable Base Value (Net Excl. Tax):</span>
+          <span>MRP Subtotal (Goods, GST Inclusive):</span>
+          <span style="font-family: monospace;">Rs. ${subtotalRs.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+        </div>
+
+        ${discountRs > 0 ? `
+        <!-- Row 2: Coupon / Promotional Discount -->
+        <div class="summary-row" style="color: #065F46;">
+          <span>Discount${couponCode ? ` (Coupon: <strong>${couponCode}</strong>)` : ""}:</span>
+          <span style="font-family: monospace;">−Rs. ${discountRs.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+        </div>
+        <!-- Row 3: Net taxable value after discount -->
+        <div class="summary-row" style="border-top: 1px dashed #D9C4B0; padding-top: 5px; margin-top: 2px;">
+          <span>Net Taxable Value (After Discount):</span>
+          <span style="font-family: monospace;">Rs. ${netGoodsRs.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+        </div>` : ""}
+
+        <!-- Taxable base (excl. 18% GST) -->
+        <div class="summary-row" style="color: #5A524C; font-size: 10px;">
+          <span>&nbsp;&nbsp;&#8627; Taxable Value (Excl. 18% GST):</span>
           <span style="font-family: monospace;">Rs. ${taxableBase.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
         </div>
 
-        ${isIntraState
-          ? `
-            <div class="summary-row">
-              <span>CGST (9% Central GST - MH):</span>
-              <span style="font-family: monospace;">Rs. ${halfGst.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
-            </div>
-            <div class="summary-row">
-              <span>SGST (9% State GST - MH):</span>
-              <span style="font-family: monospace;">Rs. ${halfGst.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
-            </div>
-          `
-          : `
-            <div class="summary-row">
-              <span>IGST (18% Integrated GST):</span>
-              <span style="font-family: monospace;">Rs. ${totalGst.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
-            </div>
-          `
-        }
-
-        <div class="summary-row">
-          <span>Total 18% GST (Included in Price):</span>
-          <span style="font-family: monospace;">Rs. ${totalGst.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+        <!-- CGST + SGST always shown separately -->
+        <div class="summary-row" style="color: #4A3E37;">
+          <span>CGST @ 9% (Central GST):</span>
+          <span style="font-family: monospace;">Rs. ${cgst.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+        </div>
+        <div class="summary-row" style="color: #4A3E37;">
+          <span>SGST @ 9% (State GST):</span>
+          <span style="font-family: monospace;">Rs. ${sgst.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
         </div>
 
-        ${stitchingInRupees > 0
-          ? `
-            <div class="summary-row">
-              <span>Bespoke Atelier Stitching:</span>
-              <span style="font-family: monospace;">Rs. ${stitchingInRupees.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
-            </div>
-          `
-          : ""
-        }
+        ${stitchingRs > 0 ? `
+        <!-- Stitching add-on (not taxed separately as GST already captured on subtotal) -->
+        <div class="summary-row" style="border-top: 1px dashed #D9C4B0; padding-top: 5px; margin-top: 2px;">
+          <span>Bespoke Atelier Stitching Charges:</span>
+          <span style="font-family: monospace;">Rs. ${stitchingRs.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+        </div>` : ""}
 
-        ${discountInRupees > 0
-          ? `
-            <div class="summary-row" style="color: #065F46;">
-              <span>Promotional Discount:</span>
-              <span style="font-family: monospace;">-Rs. ${discountInRupees.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
-            </div>
-          `
-          : ""
-        }
-
+        <!-- Shipping -->
         <div class="summary-row">
           <span>Couture Packaging &amp; Shipping:</span>
           <span style="color: #065F46; font-weight: 600;">COMPLIMENTARY</span>
         </div>
 
+        <!-- Grand Total -->
         <div class="total-banner">
           <span>TOTAL INVOICE VALUE (INR)</span>
-          <span class="total-banner-val">Rs. ${totalInRupees.toLocaleString("en-IN")}</span>
+          <span class="total-banner-val">Rs. ${totalRs.toLocaleString("en-IN")}</span>
         </div>
       </div>
     </div>
