@@ -7,7 +7,7 @@ import Hero from "@/components/Hero";
 import Collections from "@/components/Collections";
 import ThePoshakEdit from "@/components/ThePoshakEdit";
 import CraftBehindThePoshak from "@/components/CraftBehindThePoshak";
-import ThePoshakExperience from "@/components/ThePoshakExperience";
+import GoogleReviews from "@/components/GoogleReviews";
 import StitchedWithPrecision from "@/components/StitchedWithPrecision";
 import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
@@ -47,8 +47,8 @@ export default function Home() {
       {/* 04 — THE CRAFT BEHIND THE POSHAK */}
       <CraftBehindThePoshak onOpenConsultation={handleOpenConsultation} />
 
-      {/* 05 — THE POSHAK EXPERIENCE */}
-      <ThePoshakExperience onOpenConsultation={handleOpenConsultation} />
+      {/* 05 — GOOGLE REVIEWS */}
+      <GoogleReviews />
 
       {/* 06 — STITCHED WITH PRECISION / THE ART OF STITCHING */}
       <StitchedWithPrecision onOpenConsultation={handleOpenConsultation} />
