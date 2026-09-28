@@ -301,7 +301,15 @@ function CollectionContent() {
   const categories: { key: CategoryFilter; label: string; count: number }[] =
     useMemo(
       () => [
-        { key: "ALL", label: "All", count: allProducts.length },
+        {
+          key: "ALL",
+          label: "All",
+          count: allProducts.filter(
+            (p) =>
+              (p.category || "").toUpperCase() !== "JEWELLERY" &&
+              (p.type || "").toUpperCase() !== "JEWELLERY"
+          ).length,
+        },
         {
           key: "BRIDAL",
           label: "Heavy Poshak",
@@ -327,36 +335,52 @@ function CollectionContent() {
           key: "JEWELLERY",
           label: "Jewellery",
           count: allProducts.filter(
-            (p) => (p.category || "").toUpperCase() === "JEWELLERY"
+            (p) =>
+              (p.category || "").toUpperCase() === "JEWELLERY" ||
+              (p.type || "").toUpperCase() === "JEWELLERY"
           ).length,
         },
       ],
       [allProducts]
     );
 
-  // Product Type Filter: Stitched, Poshak Material, Jewellery
+  // Product Type Filter: Stitched, Semi-Stitched, Jewellery
   const productTypes: { key: ProductTypeFilter; label: string; count: number }[] =
     useMemo(() => {
       const baseList =
         activeCategory === "ALL"
-          ? allProducts
-          : allProducts.filter((p) => (p.category || "").toUpperCase() === activeCategory);
+          ? allProducts.filter(
+              (p) =>
+                (p.category || "").toUpperCase() !== "JEWELLERY" &&
+                (p.type || "").toUpperCase() !== "JEWELLERY"
+            )
+          : allProducts.filter(
+              (p) => (p.category || "").toUpperCase() === activeCategory
+            );
 
       return [
         {
           key: "STITCHED",
           label: "Stitched",
-          count: baseList.filter((p) => (p.type || "").toUpperCase() === "STITCHED").length,
+          count: baseList.filter(
+            (p) => (p.type || "").toUpperCase() === "STITCHED"
+          ).length,
         },
         {
           key: "UNSTITCHED",
           label: "Semi-Stitched",
-          count: baseList.filter((p) => (p.type || "").toUpperCase() === "UNSTITCHED").length,
+          count: baseList.filter(
+            (p) => (p.type || "").toUpperCase() === "UNSTITCHED"
+          ).length,
         },
         {
           key: "JEWELLERY",
           label: "Jewellery",
-          count: baseList.filter((p) => (p.type || "").toUpperCase() === "JEWELLERY").length,
+          count: allProducts.filter(
+            (p) =>
+              (p.type || "").toUpperCase() === "JEWELLERY" ||
+              (p.category || "").toUpperCase() === "JEWELLERY"
+          ).length,
         },
       ];
     }, [activeCategory, allProducts]);
@@ -396,8 +420,16 @@ function CollectionContent() {
       });
     }
 
-    // 1. Category Filter
-    if (activeCategory !== "ALL") {
+    // 1. Category Filter: In "ALL", Jewellery is excluded so only authentic poshaks show
+    if (activeCategory === "ALL") {
+      if (activeType !== "JEWELLERY") {
+        list = list.filter((p) => {
+          const cat = (p.category || "").toUpperCase();
+          const type = (p.type || "").toUpperCase();
+          return cat !== "JEWELLERY" && type !== "JEWELLERY";
+        });
+      }
+    } else {
       list = list.filter((p) => (p.category || "").toUpperCase() === activeCategory);
     }
 
@@ -406,7 +438,7 @@ function CollectionContent() {
       list = list.filter((p) => (p.type || "").toUpperCase() === activeType);
     }
 
-    // 2. Colour Filter
+    // 3. Colour Filter
     if (selectedColor) {
       const colorOpt = COLOR_FILTERS.find((c) => c.id === selectedColor);
       if (colorOpt) {
@@ -414,7 +446,7 @@ function CollectionContent() {
       }
     }
 
-    // 3. Price Filter
+    // 4. Price Filter
     if (selectedPriceRange) {
       const priceOpt = PRICE_FILTERS.find((pr) => pr.id === selectedPriceRange);
       if (priceOpt) {
@@ -422,7 +454,7 @@ function CollectionContent() {
       }
     }
 
-    // 4. Sorting: Newly added products appear at the TOP by default!
+    // 5. Sorting: In "ALL" (or when activeType is ALL), STITCHED poshaks appear at the TOP!
     const sorted = [...list];
     switch (sortBy) {
       case "price-asc":
@@ -434,8 +466,16 @@ function CollectionContent() {
       case "featured":
       case "newest":
       default:
-        // Newly added poshaks ALWAYS appear at the top!
         sorted.sort((a, b) => {
+          // When activeType is ALL, prioritize STITCHED products at the top!
+          if (activeType === "ALL") {
+            const aStitched = (a.type || "").toUpperCase() === "STITCHED" ? 1 : 0;
+            const bStitched = (b.type || "").toUpperCase() === "STITCHED" ? 1 : 0;
+            if (aStitched !== bStitched) {
+              return bStitched - aStitched; // 1 (Stitched) comes before 0 (Unstitched)
+            }
+          }
+          // Within same group, newly added products appear first
           const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
           const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
           if (timeA !== timeB) return timeB - timeA;
@@ -449,6 +489,9 @@ function CollectionContent() {
 
   const handleCategorySelect = (cat: CategoryFilter) => {
     setActiveCategory(cat);
+    if (cat === "ALL" && activeType === "JEWELLERY") {
+      setActiveType("ALL");
+    }
   };
 
   const hasActiveFilters = Boolean(
