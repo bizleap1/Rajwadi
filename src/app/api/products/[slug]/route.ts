@@ -59,6 +59,7 @@ export async function GET(
       stitchingPriceInPaise: product.stitchingPriceInPaise,
       stitchingPriceFormatted: `₹ ${(product.stitchingPriceInPaise / 100).toLocaleString("en-IN")}`,
       isFeatured: product.isFeatured,
+      enquiryOnly: product.enquiryOnly ?? ((product.category || "").toLowerCase() === "jewellery" || (product.type || "").toLowerCase() === "jewellery"),
       variants: product.variants.map((v) => ({
         id: v.id,
         name: v.name,

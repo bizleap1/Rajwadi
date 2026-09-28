@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Heart, ShoppingBag, MessageCircle } from "lucide-react";
 import { useWishlist } from "@/context/WishlistContext";
 import { useCart } from "@/context/CartContext";
+import { isProductEnquiryOnly } from "@/data/products";
 
 interface ThePoshakEditProps {
   onSelectProduct?: (product: any) => void;
@@ -182,7 +183,7 @@ export default function ThePoshakEdit({ onSelectProduct }: ThePoshakEditProps) {
                             {product.craft || product.fabric}
                           </p>
 
-                          {((product.category || "").toLowerCase() === "jewellery" || (product.type || "").toLowerCase() === "jewellery") ? (
+                          {isProductEnquiryOnly(product) ? (
                             <button
                               type="button"
                               onClick={(e) => {
@@ -232,7 +233,7 @@ export default function ThePoshakEdit({ onSelectProduct }: ThePoshakEditProps) {
                             />
                           </button>
 
-                          {!((product.category || "").toLowerCase() === "jewellery" || (product.type || "").toLowerCase() === "jewellery") && (
+                          {!isProductEnquiryOnly(product) && (
                             <button
                               type="button"
                               onClick={(e) => {

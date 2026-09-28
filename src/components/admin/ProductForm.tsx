@@ -23,6 +23,7 @@ import {
   DollarSign,
   Package,
   Eye,
+  MessageCircle,
 } from "lucide-react";
 import { ProductFormValues } from "@/lib/validations/product";
 
@@ -103,6 +104,14 @@ export default function ProductForm({ initialData, isEdit }: ProductFormProps) {
   const [priceNote, setPriceNote] = useState<string>(
     initialData?.priceNote || "Inclusive of stitching"
   );
+  const [enquiryOnly, setEnquiryOnly] = useState<boolean>(() => {
+    if (initialData?.enquiryOnly !== undefined && initialData?.enquiryOnly !== null) {
+      return Boolean(initialData.enquiryOnly);
+    }
+    const cat = (initialData?.category || "").toLowerCase();
+    const typ = (initialData?.type || "").toLowerCase();
+    return cat === "jewellery" || typ === "jewellery";
+  });
 
   // Royal Specifications (Details Table)
   const [fabric, setFabric] = useState(initialData?.fabric || "");
@@ -407,11 +416,11 @@ export default function ProductForm({ initialData, isEdit }: ProductFormProps) {
     setSuccessMessage("");
 
     const parsedPrice = parseFloat(priceInRupees);
-    if (isNaN(parsedPrice) || parsedPrice < 0) {
+    if (!enquiryOnly && (isNaN(parsedPrice) || parsedPrice < 0)) {
       setError("Please enter a valid price in INR.");
       return;
     }
-    const priceInPaise = Math.round(parsedPrice * 100);
+    const priceInPaise = isNaN(parsedPrice) || parsedPrice < 0 ? 0 : Math.round(parsedPrice * 100);
 
     let compareAtPriceInPaise: number | undefined = undefined;
     if (compareAtPriceInRupees.trim()) {
@@ -465,6 +474,7 @@ export default function ProductForm({ initialData, isEdit }: ProductFormProps) {
       includes: filteredIncludes.length > 0 ? filteredIncludes : ["Flared Kalidar Ghagra", "Tailored Kurti & Kanchali", "Pure Odhani with Kiran"],
       status,
       soldOut,
+      enquiryOnly,
       stock,
       inStock: !soldOut && inStock && stock > 0,
       stitchingAvailable,
@@ -805,7 +815,11 @@ export default function ProductForm({ initialData, isEdit }: ProductFormProps) {
               <select
                 value={category}
                 onChange={(e) => {
-                  setCategory(e.target.value);
+                  const newCat = e.target.value;
+                  setCategory(newCat);
+                  if (newCat === "Jewellery") {
+                    setEnquiryOnly(true);
+                  }
                   setIsDirty(true);
                 }}
                 className="w-full px-3 py-2 bg-[#FCFAF6] border border-[#D9C4B0] text-xs text-[#171717] rounded-sm focus:ring-1 focus:ring-[#855D25]"
@@ -971,6 +985,67 @@ export default function ProductForm({ initialData, isEdit }: ProductFormProps) {
                 placeholder="Inclusive of stitching"
                 className="w-full px-3 py-2 bg-[#FCFAF6] border border-[#D9C4B0] text-xs text-[#171717] rounded-sm focus:ring-1 focus:ring-[#855D25]"
               />
+            </div>
+          </div>
+
+          {/* WhatsApp Enquiry Only Toggle Card */}
+          <div
+            className={`p-4 rounded-sm border transition-all ${
+              enquiryOnly
+                ? "bg-[#25D366]/10 border-[#25D366]/40 shadow-xs"
+                : "bg-[#FCFAF6] border-[#D9C4B0]/80"
+            }`}
+          >
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="flex items-start gap-3">
+                <input
+                  type="checkbox"
+                  id="enquiryOnlyToggle"
+                  checked={enquiryOnly}
+                  onChange={(e) => {
+                    setEnquiryOnly(e.target.checked);
+                    setIsDirty(true);
+                  }}
+                  className="w-5 h-5 mt-0.5 text-[#128C7E] rounded border-[#D9C4B0] focus:ring-[#25D366] cursor-pointer"
+                />
+                <div>
+                  <label
+                    htmlFor="enquiryOnlyToggle"
+                    className="text-xs font-semibold text-[#171717] cursor-pointer flex items-center gap-1.5"
+                  >
+                    <MessageCircle
+                      className={`w-4 h-4 ${
+                        enquiryOnly ? "text-[#25D366]" : "text-[#8A796B]"
+                      }`}
+                    />
+                    <span className={enquiryOnly ? "text-[#075E54] font-bold" : ""}>
+                      WhatsApp Enquiry Mode (Hide Price & Direct to WhatsApp)
+                    </span>
+                  </label>
+                  <p className="text-[11px] text-[#6B5E55] mt-1 leading-relaxed">
+                    Jab yeh option <strong>ON</strong> hoga, storefront par price hide ho jayegi aur &quot;Add to Bag / Buy Now&quot; buttons ki jagah <strong>&quot;Enquiry to WhatsApp&quot;</strong> button dikhega. Customer direct WhatsApp concierge se inquiry kar sakega.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex-shrink-0 sm:pl-4">
+                <span
+                  className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10.5px] uppercase font-semibold tracking-wider font-sans border ${
+                    enquiryOnly
+                      ? "bg-[#25D366]/20 text-[#075E54] border-[#25D366]/50 shadow-2xs"
+                      : "bg-[#F3EBE1] text-[#8A796B] border-[#D9C4B0]"
+                  }`}
+                >
+                  <span
+                    className={`w-2 h-2 rounded-full ${
+                      enquiryOnly ? "bg-[#25D366] animate-pulse" : "bg-[#8A796B]"
+                    }`}
+                  />
+                  <span>
+                    {enquiryOnly ? "WhatsApp Enquiry ON" : "Standard Price / Cart"}
+                  </span>
+                </span>
+              </div>
             </div>
           </div>
         </div>

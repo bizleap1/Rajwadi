@@ -218,6 +218,20 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     quantity: number = 1,
     stitchingSelected: boolean = false
   ) => {
+    if (
+      product.enquiryOnly ||
+      (product.category || "").toLowerCase() === "jewellery" ||
+      (product.type || "").toLowerCase() === "jewellery"
+    ) {
+      const msg = encodeURIComponent(
+        `Pranam Rajwadi! I am interested in inquiring about "${product.name}". Could you please share price and details?`
+      );
+      if (typeof window !== "undefined") {
+        window.open(`https://wa.me/918766667101?text=${msg}`, "_blank");
+      }
+      return;
+    }
+
     const pId = product.slug || product.id;
     const resolvedSize =
       size && size !== "36"

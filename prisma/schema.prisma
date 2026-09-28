@@ -130,6 +130,7 @@ model Product {
   priceNote             String?
   type                  String?
   soldOut               Boolean?          @default(false)
+  enquiryOnly           Boolean?          @default(false)
   size                  String?
   sizes                 Json?
   version               Int               @default(1)

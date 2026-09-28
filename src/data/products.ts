@@ -29,6 +29,20 @@ export interface PoshakProduct {
   soldOut?: boolean;
   stitchingAvailable?: boolean;
   createdAt?: string;
+  enquiryOnly?: boolean;
+}
+
+export function isProductEnquiryOnly(product: {
+  enquiryOnly?: boolean;
+  category?: string;
+  type?: string;
+}): boolean {
+  if (typeof product.enquiryOnly === "boolean") {
+    return product.enquiryOnly;
+  }
+  const cat = (product.category || "").toLowerCase();
+  const typ = (product.type || "").toLowerCase();
+  return cat === "jewellery" || typ === "jewellery";
 }
 
 export function getPoshakDisplayName(product: { name: string; type?: string; category?: string }): string {

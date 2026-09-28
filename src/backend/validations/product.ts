@@ -58,6 +58,7 @@ export const ProductFormSchema = z
     includes: z.array(z.string()).default([]),
     status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]).default("PUBLISHED"),
     soldOut: z.boolean().default(false),
+    enquiryOnly: z.boolean().default(false),
     isFeatured: z.boolean().default(false),
     featuredOrder: z.number().int().default(0),
     stock: z.number().int().min(0, "Stock cannot be negative").default(10),

@@ -22,6 +22,7 @@ import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import CartDrawer from "@/components/CartDrawer";
 import TalkToDesignerModal from "@/components/TalkToDesignerModal";
+import { isProductEnquiryOnly } from "@/data/products";
 
 interface ProductDetailClientProps {
   product: any;
@@ -70,6 +71,10 @@ function ProductDetailInner({
       (product.category || "").toLowerCase() === "jewellery" ||
       (product.type || "").toLowerCase() === "jewellery"
     );
+  }, [product]);
+
+  const isEnquiryOnly = useMemo(() => {
+    return isProductEnquiryOnly(product);
   }, [product]);
 
   const availableSizes = useMemo(() => {
@@ -168,7 +173,7 @@ function ProductDetailInner({
 
   const handleWhatsAppInquiry = () => {
     const sizeNote = isJewellery ? "" : ` (Size: ${selectedSize})`;
-    const priceText = isJewellery ? "" : ` (${product.price || product.priceFormatted}${sizeNote})`;
+    const priceText = isEnquiryOnly ? "" : ` (${product.price || product.priceFormatted}${sizeNote})`;
     const message = encodeURIComponent(
       `Pranam Rajwadi! I am interested in inquiring about "${product.name}"${priceText}. Could you please share more details and price?`
     );
@@ -428,7 +433,7 @@ function ProductDetailInner({
             </h1>
 
             {/* 3. PRICE & DISCOUNT */}
-            {isJewellery ? (
+            {isEnquiryOnly ? (
               <div className="mb-4">
                 <button
                   type="button"
@@ -589,9 +594,9 @@ function ProductDetailInner({
 
             {/* 7. PRIMARY & SECONDARY ACTIONS */}
             <div className="space-y-2.5 mb-6">
-              {/* Single Row: Add to Bag + Buy Now + Wishlist (or WhatsApp Enquiry for Jewellery) */}
+              {/* Single Row: Add to Bag + Buy Now + Wishlist (or WhatsApp Enquiry for Enquiry Only mode) */}
               <div className="flex items-center gap-2 sm:gap-2.5">
-                {isJewellery ? (
+                {isEnquiryOnly ? (
                   <button
                     type="button"
                     onClick={handleWhatsAppInquiry}
@@ -664,7 +669,7 @@ function ProductDetailInner({
 
               {/* Secondary Row: WhatsApp Concierge + Share */}
               <div className="flex items-center gap-2">
-                {!isJewellery && (
+                {!isEnquiryOnly && (
                   <button
                     type="button"
                     onClick={handleWhatsAppInquiry}
@@ -680,10 +685,10 @@ function ProductDetailInner({
                   onClick={handleShareProduct}
                   title="Share this ensemble"
                   aria-label="Share this ensemble"
-                  className={`${isJewellery ? "w-full" : "w-[44px] sm:w-[46px]"} h-[44px] sm:h-[46px] flex-shrink-0 flex items-center justify-center border border-[#E6DCB8] hover:border-[#855D25] bg-white/60 hover:bg-white text-[#171717]/70 hover:text-[#855D25] transition-colors cursor-pointer active:scale-95`}
+                  className={`${isEnquiryOnly ? "w-full" : "w-[44px] sm:w-[46px]"} h-[44px] sm:h-[46px] flex-shrink-0 flex items-center justify-center border border-[#E6DCB8] hover:border-[#855D25] bg-white/60 hover:bg-white text-[#171717]/70 hover:text-[#855D25] transition-colors cursor-pointer active:scale-95`}
                 >
                   <Share2 className="w-4 h-4" />
-                  {isJewellery && <span className="ml-2 text-xs uppercase tracking-wider font-sans font-medium text-[#171717]">Share Jewellery</span>}
+                  {isEnquiryOnly && <span className="ml-2 text-xs uppercase tracking-wider font-sans font-medium text-[#171717]">Share Product</span>}
                 </button>
               </div>
             </div>
@@ -776,13 +781,13 @@ function ProductDetailInner({
         <div className="flex items-center gap-2.5">
           {/* Price & Size preview */}
           <div className="flex flex-col min-w-0 pr-1">
-            {isJewellery ? (
+            {isEnquiryOnly ? (
               <>
                 <span className="font-sans text-xs font-semibold text-[#128C7E] tracking-tight leading-tight truncate">
                   WhatsApp Enquiry
                 </span>
                 <span className="text-[10px] text-[#855D25] font-medium uppercase tracking-wider truncate">
-                  Jewellery
+                  {isJewellery ? "Jewellery" : `Size: ${selectedSize}`}
                 </span>
               </>
             ) : (
@@ -799,7 +804,7 @@ function ProductDetailInner({
 
           {/* Action Buttons in Sticky Bar */}
           <div className="flex items-center gap-2 flex-1">
-            {isJewellery ? (
+            {isEnquiryOnly ? (
               <button
                 type="button"
                 onClick={handleWhatsAppInquiry}

@@ -95,6 +95,7 @@ export async function GET(req: NextRequest) {
         stitchingPriceInPaise: p.stitchingPriceInPaise,
         stitchingPriceFormatted: `₹ ${(p.stitchingPriceInPaise / 100).toLocaleString("en-IN")}`,
         isFeatured: p.isFeatured,
+        enquiryOnly: p.enquiryOnly ?? ((p.category || "").toLowerCase() === "jewellery" || (p.type || "").toLowerCase() === "jewellery"),
         createdAt: p.createdAt.toISOString(),
       };
     });

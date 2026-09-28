@@ -4,7 +4,7 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Heart, ShoppingBag, MessageCircle } from "lucide-react";
-import { PoshakProduct } from "@/data/products";
+import { PoshakProduct, isProductEnquiryOnly } from "@/data/products";
 import { useWishlist } from "@/context/WishlistContext";
 import { useCart } from "@/context/CartContext";
 
@@ -31,6 +31,7 @@ export default function ProductCard({
   const { addToCart, setIsCartOpen } = useCart();
   const isWishlisted = isInWishlist(product.id);
 
+  const isEnquiryOnly = isProductEnquiryOnly(product);
   const isJewellery =
     (product.category || "").toLowerCase() === "jewellery" ||
     (product.type || "").toLowerCase() === "jewellery";
@@ -42,14 +43,14 @@ export default function ProductCard({
 
   // Calculate discount percentage if original price is provided
   const discountPercent = React.useMemo(() => {
-    if (isJewellery || !product.price || !product.originalPrice) return null;
+    if (isEnquiryOnly || !product.price || !product.originalPrice) return null;
     const currentNum = parseInt(product.price.replace(/[^0-9]/g, ""), 10);
     const originalNum = parseInt(product.originalPrice.replace(/[^0-9]/g, ""), 10);
     if (originalNum > currentNum && originalNum > 0) {
       return Math.round(((originalNum - currentNum) / originalNum) * 100);
     }
     return null;
-  }, [product.price, product.originalPrice, isJewellery]);
+  }, [product.price, product.originalPrice, isEnquiryOnly]);
 
   const handleWishlistClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -202,7 +203,7 @@ export default function ProductCard({
                   }`}
                 />
               </button>
-              {!isJewellery && (
+              {!isEnquiryOnly && (
                 <button
                   type="button"
                   onClick={handleAddToCartClick}
@@ -227,7 +228,7 @@ export default function ProductCard({
         {/* Price & Bag Row (when heart is top-right) */}
         {heartPosition === "top-right" && (
           <div className="flex items-center justify-between mt-1 pt-0.5">
-            {isJewellery ? (
+            {isEnquiryOnly ? (
               <button
                 type="button"
                 onClick={handleWhatsAppEnquiry}
@@ -266,7 +267,7 @@ export default function ProductCard({
         {/* Price only (when heart is bottom) */}
         {heartPosition === "bottom" && (
           <div className="flex items-center gap-2 mt-1">
-            {isJewellery ? (
+            {isEnquiryOnly ? (
               <button
                 type="button"
                 onClick={handleWhatsAppEnquiry}

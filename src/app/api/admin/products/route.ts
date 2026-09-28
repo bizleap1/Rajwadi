@@ -131,6 +131,7 @@ export async function POST(req: NextRequest) {
         includes: data.includes,
         status: data.status,
         soldOut: data.soldOut ?? false,
+        enquiryOnly: data.enquiryOnly ?? false,
         isFeatured: data.isFeatured,
         featuredOrder: data.featuredOrder,
         stock: data.stock,

@@ -16,6 +16,7 @@ import {
   ExternalLink,
   Sparkles,
   CheckCircle2,
+  MessageCircle,
 } from "lucide-react";
 
 interface ProductRow {
@@ -28,6 +29,7 @@ interface ProductRow {
   stock: number;
   inStock: boolean;
   isFeatured: boolean;
+  enquiryOnly?: boolean;
   images: { id: string; secureUrl: string; displayOrder: number }[];
   updatedAt: string;
 }
@@ -293,6 +295,15 @@ export default function AdminProductsPage() {
                                   <span>Featured</span>
                                 </span>
                               )}
+                              {(product.enquiryOnly || product.category === "Jewellery") && (
+                                <span
+                                  className="inline-flex items-center gap-1 text-[9px] px-1.5 py-0.5 bg-[#25D366]/15 border border-[#25D366]/40 text-[#075E54] font-semibold rounded"
+                                  title="Enquiry to WhatsApp Enabled"
+                                >
+                                  <MessageCircle className="w-2.5 h-2.5 text-[#25D366]" />
+                                  <span>WhatsApp Enquiry</span>
+                                </span>
+                              )}
                             </div>
                             <span className="text-[11px] text-[#8A796B] font-mono block mt-0.5">
                               /product/{product.slug}
@@ -310,7 +321,19 @@ export default function AdminProductsPage() {
 
                       {/* Price */}
                       <td className="py-3.5 px-3 font-medium text-[#171717]">
-                        ₹ {(product.priceInPaise / 100).toLocaleString("en-IN")}
+                        {(product.enquiryOnly || product.category === "Jewellery") ? (
+                          <div className="flex flex-col">
+                            <span className="text-xs font-semibold text-[#128C7E] flex items-center gap-1">
+                              <MessageCircle className="w-3 h-3 text-[#25D366]" />
+                              <span>Enquiry Only</span>
+                            </span>
+                            <span className="text-[10px] text-[#8A796B] line-through">
+                              ₹ {(product.priceInPaise / 100).toLocaleString("en-IN")}
+                            </span>
+                          </div>
+                        ) : (
+                          <span>₹ {(product.priceInPaise / 100).toLocaleString("en-IN")}</span>
+                        )}
                       </td>
 
                       {/* Stock / Availability */}

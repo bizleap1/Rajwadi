@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Search, X, ArrowLeft, ArrowRight, MessageCircle } from "lucide-react";
+import { isProductEnquiryOnly } from "@/data/products";
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -232,7 +233,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                       <p className="text-[10px] text-[#8A796B] uppercase tracking-wider mt-0.5">
                         {product.category}
                       </p>
-                      {((product.category || "").toLowerCase() === "jewellery" || (product.type || "").toLowerCase() === "jewellery") ? (
+                      {isProductEnquiryOnly(product) ? (
                         <p className="text-xs font-semibold text-[#128C7E] mt-1 flex items-center gap-1">
                           <MessageCircle className="w-3 h-3 text-[#25D366]" />
                           <span>Enquiry to WhatsApp</span>
