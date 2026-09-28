@@ -20,25 +20,68 @@ export async function GET(req: NextRequest) {
     const limit = parseInt(searchParams.get("limit") || "10", 10);
     const skip = (page - 1) * limit;
 
-    const where: any = {};
+    const andConditions: any[] = [];
 
-    if (search) {
-      where.OR = [
-        { name: { contains: search, mode: "insensitive" } },
-        { slug: { contains: search, mode: "insensitive" } },
-        { color: { contains: search, mode: "insensitive" } },
-      ];
+    if (search && search.trim()) {
+      const q = search.trim();
+      andConditions.push({
+        OR: [
+          { name: { contains: q, mode: "insensitive" } },
+          { slug: { contains: q, mode: "insensitive" } },
+          { color: { contains: q, mode: "insensitive" } },
+          { fabric: { contains: q, mode: "insensitive" } },
+          { craft: { contains: q, mode: "insensitive" } },
+        ],
+      });
     }
 
     if (category && category !== "ALL") {
-      where.category = category;
+      const catTrim = category.trim();
+      const catLower = catTrim.toLowerCase();
+
+      if (catLower === "stitched" || catLower === "unstitched") {
+        andConditions.push({
+          OR: [
+            { category: { equals: catTrim, mode: "insensitive" } },
+            { type: { equals: catTrim, mode: "insensitive" } },
+            { subCategory: { equals: catTrim, mode: "insensitive" } },
+          ],
+        });
+      } else if (catLower === "jewellery") {
+        andConditions.push({
+          OR: [
+            { category: { equals: "Jewellery", mode: "insensitive" } },
+            { type: { equals: "Jewellery", mode: "insensitive" } },
+          ],
+        });
+      } else if (catLower === "traditional") {
+        andConditions.push({
+          OR: [
+            { category: { equals: "Traditional", mode: "insensitive" } },
+            { subCategory: { equals: "Traditional", mode: "insensitive" } },
+            { craft: { contains: "traditional", mode: "insensitive" } },
+            { description: { contains: "traditional", mode: "insensitive" } },
+          ],
+        });
+      } else {
+        andConditions.push({
+          OR: [
+            { category: { equals: catTrim, mode: "insensitive" } },
+            { subCategory: { equals: catTrim, mode: "insensitive" } },
+          ],
+        });
+      }
     }
 
     if (status && status !== "ALL") {
-      where.status = status;
+      andConditions.push({
+        status: status,
+      });
     }
 
-    const [products, total] = await Promise.all([
+    const where: any = andConditions.length > 0 ? { AND: andConditions } : {};
+
+    const [products, total, distinctCats] = await Promise.all([
       prisma.product.findMany({
         where,
         orderBy: [{ updatedAt: "desc" }],
@@ -51,7 +94,45 @@ export async function GET(req: NextRequest) {
         },
       }),
       prisma.product.count({ where }),
+      prisma.product.findMany({
+        select: { category: true },
+        distinct: ["category"],
+      }),
     ]);
+
+    const standardCategories = [
+      "Bridal",
+      "Festive",
+      "Everyday",
+      "Jewellery",
+      "Stitched",
+      "Unstitched",
+      "Traditional",
+    ];
+
+    const categorySet = new Set<string>();
+    const allCategories: string[] = [];
+
+    // Add standard preset categories first
+    for (const cat of standardCategories) {
+      const key = cat.toLowerCase();
+      if (!categorySet.has(key)) {
+        categorySet.add(key);
+        allCategories.push(cat);
+      }
+    }
+
+    // Add any categories discovered from products in database
+    for (const item of distinctCats) {
+      if (item.category && item.category.trim()) {
+        const cat = item.category.trim();
+        const key = cat.toLowerCase();
+        if (!categorySet.has(key)) {
+          categorySet.add(key);
+          allCategories.push(cat);
+        }
+      }
+    }
 
     return NextResponse.json({
       products: products.map((p) => ({
@@ -63,6 +144,7 @@ export async function GET(req: NextRequest) {
           displayOrder: img.displayOrder,
         })),
       })),
+      categories: allCategories,
       total,
       page,
       totalPages: Math.ceil(total / limit),

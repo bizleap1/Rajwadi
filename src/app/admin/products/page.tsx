@@ -17,6 +17,7 @@ import {
   Sparkles,
   CheckCircle2,
   MessageCircle,
+  X,
 } from "lucide-react";
 
 interface ProductRow {
@@ -24,6 +25,8 @@ interface ProductRow {
   slug: string;
   name: string;
   category: string;
+  type?: string;
+  subCategory?: string;
   priceInPaise: number;
   status: "DRAFT" | "PUBLISHED" | "ARCHIVED";
   stock: number;
@@ -41,6 +44,15 @@ export default function AdminProductsPage() {
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("ALL");
+  const [categoriesList, setCategoriesList] = useState<string[]>([
+    "Bridal",
+    "Festive",
+    "Everyday",
+    "Jewellery",
+    "Stitched",
+    "Unstitched",
+    "Traditional",
+  ]);
   const [status, setStatus] = useState("ALL");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -81,6 +93,9 @@ export default function AdminProductsPage() {
       setProducts(data.products || []);
       setTotalPages(data.totalPages || 1);
       setTotalCount(data.total || 0);
+      if (Array.isArray(data.categories) && data.categories.length > 0) {
+        setCategoriesList(data.categories);
+      }
     } catch (err: any) {
       console.error(err);
       setError(err.message || "Failed to load products.");
@@ -174,19 +189,38 @@ export default function AdminProductsPage() {
           <div className="flex items-center gap-1.5 flex-1 sm:flex-initial min-w-[140px]">
             <Filter className="w-3.5 h-3.5 text-[#855D25] flex-shrink-0" />
             <span className="text-xs text-[#6B5E55] whitespace-nowrap">Category:</span>
-            <select
-              value={category}
-              onChange={(e) => {
-                setCategory(e.target.value);
-                setPage(1);
-              }}
-              className="w-full sm:w-auto bg-[#FCFAF6] border border-[#D9C4B0] text-xs py-2 px-2.5 rounded-sm text-[#171717] focus:outline-none focus:ring-1 focus:ring-[#855D25]"
-            >
-              <option value="ALL">All Categories</option>
-              <option value="Traditional">Traditional</option>
-              <option value="Unstitched">Unstitched</option>
-              <option value="Stitched">Stitched</option>
-            </select>
+            <div className="flex items-center gap-1">
+              <select
+                value={category}
+                onChange={(e) => {
+                  setCategory(e.target.value);
+                  setPage(1);
+                }}
+                className="w-full sm:w-auto bg-[#FCFAF6] border border-[#D9C4B0] text-xs py-2 px-2.5 rounded-sm text-[#171717] focus:outline-none focus:ring-1 focus:ring-[#855D25] font-medium"
+              >
+                <option value="ALL">All Categories</option>
+                {categoriesList.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
+
+              {category !== "ALL" && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCategory("ALL");
+                    setPage(1);
+                  }}
+                  className="p-1.5 text-[#6D1A2A] hover:bg-[#6D1A2A]/10 rounded transition-colors cursor-pointer"
+                  title="Clear category filter"
+                  aria-label="Clear category filter"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
           </div>
 
           <span className="hidden sm:inline text-[#D9C4B0]">|</span>
@@ -313,11 +347,18 @@ export default function AdminProductsPage() {
                         </div>
                       </td>
 
-                      {/* Category */}
+                      {/* Category & Type */}
                       <td className="py-3.5 px-3">
-                        <span className="inline-block px-2 py-0.5 bg-[#F3EBE1] text-[#4A3E37] text-[10.5px] tracking-wide rounded-sm font-medium">
-                          {product.category}
-                        </span>
+                        <div className="flex flex-col gap-0.5 items-start">
+                          <span className="inline-block px-2 py-0.5 bg-[#F3EBE1] text-[#4A3E37] text-[10.5px] tracking-wide rounded-sm font-medium">
+                            {product.category}
+                          </span>
+                          {product.type && product.type.toLowerCase() !== product.category.toLowerCase() && (
+                            <span className="text-[10px] text-[#8A796B]">
+                              {product.type}
+                            </span>
+                          )}
+                        </div>
                       </td>
 
                       {/* Price */}
