@@ -736,13 +736,13 @@ export default function AdminDashboardPage() {
                     </div>
                   )}
 
-                  {/* Exchanges notification */}
-                  {data.metrics.exchanges.pendingRequests > 0 ? (
+                  {/* ponytail: exchange alerts hidden as requested, preserve for future use */}
+                  {Boolean(false && (data?.metrics?.exchanges?.pendingRequests ?? 0) > 0) && (
                     <div className="p-3 bg-blue-50 border border-blue-200 text-blue-900 rounded-sm text-xs flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <ArrowRightLeft className="w-4 h-4 text-blue-600" />
                         <span>
-                          <strong>{data.metrics.exchanges.pendingRequests}</strong> exchange requests pending
+                          <strong>{data?.metrics?.exchanges?.pendingRequests}</strong> exchange requests pending
                         </span>
                       </div>
                       <Link
@@ -751,11 +751,6 @@ export default function AdminDashboardPage() {
                       >
                         Action
                       </Link>
-                    </div>
-                  ) : (
-                    <div className="p-3 bg-[#FAF6F0] border border-[#EBD9C8] text-[#4A3E37] rounded-sm text-xs flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-[#855D25] shrink-0" />
-                      <span>All exchange & alteration requests up to date.</span>
                     </div>
                   )}
                 </div>

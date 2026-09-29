@@ -345,7 +345,8 @@ export default function AdminOrdersPage() {
                           >
                             {order.orderNumber}
                           </Link>
-                          {order.hasActiveExchange && (
+                          {/* ponytail: exchange badge hidden as requested, preserve for future use */}
+                          {false && order.hasActiveExchange && (
                             <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9.5px] font-sans font-bold uppercase tracking-wider bg-[#855D25]/15 text-[#855D25] border border-[#855D25]/30">
                               ⇄ Exchange Active
                             </span>

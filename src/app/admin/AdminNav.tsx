@@ -65,12 +65,13 @@ export default function AdminNav({ user }: { user?: { name?: string; email?: str
       icon: Tag,
       active: pathname.startsWith("/admin/discounts"),
     },
-    {
+    // ponytail: exchange feature temporarily hidden as requested; set to true to re-enable
+    ...(false ? [{
       label: "Exchanges",
       href: "/admin/exchanges",
       icon: ArrowRightLeft,
       active: pathname.startsWith("/admin/exchanges"),
-    },
+    }] : []),
   ];
 
   return (

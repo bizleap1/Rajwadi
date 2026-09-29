@@ -390,7 +390,8 @@ export default function OrderTrackingPage() {
         </div>
 
         {/* ── 2. ACTIVE EXCHANGE REQUESTS TIMELINE (IF ANY) ── */}
-        {exchangeRequests.length > 0 && (
+        {/* ponytail: exchange tracker hidden as requested, preserve for future enablement */}
+        {false && exchangeRequests.length > 0 && (
           <div className="bg-white p-6 border-2 border-[#855D25]/30 rounded-sm shadow-sm space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-[#F0E5D8]">
               <div className="flex items-center gap-2.5">
@@ -549,9 +550,12 @@ export default function OrderTrackingPage() {
             <h2 className="text-sm font-serif text-[#171717]">
               Ordered Pieces ({order.items.length})
             </h2>
-            <span className="text-[11px] text-[#8A796B]">
-              7-Day Size &amp; Fit Exchange Guaranteed
-            </span>
+            {/* ponytail: exchange guarantee badge hidden as requested */}
+            {false && (
+              <span className="text-[11px] text-[#8A796B]">
+                7-Day Size &amp; Fit Exchange Guaranteed
+              </span>
+            )}
           </div>
 
           <div className="divide-y divide-[#F0E5D8]">
@@ -600,7 +604,8 @@ export default function OrderTrackingPage() {
                   </div>
 
                   {/* Exchange Button Action (Available only after order is delivered or exchange is active) */}
-                  {(activeExchange || isDelivered) && (
+                  {/* ponytail: exchange button hidden as requested, preserve for future enablement */}
+                  {false && (activeExchange || isDelivered) && (
                     <div className="flex sm:flex-col justify-end items-end gap-2 pt-2 sm:pt-0">
                       {activeExchange ? (
                         <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#FAF5EE] border border-[#855D25]/30 text-[#855D25] rounded text-[11px] font-medium">
