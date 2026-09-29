@@ -263,7 +263,7 @@ export default function CartPage() {
 
                   <div className="flex justify-between items-center text-[#171717]/85">
                     <span>Shipping</span>
-                    <span className="text-[#855D25] font-medium">—</span>
+                    <span className="text-emerald-800 font-medium">Complimentary</span>
                   </div>
                 </div>
 
