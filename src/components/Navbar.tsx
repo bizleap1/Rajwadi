@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
@@ -224,7 +224,7 @@ export default function Navbar({
             {/* 👑 Atelier Owner Portal Direct Link (Only when signed in as ADMIN) */}
             {user?.role === "ADMIN" && (
               <Link
-                href="/admin/products"
+                href="/admin"
                 className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#6D1A2A] text-white text-[10px] uppercase tracking-wider font-semibold rounded-xs hover:bg-[#581522] transition-colors shadow-2xs mr-0.5"
                 title="Atelier Owner Portal"
               >
@@ -333,7 +333,7 @@ export default function Navbar({
               <div className="pt-4 border-t border-soft-beige flex flex-col items-center gap-3">
                 {user?.role === "ADMIN" && (
                   <Link
-                    href="/admin/products"
+                    href="/admin"
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="w-full py-3 bg-[#FAF0E1] border border-[#D9C4B0] text-[#6D1A2A] text-xs uppercase tracking-widest font-semibold flex items-center justify-center gap-2 hover:bg-[#F5E6D0] transition-colors shadow-2xs"
                   >

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -126,7 +126,7 @@ export default function AuthModal({
           typeof window !== "undefined"
             ? new URLSearchParams(window.location.search)
             : null;
-        const returnUrl = searchParams?.get("returnUrl") || "/admin/products";
+        const returnUrl = searchParams?.get("returnUrl") || "/admin";
         router.push(returnUrl);
       }
     } catch (err: any) {

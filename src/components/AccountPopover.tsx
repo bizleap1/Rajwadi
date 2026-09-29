@@ -168,7 +168,7 @@ export default function AccountPopover({
                 {user?.role === "ADMIN" && (
                   <button
                     type="button"
-                    onClick={() => handleNavigate("/admin/products")}
+                    onClick={() => handleNavigate("/admin")}
                     className="w-full text-left group py-2.5 px-3 bg-[#FAF0E1] hover:bg-[#F5E6D0] border border-[#D9C4B0] rounded-xs flex items-center justify-between cursor-pointer transition-colors shadow-2xs mb-2"
                   >
                     <div className="flex items-center gap-2.5">
@@ -358,7 +358,7 @@ export default function AccountPopover({
               {user?.role === "ADMIN" && (
                 <button
                   type="button"
-                  onClick={() => handleNavigate("/admin/products")}
+                  onClick={() => handleNavigate("/admin")}
                   className="w-full py-3.5 px-4 bg-[#FAF0E1] active:bg-[#F5E6D0] border border-[#D9C4B0] rounded-xs flex items-center justify-between text-left group cursor-pointer shadow-xs mb-3"
                 >
                   <div className="flex items-center gap-3">
