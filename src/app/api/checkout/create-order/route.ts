@@ -10,15 +10,47 @@ import { sendOrderInvoiceEmail } from "@/backend/services/email";
 export const dynamic = "force-dynamic";
 
 async function generateUniqueOrderNumber(): Promise<string> {
-  for (let i = 0; i < 10; i++) {
-    const num = Math.floor(1000 + Math.random() * 9000);
-    const candidate = `RW${num}`;
-    const exists = await prisma.order.findUnique({
-      where: { orderNumber: candidate },
+  try {
+    // Find the latest orders to determine the current highest sequential ID
+    const recentOrders = await prisma.order.findMany({
+      select: { orderNumber: true },
+      orderBy: { createdAt: "desc" },
+      take: 50,
     });
-    if (!exists) return candidate;
+
+    let highestSeq = 1000; // Baseline starting number (first order will be RW1001)
+
+    for (const ord of recentOrders) {
+      if (ord.orderNumber) {
+        const match = ord.orderNumber.match(/\d+/);
+        if (match) {
+          const num = parseInt(match[0], 10);
+          if (!isNaN(num) && num > highestSeq && num < 9000000) {
+            highestSeq = num;
+          }
+        }
+      }
+    }
+
+    let nextSeq = highestSeq + 1;
+
+    // Verify candidate does not already exist in database
+    for (let attempt = 0; attempt < 50; attempt++) {
+      const candidate = `RW${nextSeq}`;
+      const exists = await prisma.order.findUnique({
+        where: { orderNumber: candidate },
+      });
+      if (!exists) {
+        return candidate;
+      }
+      nextSeq++;
+    }
+
+    return `RW${nextSeq}`;
+  } catch (error) {
+    console.error("Error generating sequential orderNumber:", error);
+    return `RW${Date.now().toString().slice(-6)}`;
   }
-  return `RW${Date.now().toString().slice(-6)}`;
 }
 
 export async function POST(req: NextRequest) {
