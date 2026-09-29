@@ -800,9 +800,6 @@ export function generateReceiptHtml(order: ReceiptOrderData, options?: ReceiptHt
         }
         <div class="status-line"><strong>${paymentMethodLabel}</strong></div>
         <div class="status-line">Transaction Ref: <strong>${paymentRefLabel}</strong></div>
-        <div class="status-line">GST Compliance: <strong>${gstRatePercent}% Inclusive Tax Included (${isAbove5k ? "Above ₹5,000" : "Below ₹5,000"})</strong></div>
-        <div class="status-line">Tax Regime: <strong>${isIntraState ? `CGST ${cgstRatePercent}% + SGST ${sgstRatePercent}% (Intra-State: Maharashtra)` : `IGST ${gstRatePercent}% (Inter-State Supply to ${patronState})`}</strong></div>
-        <div class="status-line">Place of Supply: <strong>${patronState} (State Code: ${stateCode})</strong></div>
         <div class="status-line">Order Status: <strong>PROCESSING</strong></div>
         <div class="status-line">Authenticity: <strong>100% Handcrafted Atelier Certified</strong></div>
       </div>
