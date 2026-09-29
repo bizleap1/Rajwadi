@@ -10,22 +10,21 @@ const siteUrl =
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Rajwadi Jaipur | Authentic Royal Rajputi Poshaks & Bridal Wear",
+    default: "Rajwadi Rajputi Poshak | Authentic Royal Rajputi Poshaks & Bridal Wear",
     template: "%s | Rajwadi",
   },
   description:
-    "Rajwadi Jaipur — Handcrafted Authentic Royal Rajputi Poshaks, Bridal Lehengas, Pure Georgette Ensembles, and Heirloom Gota Patti & Zardozi Couture. Worldwide Delivery.",
+    "Rajwadi Rajputi Poshak — Handcrafted Authentic Royal Rajputi Poshaks, Bridal Lehengas, Pure Georgette Ensembles, and Heirloom Gota Patti & Zardozi Couture. Worldwide Delivery.",
   keywords: [
     "Rajputi Poshak",
     "Royal Rajputi Poshak",
     "Bridal Rajputi Poshak",
-    "Jaipur Poshak",
     "Pure Georgette Poshak",
     "Zari Zardozi Poshak",
     "Rajasthani Traditional Dress",
     "Kundan Work Poshak",
     "Rajwadi",
-    "Rajwadi Poshak Jaipur",
+    "Rajwadi Rajputi Poshak",
     "Heirloom Rajputi Couture",
     "Gota Patti Poshak",
     "Custom Tailored Rajputi Poshak",
@@ -46,7 +45,7 @@ export const metadata: Metadata = {
     locale: "en_IN",
     url: "/",
     siteName: "Rajwadi Rajputi Poshak",
-    title: "Rajwadi Jaipur | Authentic Royal Rajputi Poshaks & Bridal Wear",
+    title: "Rajwadi Rajputi Poshak | Authentic Royal Rajputi Poshaks & Bridal Wear",
     description:
       "Handcrafted Rajputi Poshaks crafted with zari, gota patti, and pure silk heritage artistry. Bespoke crafting & worldwide delivery.",
     images: [
@@ -60,7 +59,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Rajwadi Jaipur | Authentic Royal Rajputi Poshaks & Bridal Wear",
+    title: "Rajwadi Rajputi Poshak | Authentic Royal Rajputi Poshaks & Bridal Wear",
     description:
       "Handcrafted Rajputi Poshaks crafted with zari, gota patti, and pure silk heritage artistry.",
     images: ["/hero_bg.webp"],
@@ -98,9 +97,13 @@ const organizationSchema = {
   paymentAccepted: "UPI, Credit Card, Debit Card, Net Banking",
   address: {
     "@type": "PostalAddress",
-    addressRegion: "Rajasthan",
+    streetAddress: "EWS 41, near Maheshwari Bhawan, Hiwari Layout, Uday Nagar, Padole Nagar",
+    addressLocality: "Nagpur",
+    addressRegion: "Maharashtra",
+    postalCode: "440008",
     addressCountry: "IN",
   },
+  telephone: "+91 8766667101",
 };
 
 export default function RootLayout({

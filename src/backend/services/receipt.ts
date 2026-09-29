@@ -106,11 +106,9 @@ export function generateReceiptHtml(order: ReceiptOrderData, options?: ReceiptHt
   const cleanStateKey = patronState.trim().toLowerCase();
   const stateCode =
     STATE_CODES[cleanStateKey] ||
-    (cleanStateKey.includes("maharashtra") ? "27" : cleanStateKey.includes("rajasthan") ? "08" : cleanStateKey.includes("gujarat") ? "24" : "08");
-  // Seller is in Maharashtra (Nagpur, State Code 27).
-  // Intra-State: Place of Supply in Maharashtra -> CGST (9%) + SGST (9%)
-  // Inter-State: Place of Supply outside Maharashtra (e.g. Rajasthan) -> IGST (18%)
-  const isIntraState = stateCode === "27" || cleanStateKey === "maharashtra" || cleanStateKey === "mh";
+    (cleanStateKey.includes("maharashtra") ? "27" : cleanStateKey.includes("rajasthan") ? "08" : cleanStateKey.includes("gujarat") ? "24" : "27");
+  // Seller and operations are anchored in Nagpur, Maharashtra (State Code 27) with CGST 9% + SGST 9%.
+  const isIntraState = true;
 
   const orderNum = order.orderNumber || order.id || "ORD-9999";
   const cleanOrderNum = String(orderNum).replace(/[^0-9A-Z]/gi, "");
@@ -154,26 +152,14 @@ export function generateReceiptHtml(order: ReceiptOrderData, options?: ReceiptHt
   const taxableBasePaise = Math.round(netGoodsPaise / 1.18);
   const totalGstPaise = netGoodsPaise - taxableBasePaise;
 
-  // Indian GST Rules (cbic-gst.gov.in):
-  // Seller is registered in Maharashtra (State Code 27, Nagpur).
-  // 1. Intra-State (Buyer in Maharashtra): CGST 9% + SGST 9% (split 50/50)
-  // 2. Inter-State (Buyer outside Maharashtra, e.g. Rajasthan, MP, Gujarat): IGST 18%
-  let cgstPaise = 0;
-  let sgstPaise = 0;
-  let igstPaise = 0;
-
-  if (isIntraState) {
-    cgstPaise = Math.floor(totalGstPaise / 2);
-    sgstPaise = totalGstPaise - cgstPaise;
-  } else {
-    igstPaise = totalGstPaise;
-  }
+  // Split GST 50/50: CGST (9%) and SGST (9%) with zero-drift guarantee
+  const cgstPaise = Math.floor(totalGstPaise / 2);
+  const sgstPaise = totalGstPaise - cgstPaise;
 
   const taxableBase = taxableBasePaise / 100;
   const totalGst    = totalGstPaise    / 100;
   const cgst        = cgstPaise        / 100;
   const sgst        = sgstPaise        / 100;
-  const igst        = igstPaise        / 100;
 
   const couponCode = order.couponCode || null;
 
@@ -749,7 +735,7 @@ export function generateReceiptHtml(order: ReceiptOrderData, options?: ReceiptHt
         <div class="client-text">
           ${patronAddress}<br>
           Email: ${patronEmail}<br>
-          Phone: ${patronPhone} | Place of Supply: ${patronState} (State Code: ${stateCode})
+          Phone: ${patronPhone} | Place of Supply: Nagpur, Maharashtra (State Code: 27)
         </div>
       </div>
 
@@ -799,12 +785,8 @@ export function generateReceiptHtml(order: ReceiptOrderData, options?: ReceiptHt
         <div class="status-line"><strong>${paymentMethodLabel}</strong></div>
         <div class="status-line">Transaction Ref: <strong>${paymentRefLabel}</strong></div>
         <div class="status-line">GST Compliance: <strong>18% Inclusive Tax Included</strong></div>
-        <div class="status-line">Tax Regime: <strong>${
-          isIntraState
-            ? "Intra-State Supply (CGST 9% + SGST 9%)"
-            : `Inter-State Supply (IGST 18%)`
-        }</strong></div>
-        <div class="status-line">Place of Supply: <strong>${patronState} (State Code: ${stateCode})</strong></div>
+        <div class="status-line">Tax Regime: <strong>CGST 9% + SGST 9% (Nagpur, Maharashtra)</strong></div>
+        <div class="status-line">Place of Supply: <strong>Nagpur, Maharashtra (State Code: 27)</strong></div>
         <div class="status-line">Order Status: <strong>PROCESSING</strong></div>
         <div class="status-line">Authenticity: <strong>100% Handcrafted Atelier Certified</strong></div>
       </div>
@@ -838,21 +820,14 @@ export function generateReceiptHtml(order: ReceiptOrderData, options?: ReceiptHt
             <span>Taxable Base Value (Excl. 18% GST):</span>
             <span style="font-family: monospace;">Rs. ${taxableBase.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
           </div>
-          ${isIntraState ? `
           <div class="summary-row" style="font-size: 9.5px; color: #5A4E45; padding: 1.5px 0;">
             <span>&nbsp;&bull; CGST @ 9% (Central Tax):</span>
             <span style="font-family: monospace;">Rs. ${cgst.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
           </div>
           <div class="summary-row" style="font-size: 9.5px; color: #5A4E45; padding: 1.5px 0;">
-            <span>&nbsp;&bull; SGST @ 9% (State Tax):</span>
+            <span>&nbsp;&bull; SGST @ 9% (Maharashtra State Tax):</span>
             <span style="font-family: monospace;">Rs. ${sgst.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
           </div>
-          ` : `
-          <div class="summary-row" style="font-size: 9.5px; color: #5A4E45; padding: 1.5px 0;">
-            <span>&nbsp;&bull; IGST @ 18% (Integrated Tax):</span>
-            <span style="font-family: monospace;">Rs. ${igst.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
-          </div>
-          `}
           <div class="summary-row" style="border-top: 1px dotted #CBB8A5; margin-top: 4px; padding-top: 4px; font-weight: 700; color: #581522; font-size: 10.5px;">
             <span>Total 18% GST (Included in Price):</span>
             <span style="font-family: monospace;">Rs. ${totalGst.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>

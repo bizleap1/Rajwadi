@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     "Rajasthani Royal Artistry",
     "Gota Patti Work History",
     "Zari Zardozi Embroidery",
-    "Jaipur Royal Atelier",
+    "Royal Rajputi Atelier",
     "Rajwadi Heritage",
   ],
   alternates: {

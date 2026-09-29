@@ -160,7 +160,7 @@ export default function OurHeritagePage() {
                 </p>
                 <div className="mt-2.5 flex items-center justify-between text-[10px] text-[#855D25] font-semibold uppercase tracking-wider font-sans">
                   <span>— SHALU VYAS • FOUNDER &amp; CURATOR</span>
-                  <span className="text-[#8C827A] normal-case tracking-normal font-serif italic font-normal">Jaipur, Rajasthan</span>
+                  <span className="text-[#8C827A] normal-case tracking-normal font-serif italic font-normal">Nagpur, Maharashtra</span>
                 </div>
               </div>
             </div>

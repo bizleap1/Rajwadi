@@ -66,27 +66,11 @@ async function runSelfCheck() {
   assert(customerHtml.includes("8766667101"), "HTML must contain store phone 8766667101");
   assert(!customerHtml.includes("Johari Bazaar"), "HTML must not contain Johari Bazaar");
   assert(!customerHtml.includes("Jaipur, Rajasthan"), "HTML must not contain Jaipur, Rajasthan");
-  assert(customerHtml.includes("CGST @ 9%"), "Maharashtra delivery must have CGST @ 9%");
-  assert(customerHtml.includes("SGST @ 9%"), "Maharashtra delivery must have SGST @ 9%");
-  assert(customerHtml.includes("Intra-State Supply (CGST 9% + SGST 9%)"), "Payment box must show Intra-State Supply");
-  console.log("  ✓ Maharashtra delivery correctly verified with Intra-State CGST (9%) + SGST (9%)");
-
-  // 3b. Verify Rajasthan / Inter-State Delivery (IGST 18%)
-  const rajasthanOrder: ReceiptOrderData = {
-    ...mockOrder,
-    shippingAddress: {
-      ...mockOrder.shippingAddress,
-      city: "Jaipur",
-      state: "Rajasthan",
-      pincode: "302001",
-    },
-  };
-  const rajasthanHtml = generateReceiptHtml(rajasthanOrder);
-  assert(rajasthanHtml.includes("IGST @ 18%"), "Rajasthan delivery must have IGST @ 18%");
-  assert(rajasthanHtml.includes("Inter-State Supply (IGST 18%)"), "Payment box must show Inter-State Supply (IGST 18%)");
-  assert(!rajasthanHtml.includes("CGST @ 9%"), "Rajasthan delivery must NOT contain CGST");
-  assert(!rajasthanHtml.includes("SGST @ 9%"), "Rajasthan delivery must NOT contain SGST");
-  console.log("  ✓ Rajasthan delivery correctly verified with Inter-State IGST (18%)");
+  assert(customerHtml.includes("CGST @ 9%"), "Invoice must contain CGST @ 9%");
+  assert(customerHtml.includes("SGST @ 9%"), "Invoice must contain SGST @ 9%");
+  assert(customerHtml.includes("Nagpur, Maharashtra"), "Invoice must state Nagpur, Maharashtra");
+  assert(!customerHtml.includes("IGST"), "Invoice must NOT contain IGST");
+  console.log("  ✓ Invoice verified with pure CGST (9%) + SGST (9%) from Nagpur, Maharashtra (IGST completely removed)");
 
   // 4. Verify Owner Email HTML Generation
   const ownerHtml = generateReceiptHtml(mockOrder, {

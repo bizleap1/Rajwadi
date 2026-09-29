@@ -315,7 +315,7 @@ export function generateMonthlyReportHtml(data: MonthlyReportData): string {
         <div class="brand-title">RAJWADI</div>
         <div class="brand-sub">AUTHENTIC RAJPUTI POSHAK ATELIER</div>
         <div style="font-size: 10px; color: #6B5E55; margin-top: 3px;">
-          Jaipur, Rajasthan, India &bull; rajwadirajputiposhak.com
+          Nagpur, Maharashtra, India &bull; rajwadirajputiposhak.com
         </div>
       </div>
       <div class="report-meta">

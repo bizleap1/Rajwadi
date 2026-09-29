@@ -258,7 +258,7 @@ export default function ProductDetailModal({
                 <div className="mt-5 pt-3 border-t border-[#E6DCB8] flex items-center gap-2 text-[11px] text-[#171717]/65 font-sans">
                   <ShieldCheck className="w-4 h-4 text-[#855D25] flex-shrink-0" />
                   <span>
-                    100% Authentic Rajputi Craftsmanship • Hand-embroidered in Rajasthan
+                    100% Authentic Rajputi Craftsmanship • Handcrafted Royal Atelier Artistry
                   </span>
                 </div>
               </div>

@@ -57,7 +57,7 @@ export async function generateMetadata({
   const title = `${product.name} — Authentic Royal Rajputi Poshak | Rajwadi`;
   const description =
     product.description ||
-    `Order ${product.name} from Rajwadi Jaipur. Handcrafted authentic Royal Rajputi Poshak with pure fabric, intricate royal embroidery, and bespoke tailoring.`;
+    `Order ${product.name} from Rajwadi Rajputi Poshak. Handcrafted authentic Royal Rajputi Poshak with pure fabric, intricate royal embroidery, and bespoke tailoring.`;
 
   const primaryImage =
     (product.images && product.images[0]?.secureUrl) ||
@@ -77,7 +77,7 @@ export async function generateMetadata({
       "Royal Rajputi Poshak",
       product.category ? `${product.category} Rajputi Poshak` : "Bridal Poshak",
       product.fabric ? `${product.fabric} Rajputi Poshak` : "Pure Georgette Poshak",
-      "Rajwadi Jaipur",
+      "Rajwadi Rajputi Poshak",
       "Heirloom Poshak",
     ],
     alternates: {

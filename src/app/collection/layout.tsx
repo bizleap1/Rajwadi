@@ -12,12 +12,12 @@ export const metadata: Metadata = {
   keywords: [
     "Royal Rajputi Poshak Collection",
     "Bridal Rajputi Poshak",
-    "Festive Poshak Jaipur",
+    "Festive Rajputi Poshak",
     "Pure Georgette Poshak Online",
     "Gota Patti Rajputi Dress",
     "Semi-Stitched Rajputi Poshak",
     "Rajwadi Collection",
-    "Jaipur Bridal Poshak",
+    "Heirloom Bridal Poshak",
   ],
   alternates: {
     canonical: "/collection",

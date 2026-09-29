@@ -34,10 +34,10 @@ import { useAuth } from "@/context/AuthContext";
 import { getEstimatedDeliveryRange } from "@/utils/date";
 
 const INDIAN_STATES = [
+  "Maharashtra",
   "Rajasthan",
   "Gujarat",
   "Madhya Pradesh",
-  "Maharashtra",
   "Delhi",
   "Uttar Pradesh",
   "Haryana",
@@ -93,7 +93,7 @@ export default function CheckoutPage() {
     phone: "",
     address: "",
     city: "",
-    state: "Rajasthan",
+    state: "Maharashtra",
     pincode: "",
   });
 
@@ -213,7 +213,7 @@ export default function CheckoutPage() {
         phone: defaultAddr.phone || user.phone || "",
         address: defaultAddr.address || "",
         city: defaultAddr.city || "",
-        state: defaultAddr.state || "Rajasthan",
+        state: defaultAddr.state || "Maharashtra",
         pincode: defaultAddr.pincode || "",
       };
       setSavedAddress(addrData);
@@ -800,7 +800,7 @@ export default function CheckoutPage() {
                           required
                           value={formData.city}
                           onChange={handleChange}
-                          placeholder="Jaipur"
+                          placeholder="Nagpur"
                           className="w-full px-3.5 py-2.5 bg-[#FCFAF6] border border-[#D9C4B0] text-xs text-[#171717] rounded-sm focus:ring-1 focus:ring-[#855D25]"
                         />
                         {errors.city && (

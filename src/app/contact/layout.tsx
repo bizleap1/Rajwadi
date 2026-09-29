@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     "Contact Rajwadi",
     "Rajputi Poshak Consultation",
     "Bespoke Bridal Poshak Order",
-    "Jaipur Poshak Atelier Contact",
+    "Rajwadi Poshak Atelier Nagpur Contact",
     "Rajwadi Support",
   ],
   alternates: {
@@ -54,12 +54,15 @@ const contactSchema = {
   url: `${siteUrl}/contact`,
   mainEntity: {
     "@type": "ClothingStore",
-    name: "Rajwadi",
-    telephone: "+91 98290 00000",
-    email: "contact@rajwadirajputiposhak.com",
+    name: "Rajwadi Rajputi Poshak",
+    telephone: "+91 8766667101",
+    email: "support@rajwadirajputiposhak.com",
     address: {
       "@type": "PostalAddress",
-      addressRegion: "Rajasthan",
+      streetAddress: "EWS 41, near Maheshwari Bhawan, Hiwari Layout, Uday Nagar, Padole Nagar",
+      addressLocality: "Nagpur",
+      addressRegion: "Maharashtra",
+      postalCode: "440008",
       addressCountry: "IN",
     },
   },

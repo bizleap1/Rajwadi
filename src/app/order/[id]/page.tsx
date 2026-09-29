@@ -293,7 +293,7 @@ export default function OrderTrackingPage() {
                         {order.trackingNumber ? ` (AWB: ${order.trackingNumber})` : ""}
                       </span>
                     ) : (
-                      <span>Handcrafted with precision in Rajasthan Atelier</span>
+                      <span>Handcrafted with precision in Nagpur Atelier</span>
                     )}
                   </div>
                 </div>

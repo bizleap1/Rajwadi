@@ -72,7 +72,7 @@ function AccountPageContent() {
     phone: "",
     address: "",
     city: "",
-    state: "Rajasthan",
+    state: "Maharashtra",
     pincode: "",
   });
 
@@ -151,7 +151,7 @@ function AccountPageContent() {
       phone: user?.phone || "",
       address: "",
       city: "",
-      state: "Rajasthan",
+      state: "Maharashtra",
       pincode: "",
     });
   };
