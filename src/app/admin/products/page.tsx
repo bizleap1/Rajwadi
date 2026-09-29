@@ -22,6 +22,7 @@ import {
 
 interface ProductRow {
   id: string;
+  sequenceNumber?: number | null;
   slug: string;
   name: string;
   category: string;
@@ -174,7 +175,7 @@ export default function AdminProductsPage() {
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#855D25]" />
           <input
             type="text"
-            placeholder="Search by name or slug..."
+            placeholder="Search by #number, name, or slug..."
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
@@ -284,6 +285,7 @@ export default function AdminProductsPage() {
             <table className="w-full min-w-[680px] text-left border-collapse text-xs">
               <thead>
                 <tr className="bg-[#F8F1E7] border-b border-[#EBD9C8] text-[#4A3E37] uppercase tracking-wider text-[11px] font-medium">
+                  <th className="py-3 px-3 text-center w-14">#</th>
                   <th className="py-3 px-4">Product</th>
                   <th className="py-3 px-3">Category</th>
                   <th className="py-3 px-3">Price (INR)</th>
@@ -304,6 +306,13 @@ export default function AdminProductsPage() {
                       key={product.id}
                       className="hover:bg-[#FCFAF6] transition-colors"
                     >
+                      {/* Sequence Number */}
+                      <td className="py-3.5 px-3 text-center">
+                        <span className="inline-flex items-center justify-center font-mono font-bold text-xs px-2 py-0.5 bg-[#F7F2EB] text-[#855D25] border border-[#E6D9C8] rounded">
+                          #{product.sequenceNumber ?? "-"}
+                        </span>
+                      </td>
+
                       {/* Thumbnail & Title */}
                       <td className="py-3.5 px-4">
                         <div className="flex items-center gap-3">
@@ -318,6 +327,11 @@ export default function AdminProductsPage() {
                           </div>
                           <div>
                             <div className="flex items-center gap-2">
+                              {product.sequenceNumber && (
+                                <span className="font-mono font-bold text-xs text-[#855D25]">
+                                  #{product.sequenceNumber}
+                                </span>
+                              )}
                               <span className="font-serif font-medium text-sm text-[#171717] hover:text-[#6D1A2A]">
                                 {product.name}
                               </span>

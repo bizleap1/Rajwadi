@@ -119,10 +119,19 @@ export async function PUT(
         where: { productId: current.id },
       });
 
+      let seqNum = data.sequenceNumber ?? current.sequenceNumber;
+      if (!seqNum) {
+        const maxSeq = await tx.product.aggregate({
+          _max: { sequenceNumber: true },
+        });
+        seqNum = (maxSeq._max.sequenceNumber || 0) + 1;
+      }
+
       // Update product and create new images
       return await tx.product.update({
         where: { id: current.id },
         data: {
+          sequenceNumber: seqNum,
           name: data.name,
           slug: data.slug,
           category: data.category,
@@ -197,10 +206,10 @@ export async function PUT(
     }
 
     return NextResponse.json({ product: updated });
-  } catch (error) {
+  } catch (error: any) {
     console.error("PUT /api/admin/products/[id] error:", error);
     return NextResponse.json(
-      { error: "Failed to update product" },
+      { error: error?.message || "Failed to update product" },
       { status: 500 }
     );
   }

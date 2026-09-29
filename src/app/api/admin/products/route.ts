@@ -24,14 +24,20 @@ export async function GET(req: NextRequest) {
 
     if (search && search.trim()) {
       const q = search.trim();
+      const numMatch = q.replace(/^#/, "");
+      const parsedNum = parseInt(numMatch, 10);
+      const searchOr: any[] = [
+        { name: { contains: q, mode: "insensitive" } },
+        { slug: { contains: q, mode: "insensitive" } },
+        { color: { contains: q, mode: "insensitive" } },
+        { fabric: { contains: q, mode: "insensitive" } },
+        { craft: { contains: q, mode: "insensitive" } },
+      ];
+      if (!isNaN(parsedNum) && String(parsedNum) === numMatch) {
+        searchOr.push({ sequenceNumber: parsedNum });
+      }
       andConditions.push({
-        OR: [
-          { name: { contains: q, mode: "insensitive" } },
-          { slug: { contains: q, mode: "insensitive" } },
-          { color: { contains: q, mode: "insensitive" } },
-          { fabric: { contains: q, mode: "insensitive" } },
-          { craft: { contains: q, mode: "insensitive" } },
-        ],
+        OR: searchOr,
       });
     }
 
@@ -84,7 +90,7 @@ export async function GET(req: NextRequest) {
     const [products, total, distinctCats] = await Promise.all([
       prisma.product.findMany({
         where,
-        orderBy: [{ updatedAt: "desc" }],
+        orderBy: [{ sequenceNumber: "asc" }, { createdAt: "asc" }],
         skip,
         take: limit,
         include: {
@@ -189,8 +195,14 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const maxSeq = await prisma.product.aggregate({
+      _max: { sequenceNumber: true },
+    });
+    const nextSequenceNumber = (maxSeq._max.sequenceNumber || 0) + 1;
+
     const created = await prisma.product.create({
       data: {
+        sequenceNumber: nextSequenceNumber,
         name: data.name,
         slug: data.slug,
         category: data.category,
@@ -250,10 +262,10 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ product: created }, { status: 201 });
-  } catch (error) {
+  } catch (error: any) {
     console.error("POST /api/admin/products error:", error);
     return NextResponse.json(
-      { error: "Failed to create product" },
+      { error: error?.message || "Failed to create product" },
       { status: 500 }
     );
   }

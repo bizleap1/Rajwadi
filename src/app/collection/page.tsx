@@ -458,28 +458,29 @@ function CollectionContent() {
     const sorted = [...list];
     switch (sortBy) {
       case "price-asc":
-        sorted.sort((a, b) => parsePrice(a.price, a.originalPrice) - parsePrice(b.price, b.originalPrice));
+        sorted.sort((a, b) => {
+          const diff = parsePrice(a.price, a.originalPrice) - parsePrice(b.price, b.originalPrice);
+          if (diff !== 0) return diff;
+          return (a.sequenceNumber ?? 9999) - (b.sequenceNumber ?? 9999);
+        });
         break;
       case "price-desc":
-        sorted.sort((a, b) => parsePrice(b.price, b.originalPrice) - parsePrice(a.price, a.originalPrice));
+        sorted.sort((a, b) => {
+          const diff = parsePrice(b.price, b.originalPrice) - parsePrice(a.price, a.originalPrice);
+          if (diff !== 0) return diff;
+          return (a.sequenceNumber ?? 9999) - (b.sequenceNumber ?? 9999);
+        });
         break;
       case "featured":
       case "newest":
       default:
         sorted.sort((a, b) => {
-          // When activeType is ALL, prioritize STITCHED products at the top!
-          if (activeType === "ALL") {
-            const aStitched = (a.type || "").toUpperCase() === "STITCHED" ? 1 : 0;
-            const bStitched = (b.type || "").toUpperCase() === "STITCHED" ? 1 : 0;
-            if (aStitched !== bStitched) {
-              return bStitched - aStitched; // 1 (Stitched) comes before 0 (Unstitched)
-            }
-          }
-          // Within same group, newly added products appear first
+          const seqA = a.sequenceNumber ?? 9999;
+          const seqB = b.sequenceNumber ?? 9999;
+          if (seqA !== seqB) return seqA - seqB;
           const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
           const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-          if (timeA !== timeB) return timeB - timeA;
-          return 0;
+          return timeA - timeB;
         });
         break;
     }

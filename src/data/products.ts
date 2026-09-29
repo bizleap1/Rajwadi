@@ -30,6 +30,7 @@ export interface PoshakProduct {
   stitchingAvailable?: boolean;
   createdAt?: string;
   enquiryOnly?: boolean;
+  sequenceNumber?: number;
 }
 
 export function isProductEnquiryOnly(product: {

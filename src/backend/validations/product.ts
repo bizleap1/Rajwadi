@@ -67,6 +67,7 @@ export const ProductFormSchema = z
     stitchingPriceInPaise: z.number().int().min(0).default(0),
     imagePosition: z.string().default("center 5%"),
     imageScale: z.number().min(0.5).max(2.0).default(1.0),
+    sequenceNumber: z.number().int().positive().nullable().optional(),
     version: z.number().int().optional(),
     images: z.array(ProductImageSchema).default([]),
     variants: z.array(ProductVariantSchema).default([]),

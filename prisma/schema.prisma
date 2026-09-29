@@ -133,6 +133,7 @@ model Product {
   enquiryOnly           Boolean?          @default(false)
   size                  String?
   sizes                 Json?
+  sequenceNumber        Int?
   version               Int               @default(1)
   createdAt             DateTime          @default(now())
   updatedAt             DateTime          @updatedAt
@@ -142,6 +143,7 @@ model Product {
   reservations          StockReservation[]
   orderItems            OrderItem[]
 
+  @@index([sequenceNumber])
   @@index([category])
   @@index([status])
   @@index([isFeatured, featuredOrder])

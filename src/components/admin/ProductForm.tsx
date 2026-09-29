@@ -545,11 +545,29 @@ export default function ProductForm({ initialData, isEdit }: ProductFormProps) {
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <div>
-            <span className="text-[10px] uppercase tracking-[0.2em] text-[#855D25] font-semibold block">
-              {isEdit ? "EDIT ROYAL POSHAK" : "CREATE NEW POSHAK"}
-            </span>
-            <h1 className="text-xl sm:text-2xl font-serif text-[#171717]">
-              {isEdit ? `Edit: ${name || initialData?.name}` : "Add New Catalog Creation"}
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] uppercase tracking-[0.2em] text-[#855D25] font-semibold">
+                {isEdit ? "EDIT ROYAL POSHAK" : "CREATE NEW POSHAK"}
+              </span>
+              {initialData?.sequenceNumber && (
+                <span className="font-mono text-[10px] font-bold bg-[#855D25]/10 text-[#855D25] px-2 py-0.5 rounded border border-[#855D25]/30">
+                  PRODUCT #{initialData.sequenceNumber}
+                </span>
+              )}
+            </div>
+            <h1 className="text-xl sm:text-2xl font-serif text-[#171717] flex items-center gap-2">
+              {isEdit ? (
+                <>
+                  {initialData?.sequenceNumber && (
+                    <span className="text-[#855D25] font-mono text-lg font-bold">
+                      #{initialData.sequenceNumber}
+                    </span>
+                  )}
+                  <span>{name || initialData?.name}</span>
+                </>
+              ) : (
+                "Add New Catalog Creation"
+              )}
             </h1>
           </div>
         </div>

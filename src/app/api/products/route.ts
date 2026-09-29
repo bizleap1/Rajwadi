@@ -40,12 +40,12 @@ export async function GET(req: NextRequest) {
 
     let orderBy: any = [];
     if (sort === "price-asc") {
-      orderBy = [{ priceInPaise: "asc" }, { createdAt: "desc" }];
+      orderBy = [{ priceInPaise: "asc" }, { sequenceNumber: "asc" }, { createdAt: "asc" }];
     } else if (sort === "price-desc") {
-      orderBy = [{ priceInPaise: "desc" }, { createdAt: "desc" }];
+      orderBy = [{ priceInPaise: "desc" }, { sequenceNumber: "asc" }, { createdAt: "asc" }];
     } else {
-      // Default ("featured" / "newest"): newly added poshaks always appear at the top!
-      orderBy = [{ createdAt: "desc" }];
+      // Default: stable sequence order internally assigned (#1, #2, #3, ...)
+      orderBy = [{ sequenceNumber: "asc" }, { createdAt: "asc" }];
     }
 
     const products = await prisma.product.findMany({
@@ -66,6 +66,7 @@ export async function GET(req: NextRequest) {
       return {
         id: p.slug, // Keep slug as id for frontend routing compatibility
         internalId: p.id,
+        sequenceNumber: p.sequenceNumber ?? undefined,
         slug: p.slug,
         name: p.name,
         category: p.category,
