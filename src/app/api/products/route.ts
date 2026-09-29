@@ -60,8 +60,8 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    const formatted = products.map((p) => {
-      const images = p.images.map((img) => img.secureUrl);
+    const formatted = (products as any[]).map((p: any) => {
+      const images = (p.images || []).map((img: any) => img.secureUrl);
       const mainImage = images[0] || "/placeholder.webp";
       return {
         id: p.slug, // Keep slug as id for frontend routing compatibility

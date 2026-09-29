@@ -90,7 +90,7 @@ export async function GET(req: NextRequest) {
     const [products, total, distinctCats] = await Promise.all([
       prisma.product.findMany({
         where,
-        orderBy: [{ sequenceNumber: "asc" }, { createdAt: "asc" }],
+        orderBy: [{ sequenceNumber: "asc" }, { createdAt: "asc" }] as any,
         skip,
         take: limit,
         include: {
@@ -141,14 +141,16 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.json({
-      products: products.map((p) => ({
+      products: (products as any[]).map((p: any) => ({
         ...p,
-        images: p.images.map((img) => ({
-          id: img.id,
-          publicId: img.publicId,
-          secureUrl: img.secureUrl,
-          displayOrder: img.displayOrder,
-        })),
+        images: Array.isArray(p.images)
+          ? p.images.map((img: any) => ({
+              id: img.id,
+              publicId: img.publicId,
+              secureUrl: img.secureUrl,
+              displayOrder: img.displayOrder,
+            }))
+          : [],
       })),
       categories: allCategories,
       total,
@@ -195,10 +197,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const maxSeq = await prisma.product.aggregate({
-      _max: { sequenceNumber: true },
+    const maxSeq: any = await prisma.product.aggregate({
+      _max: { sequenceNumber: true } as any,
     });
-    const nextSequenceNumber = (maxSeq._max.sequenceNumber || 0) + 1;
+    const nextSequenceNumber = (maxSeq?._max?.sequenceNumber || 0) + 1;
 
     const created = await prisma.product.create({
       data: {
@@ -246,7 +248,7 @@ export async function POST(req: NextRequest) {
             altText: img.altText || null,
           })),
         },
-      },
+      } as any,
       include: {
         images: true,
       },

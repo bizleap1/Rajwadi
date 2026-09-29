@@ -119,12 +119,12 @@ export async function PUT(
         where: { productId: current.id },
       });
 
-      let seqNum = data.sequenceNumber ?? current.sequenceNumber;
+      let seqNum = (data as any).sequenceNumber ?? (current as any).sequenceNumber;
       if (!seqNum) {
-        const maxSeq = await tx.product.aggregate({
-          _max: { sequenceNumber: true },
+        const maxSeq: any = await tx.product.aggregate({
+          _max: { sequenceNumber: true } as any,
         });
-        seqNum = (maxSeq._max.sequenceNumber || 0) + 1;
+        seqNum = (maxSeq?._max?.sequenceNumber || 0) + 1;
       }
 
       // Update product and create new images
@@ -175,7 +175,7 @@ export async function PUT(
               altText: img.altText || null,
             })),
           },
-        },
+        } as any,
         include: {
           images: {
             orderBy: { displayOrder: "asc" },
