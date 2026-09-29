@@ -7,13 +7,15 @@ import {
   LayoutDashboard,
   Package,
   ShoppingBag,
-  ArrowRightLeft,
   Tag,
   ExternalLink,
   LogOut,
   Menu,
   X,
   Loader2,
+  MoreHorizontal,
+  Store,
+  UserCheck,
 } from "lucide-react";
 import { signOut } from "@/lib/auth-client";
 
@@ -21,7 +23,7 @@ export default function AdminNav({ user }: { user?: { name?: string; email?: str
   const pathname = usePathname();
   const router = useRouter();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
 
   // If on login page, don't render navigation bar contents
   if (pathname === "/admin/login") {
@@ -48,16 +50,16 @@ export default function AdminNav({ user }: { user?: { name?: string; email?: str
       active: pathname === "/admin",
     },
     {
-      label: "Products",
-      href: "/admin/products",
-      icon: Package,
-      active: pathname.startsWith("/admin/products"),
-    },
-    {
       label: "Orders",
       href: "/admin/orders",
       icon: ShoppingBag,
       active: pathname.startsWith("/admin/orders"),
+    },
+    {
+      label: "Products",
+      href: "/admin/products",
+      icon: Package,
+      active: pathname.startsWith("/admin/products"),
     },
     {
       label: "Discounts",
@@ -65,18 +67,11 @@ export default function AdminNav({ user }: { user?: { name?: string; email?: str
       icon: Tag,
       active: pathname.startsWith("/admin/discounts"),
     },
-    // ponytail: exchange feature temporarily hidden as requested; set to true to re-enable
-    ...(false ? [{
-      label: "Exchanges",
-      href: "/admin/exchanges",
-      icon: ArrowRightLeft,
-      active: pathname.startsWith("/admin/exchanges"),
-    }] : []),
   ];
 
   return (
     <>
-      {/* Desktop Navigation */}
+      {/* ── DESKTOP NAVIGATION (Hidden on mobile) ── */}
       <nav className="hidden md:flex items-center gap-1 sm:gap-2">
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -86,7 +81,7 @@ export default function AdminNav({ user }: { user?: { name?: string; email?: str
               href={item.href}
               className={`flex items-center gap-2 px-3.5 py-2 text-xs uppercase tracking-wider font-medium transition-all rounded-sm ${
                 item.active
-                  ? "bg-[#6D1A2A] text-white shadow-sm"
+                  ? "bg-[#6D1A2A] text-white shadow-xs"
                   : "text-[#4A3E37] hover:bg-[#F3EBE1] hover:text-[#171717]"
               }`}
             >
@@ -111,7 +106,7 @@ export default function AdminNav({ user }: { user?: { name?: string; email?: str
         <button
           onClick={handleLogout}
           disabled={isLoggingOut}
-          className="flex items-center gap-1.5 px-3 py-2 text-xs uppercase tracking-wider text-[#A24857] hover:text-[#6D1A2A] hover:bg-red-50 font-medium transition-colors rounded-sm ml-1 disabled:opacity-50"
+          className="flex items-center gap-1.5 px-3 py-2 text-xs uppercase tracking-wider text-[#A24857] hover:text-[#6D1A2A] hover:bg-red-50 font-medium transition-colors rounded-sm ml-1 disabled:opacity-50 cursor-pointer"
           title="Sign Out"
         >
           {isLoggingOut ? (
@@ -123,74 +118,184 @@ export default function AdminNav({ user }: { user?: { name?: string; email?: str
         </button>
       </nav>
 
-      {/* Mobile Menu Button */}
+      {/* ── TOP RIGHT QUICK ACTIONS ON MOBILE (Live site + Menu) ── */}
       <div className="md:hidden flex items-center gap-2">
-        <button
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="p-2 text-[#4A3E37] hover:bg-[#F3EBE1] rounded-sm focus:outline-none cursor-pointer"
-          aria-label="Toggle navigation"
+        <Link
+          href="/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="p-2 text-[#855D25] hover:bg-[#F3EBE1] rounded-full transition-colors flex items-center gap-1 text-xs font-medium"
+          title="View Live Store"
         >
-          {isMobileMenuOpen ? <X className="w-5 h-5 text-[#6D1A2A]" /> : <Menu className="w-5 h-5" />}
+          <Store className="w-4 h-4" />
+          <span className="text-[10.5px] font-semibold uppercase tracking-wider">Store</span>
+        </Link>
+        <button
+          onClick={() => setIsMoreMenuOpen(true)}
+          className="p-2 text-[#4A3E37] hover:bg-[#F3EBE1] rounded-full transition-colors"
+          aria-label="Open menu"
+        >
+          <MoreHorizontal className="w-5 h-5 text-[#6D1A2A]" />
         </button>
       </div>
 
-      {/* Mobile Menu Backdrop & Drawer */}
-      {isMobileMenuOpen && (
-        <>
-          {/* Backdrop */}
-          <div
-            className="md:hidden fixed inset-0 z-40 bg-black/50 backdrop-blur-xs top-16"
-            onClick={() => setIsMobileMenuOpen(false)}
-          />
-
-          {/* Drawer Menu */}
-          <div className="md:hidden fixed top-16 left-0 right-0 bg-white border-b border-[#EBD9C8] p-4 shadow-2xl z-50 flex flex-col gap-2 max-h-[calc(100vh-64px)] overflow-y-auto">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={`flex items-center gap-3 px-3.5 py-3 text-xs uppercase tracking-wider font-semibold rounded-sm transition-colors ${
-                    item.active
-                      ? "bg-[#6D1A2A] text-white shadow-xs"
-                      : "text-[#4A3E37] hover:bg-[#F3EBE1] hover:text-[#171717]"
+      {/* ── MOBILE BOTTOM STICKY NAVIGATION BAR (Fixed at bottom) ── */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-[#EBD9C8] px-2 py-1.5 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
+        <div className="grid grid-cols-5 gap-1 items-center max-w-md mx-auto">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex flex-col items-center justify-center py-1.5 px-1 rounded-md transition-colors ${
+                  item.active
+                    ? "text-[#6D1A2A] font-bold"
+                    : "text-[#8A796B] hover:text-[#171717]"
+                }`}
+              >
+                <div
+                  className={`p-1 rounded-full transition-all ${
+                    item.active ? "bg-[#6D1A2A]/10" : ""
                   }`}
                 >
-                  <Icon className="w-4 h-4 flex-shrink-0" />
-                  <span>{item.label}</span>
-                </Link>
-              );
-            })}
+                  <Icon className={`w-4 h-4 ${item.active ? "stroke-[2.5]" : ""}`} />
+                </div>
+                <span className="text-[10px] tracking-tight mt-0.5">{item.label}</span>
+              </Link>
+            );
+          })}
 
-            <div className="h-[1px] bg-[#EBD9C8] my-1" />
+          {/* 5th Tab: More / Account */}
+          <button
+            type="button"
+            onClick={() => setIsMoreMenuOpen(true)}
+            className={`flex flex-col items-center justify-center py-1.5 px-1 rounded-md transition-colors ${
+              isMoreMenuOpen ? "text-[#6D1A2A] font-bold" : "text-[#8A796B] hover:text-[#171717]"
+            }`}
+          >
+            <div className="p-1 rounded-full">
+              <MoreHorizontal className="w-4 h-4" />
+            </div>
+            <span className="text-[10px] tracking-tight mt-0.5">More</span>
+          </button>
+        </div>
+      </div>
 
-            <Link
-              href="/"
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="flex items-center justify-between px-3.5 py-2.5 text-xs uppercase tracking-wider text-[#855D25] hover:bg-[#F3EBE1] font-semibold rounded-sm"
-            >
-              <span>View Live Storefront</span>
-              <ExternalLink className="w-3.5 h-3.5" />
-            </Link>
+      {/* ── MOBILE SLIDE-UP DRAWER / SHEET ── */}
+      {isMoreMenuOpen && (
+        <div className="md:hidden fixed inset-0 z-50 flex flex-col justify-end">
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
+            onClick={() => setIsMoreMenuOpen(false)}
+          />
 
-            <button
-              onClick={handleLogout}
-              disabled={isLoggingOut}
-              className="flex items-center gap-2.5 px-3.5 py-2.5 text-xs uppercase tracking-wider text-red-700 hover:bg-red-50 font-semibold rounded-sm disabled:opacity-50 text-left cursor-pointer"
-            >
-              {isLoggingOut ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <LogOut className="w-4 h-4" />
-              )}
-              <span>Logout</span>
-            </button>
+          {/* Drawer Content */}
+          <div className="relative bg-white rounded-t-2xl border-t border-[#EBD9C8] p-5 shadow-2xl z-10 space-y-4 max-h-[85vh] overflow-y-auto animate-in slide-in-from-bottom duration-200">
+            {/* Drawer Handle */}
+            <div className="w-10 h-1 bg-[#D9C4B0] rounded-full mx-auto mb-2" />
+
+            <div className="flex items-center justify-between pb-3 border-b border-[#F0E5D8]">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-full bg-[#6D1A2A]/10 flex items-center justify-center text-[#6D1A2A]">
+                  <UserCheck className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className="text-xs uppercase tracking-wider font-bold text-[#171717]">
+                    {user?.name || "Atelier Owner"}
+                  </h4>
+                  <p className="text-[11px] text-[#8A796B] font-mono truncate max-w-[200px]">
+                    {user?.email || "admin@rajwadi.com"}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsMoreMenuOpen(false)}
+                className="p-1.5 text-[#8A796B] hover:bg-[#F3EBE1] rounded-full"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Quick Actions in Drawer */}
+            <div className="space-y-1.5">
+              <Link
+                href="/admin"
+                onClick={() => setIsMoreMenuOpen(false)}
+                className="w-full flex items-center justify-between p-3 rounded-lg bg-[#FCFAF6] hover:bg-[#F3EBE1] text-xs font-semibold text-[#171717] border border-[#EBD9C8]/60"
+              >
+                <div className="flex items-center gap-3">
+                  <LayoutDashboard className="w-4 h-4 text-[#855D25]" />
+                  <span>Dashboard Overview</span>
+                </div>
+              </Link>
+
+              <Link
+                href="/admin/orders"
+                onClick={() => setIsMoreMenuOpen(false)}
+                className="w-full flex items-center justify-between p-3 rounded-lg bg-[#FCFAF6] hover:bg-[#F3EBE1] text-xs font-semibold text-[#171717] border border-[#EBD9C8]/60"
+              >
+                <div className="flex items-center gap-3">
+                  <ShoppingBag className="w-4 h-4 text-[#855D25]" />
+                  <span>Orders &amp; Shipments</span>
+                </div>
+              </Link>
+
+              <Link
+                href="/admin/products"
+                onClick={() => setIsMoreMenuOpen(false)}
+                className="w-full flex items-center justify-between p-3 rounded-lg bg-[#FCFAF6] hover:bg-[#F3EBE1] text-xs font-semibold text-[#171717] border border-[#EBD9C8]/60"
+              >
+                <div className="flex items-center gap-3">
+                  <Package className="w-4 h-4 text-[#855D25]" />
+                  <span>Product Catalog</span>
+                </div>
+              </Link>
+
+              <Link
+                href="/admin/discounts"
+                onClick={() => setIsMoreMenuOpen(false)}
+                className="w-full flex items-center justify-between p-3 rounded-lg bg-[#FCFAF6] hover:bg-[#F3EBE1] text-xs font-semibold text-[#171717] border border-[#EBD9C8]/60"
+              >
+                <div className="flex items-center gap-3">
+                  <Tag className="w-4 h-4 text-[#855D25]" />
+                  <span>Discount Vouchers</span>
+                </div>
+              </Link>
+
+              <Link
+                href="/"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setIsMoreMenuOpen(false)}
+                className="w-full flex items-center justify-between p-3 rounded-lg bg-[#FAF5EE] hover:bg-[#F3EBE1] text-xs font-semibold text-[#855D25] border border-[#855D25]/30"
+              >
+                <div className="flex items-center gap-3">
+                  <ExternalLink className="w-4 h-4 text-[#855D25]" />
+                  <span>Visit Customer Storefront</span>
+                </div>
+              </Link>
+            </div>
+
+            {/* Sign Out Button */}
+            <div className="pt-2 border-t border-[#F0E5D8]">
+              <button
+                type="button"
+                onClick={handleLogout}
+                disabled={isLoggingOut}
+                className="w-full py-3 bg-red-50 hover:bg-red-100 text-red-700 text-xs uppercase tracking-wider font-semibold rounded-lg flex items-center justify-center gap-2 transition-colors disabled:opacity-50 cursor-pointer"
+              >
+                {isLoggingOut ? (
+                  <Loader2 className="w-4 h-4 animate-spin text-red-700" />
+                ) : (
+                  <LogOut className="w-4 h-4 text-red-700" />
+                )}
+                <span>Sign Out from Admin</span>
+              </button>
+            </div>
           </div>
-        </>
+        </div>
       )}
     </>
   );

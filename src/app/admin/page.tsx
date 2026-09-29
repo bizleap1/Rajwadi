@@ -622,77 +622,133 @@ export default function AdminDashboardPage() {
                   <span>No orders placed yet. Orders will appear here in real time.</span>
                 </div>
               ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full min-w-[560px] text-left text-xs">
-                    <thead>
-                      <tr className="border-b border-[#EBD9C8] text-[10px] uppercase tracking-wider text-[#8A796B]">
-                        <th className="pb-2.5 font-semibold">Order</th>
-                        <th className="pb-2.5 font-semibold">Customer</th>
-                        <th className="pb-2.5 font-semibold">Total</th>
-                        <th className="pb-2.5 font-semibold">Payment</th>
-                        <th className="pb-2.5 font-semibold">Status</th>
-                        <th className="pb-2.5 font-semibold text-right">Action</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-[#F3EBE1]">
-                      {data.recentOrders.map((ord) => (
-                        <tr key={ord.id} className="hover:bg-[#FAF6F0]/60 transition-colors">
-                          <td className="py-3">
-                            <Link
-                              href={`/admin/orders/${ord.id}`}
-                              className="font-mono font-bold text-[#6D1A2A] hover:underline"
-                            >
-                              #{ord.orderNumber}
-                            </Link>
-                            <span className="block text-[10px] text-[#8A796B]">
-                              {ord.totalItems} {ord.totalItems === 1 ? "poshak" : "poshaks"}
-                            </span>
-                          </td>
-                          <td className="py-3">
-                            <span className="font-medium text-[#171717] block truncate max-w-[140px]">
-                              {ord.customerName}
-                            </span>
-                            <span className="text-[10px] text-[#8A796B] block truncate max-w-[140px]">
-                              {ord.customerEmail}
-                            </span>
-                          </td>
-                          <td className="py-3 font-semibold text-[#171717]">
+                <div>
+                  {/* ── Mobile View: Recent Order Cards (md:hidden) ── */}
+                  <div className="md:hidden divide-y divide-[#F0E5D8]">
+                    {data.recentOrders.map((ord) => (
+                      <div key={ord.id} className="py-3 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <Link
+                            href={`/admin/orders/${ord.id}`}
+                            className="font-mono font-bold text-xs text-[#6D1A2A] hover:underline"
+                          >
+                            #{ord.orderNumber}
+                          </Link>
+                          <span className="font-serif font-bold text-xs text-[#171717]">
                             ₹ {ord.totalInRupees.toLocaleString("en-IN")}
-                          </td>
-                          <td className="py-3">
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between text-[11px] text-[#8A796B]">
+                          <span className="font-medium text-[#171717] truncate max-w-[150px]">
+                            {ord.customerName}
+                          </span>
+                          <span>{ord.totalItems} {ord.totalItems === 1 ? "item" : "items"}</span>
+                        </div>
+                        <div className="flex items-center justify-between pt-1">
+                          <div className="flex items-center gap-1.5">
                             {ord.paymentStatus === "PAID" ? (
-                              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-50 text-emerald-800 text-[10px] font-semibold rounded-xs border border-emerald-200">
-                                <CheckCircle2 className="w-3 h-3" />
+                              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-emerald-50 text-emerald-800 text-[9.5px] font-semibold rounded border border-emerald-200">
+                                <CheckCircle2 className="w-2.5 h-2.5" />
                                 Paid
                               </span>
                             ) : ord.paymentStatus === "PENDING" ? (
-                              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-50 text-amber-800 text-[10px] font-semibold rounded-xs border border-amber-200">
-                                <Clock className="w-3 h-3" />
+                              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-amber-50 text-amber-800 text-[9.5px] font-semibold rounded border border-amber-200">
+                                <Clock className="w-2.5 h-2.5" />
                                 Pending
                               </span>
                             ) : (
-                              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-red-50 text-red-800 text-[10px] font-semibold rounded-xs">
+                              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-red-50 text-red-800 text-[9.5px] font-semibold rounded">
                                 {ord.paymentStatus}
                               </span>
                             )}
-                          </td>
-                          <td className="py-3">
-                            <span className="inline-flex items-center px-2 py-0.5 bg-[#FAF6F0] border border-[#EBD9C8] text-[#4A3E37] text-[10px] uppercase font-semibold rounded-xs">
+                            <span className="inline-flex items-center px-1.5 py-0.5 bg-[#FAF6F0] border border-[#EBD9C8] text-[#4A3E37] text-[9.5px] uppercase font-semibold rounded">
                               {ord.fulfilmentStatus.replace(/_/g, " ")}
                             </span>
-                          </td>
-                          <td className="py-3 text-right">
-                            <Link
-                              href={`/admin/orders/${ord.id}`}
-                              className="px-2.5 py-1 text-[11px] text-[#6D1A2A] hover:bg-[#6D1A2A] hover:text-white rounded-xs transition-colors font-medium border border-[#EBD9C8]"
-                            >
-                              Manage
-                            </Link>
-                          </td>
+                          </div>
+                          <Link
+                            href={`/admin/orders/${ord.id}`}
+                            className="px-2.5 py-1 text-[11px] text-[#6D1A2A] bg-[#FAF5EE] hover:bg-[#6D1A2A] hover:text-white rounded transition-colors font-semibold border border-[#EBD9C8]"
+                          >
+                            Manage →
+                          </Link>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* ── Desktop View: Table (hidden md:block) ── */}
+                  <div className="hidden md:block overflow-x-auto">
+                    <table className="w-full min-w-[560px] text-left text-xs">
+                      <thead>
+                        <tr className="border-b border-[#EBD9C8] text-[10px] uppercase tracking-wider text-[#8A796B]">
+                          <th className="pb-2.5 font-semibold">Order</th>
+                          <th className="pb-2.5 font-semibold">Customer</th>
+                          <th className="pb-2.5 font-semibold">Total</th>
+                          <th className="pb-2.5 font-semibold">Payment</th>
+                          <th className="pb-2.5 font-semibold">Status</th>
+                          <th className="pb-2.5 font-semibold text-right">Action</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody className="divide-y divide-[#F3EBE1]">
+                        {data.recentOrders.map((ord) => (
+                          <tr key={ord.id} className="hover:bg-[#FAF6F0]/60 transition-colors">
+                            <td className="py-3">
+                              <Link
+                                href={`/admin/orders/${ord.id}`}
+                                className="font-mono font-bold text-[#6D1A2A] hover:underline"
+                              >
+                                #{ord.orderNumber}
+                              </Link>
+                              <span className="block text-[10px] text-[#8A796B]">
+                                {ord.totalItems} {ord.totalItems === 1 ? "poshak" : "poshaks"}
+                              </span>
+                            </td>
+                            <td className="py-3">
+                              <span className="font-medium text-[#171717] block truncate max-w-[140px]">
+                                {ord.customerName}
+                              </span>
+                              <span className="text-[10px] text-[#8A796B] block truncate max-w-[140px]">
+                                {ord.customerEmail}
+                              </span>
+                            </td>
+                            <td className="py-3 font-semibold text-[#171717]">
+                              ₹ {ord.totalInRupees.toLocaleString("en-IN")}
+                            </td>
+                            <td className="py-3">
+                              {ord.paymentStatus === "PAID" ? (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-50 text-emerald-800 text-[10px] font-semibold rounded-xs border border-emerald-200">
+                                  <CheckCircle2 className="w-3 h-3" />
+                                  Paid
+                                </span>
+                              ) : ord.paymentStatus === "PENDING" ? (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-50 text-amber-800 text-[10px] font-semibold rounded-xs border border-amber-200">
+                                  <Clock className="w-3 h-3" />
+                                  Pending
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-red-50 text-red-800 text-[10px] font-semibold rounded-xs">
+                                  {ord.paymentStatus}
+                                </span>
+                              )}
+                            </td>
+                            <td className="py-3">
+                              <span className="inline-flex items-center px-2 py-0.5 bg-[#FAF6F0] border border-[#EBD9C8] text-[#4A3E37] text-[10px] uppercase font-semibold rounded-xs">
+                                {ord.fulfilmentStatus.replace(/_/g, " ")}
+                              </span>
+                            </td>
+                            <td className="py-3 text-right">
+                              <Link
+                                href={`/admin/orders/${ord.id}`}
+                                className="px-2.5 py-1 text-[11px] text-[#6D1A2A] hover:bg-[#6D1A2A] hover:text-white rounded-xs transition-colors font-medium border border-[#EBD9C8]"
+                              >
+                                Manage
+                              </Link>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               )}
             </div>

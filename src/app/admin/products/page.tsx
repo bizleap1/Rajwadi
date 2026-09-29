@@ -281,7 +281,132 @@ export default function AdminProductsPage() {
       ) : (
         /* Product Table */
         <div className="bg-white border border-[#EBD9C8] rounded-sm shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
+          {/* ── MOBILE VIEW: Touch-friendly Product Cards (md:hidden) ── */}
+          <div className="md:hidden divide-y divide-[#F0E5D8]">
+            {products.map((product) => {
+              const coverImage =
+                product.images && product.images[0]?.secureUrl
+                  ? product.images[0].secureUrl
+                  : "/placeholder.webp";
+
+              return (
+                <div key={product.id} className="p-4 space-y-3 hover:bg-[#FCFAF6] transition-colors">
+                  <div className="flex gap-3 items-start">
+                    {/* Thumbnail */}
+                    <div className="w-16 h-20 bg-[#F3EBE1] relative rounded overflow-hidden flex-shrink-0 border border-[#EBD9C8]">
+                      <Image
+                        src={coverImage}
+                        alt={product.name}
+                        fill
+                        className="object-cover"
+                        sizes="64px"
+                      />
+                      {product.sequenceNumber && (
+                        <div className="absolute top-1 left-1 bg-black/70 text-white font-mono text-[9px] font-bold px-1 rounded">
+                          #{product.sequenceNumber}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Product Details */}
+                    <div className="flex-1 min-w-0 space-y-1">
+                      <div className="flex items-start justify-between gap-1">
+                        <h4 className="font-serif font-bold text-sm text-[#171717] line-clamp-1">
+                          {product.name}
+                        </h4>
+                        {product.isFeatured && (
+                          <span
+                            className="inline-flex items-center gap-0.5 text-[9px] px-1.5 py-0.5 bg-[#FFF8E7] border border-[#C2843A]/40 text-[#855D25] font-medium rounded flex-shrink-0"
+                            title="Featured on Homepage"
+                          >
+                            <Sparkles className="w-2.5 h-2.5" />
+                            <span>Featured</span>
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-2 text-xs">
+                        <span className="font-semibold text-[#171717]">
+                          ₹ {(product.priceInPaise / 100).toLocaleString("en-IN")}
+                        </span>
+                        <span className="text-[10.5px] px-1.5 py-0.2 bg-[#F3EBE1] text-[#4A3E37] rounded">
+                          {product.category}
+                        </span>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                        {/* Status Badge */}
+                        {product.status === "PUBLISHED" ? (
+                          <span className="text-[9.5px] font-semibold px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-800 border border-emerald-200 uppercase">
+                            Published
+                          </span>
+                        ) : product.status === "DRAFT" ? (
+                          <span className="text-[9.5px] font-semibold px-1.5 py-0.2 rounded bg-amber-50 text-amber-800 border border-amber-200 uppercase">
+                            Draft
+                          </span>
+                        ) : (
+                          <span className="text-[9.5px] font-semibold px-1.5 py-0.2 rounded bg-gray-100 text-gray-700 border border-gray-200 uppercase">
+                            Archived
+                          </span>
+                        )}
+
+                        {/* Stock Badge */}
+                        {product.inStock && product.stock > 0 && !product.soldOut ? (
+                          <span className="text-[10px] text-emerald-700 font-medium">
+                            {product.stock} in stock
+                          </span>
+                        ) : (
+                          <span className="text-[9.5px] font-semibold px-1.5 py-0.2 rounded bg-amber-50 text-amber-800 border border-amber-200">
+                            Available 10 days
+                          </span>
+                        )}
+
+                        {(product.enquiryOnly || product.category === "Jewellery") && (
+                          <span className="text-[9.5px] font-semibold px-1.5 py-0.2 rounded bg-[#25D366]/15 text-[#075E54] border border-[#25D366]/30 flex items-center gap-0.5">
+                            <MessageCircle className="w-2.5 h-2.5" />
+                            <span>Enquiry</span>
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex items-center gap-2 pt-1 border-t border-[#F0E5D8]/70">
+                    <Link
+                      href={`/admin/products/${product.id}/edit`}
+                      className="flex-1 py-2 bg-[#FAF5EE] hover:bg-[#F3EBE1] text-[#6D1A2A] border border-[#EBD9C8] text-center text-xs uppercase tracking-wider font-semibold rounded-sm transition-colors flex items-center justify-center gap-1.5 shadow-2xs"
+                    >
+                      <Edit2 className="w-3.5 h-3.5" />
+                      <span>Edit Poshak</span>
+                    </Link>
+
+                    <Link
+                      href={`/product/${product.slug}`}
+                      target="_blank"
+                      className="px-3 py-2 bg-white hover:bg-[#FAF5EE] text-[#855D25] border border-[#EBD9C8] rounded-sm text-xs font-medium transition-colors shadow-2xs flex items-center gap-1"
+                      title="Preview on Store"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                      <span>Preview</span>
+                    </Link>
+
+                    <button
+                      type="button"
+                      onClick={() => setDeletingProduct(product)}
+                      className="px-3 py-2 bg-white hover:bg-red-50 text-red-600 border border-red-200 rounded-sm text-xs font-medium transition-colors shadow-2xs flex items-center gap-1 cursor-pointer"
+                      title="Delete Product"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* ── DESKTOP VIEW: Full Data Table (hidden md:block) ── */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full min-w-[680px] text-left border-collapse text-xs">
               <thead>
                 <tr className="bg-[#F8F1E7] border-b border-[#EBD9C8] text-[#4A3E37] uppercase tracking-wider text-[11px] font-medium">
@@ -444,7 +569,7 @@ export default function AdminProductsPage() {
 
                           <button
                             onClick={() => setDeletingProduct(product)}
-                            className="p-1.5 text-[#A24857] hover:text-red-700 hover:bg-red-50 rounded transition-colors"
+                            className="p-1.5 text-[#A24857] hover:text-red-700 hover:bg-red-50 rounded transition-colors cursor-pointer"
                             title="Remove Product"
                           >
                             <Trash2 className="w-4 h-4" />

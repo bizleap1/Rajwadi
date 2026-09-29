@@ -307,7 +307,88 @@ export default function AdminOrdersPage() {
       ) : (
         /* Orders Table */
         <div className="bg-white border border-[#EBD9C8] rounded-sm shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
+          {/* ── MOBILE VIEW: Touch-friendly Order Cards (md:hidden) ── */}
+          <div className="md:hidden divide-y divide-[#F0E5D8]">
+            {orders.map((order) => {
+              const dateStr = new Date(order.createdAt).toLocaleDateString("en-IN", {
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              });
+
+              return (
+                <div key={order.id} className="p-4 space-y-3 hover:bg-[#FCFAF6] transition-colors">
+                  {/* Card Header: Order Number & Date */}
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <Link
+                        href={`/admin/orders/${order.id}`}
+                        className="font-mono font-bold text-sm text-[#6D1A2A] hover:underline"
+                      >
+                        #{order.orderNumber}
+                      </Link>
+                      <div className="text-[11px] text-[#8A796B] mt-0.5">{dateStr}</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-serif font-bold text-sm text-[#171717]">
+                        {order.totalFormatted}
+                      </div>
+                      <div className="text-[10.5px] text-[#8A796B]">
+                        {order.itemCount} {order.itemCount === 1 ? "item" : "items"}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Customer Info */}
+                  <div className="text-xs bg-[#FAF5EE]/70 border border-[#EBD9C8]/60 rounded p-2.5 space-y-0.5">
+                    <div className="font-semibold text-[#171717]">{order.customerName}</div>
+                    <div className="text-[11px] text-[#8A796B] truncate">{order.customerEmail}</div>
+                  </div>
+
+                  {/* Badges: Payment & Fulfilment */}
+                  <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                    {getPaymentBadge(order.paymentStatus)}
+                    {getFulfilmentBadge(order.fulfilmentStatus)}
+                    {order.courierPartner && (
+                      <span className="text-[10px] text-[#855D25] bg-[#FAF5EE] border border-[#EBD9C8] px-2 py-0.5 rounded font-medium truncate max-w-[180px]">
+                        {order.courierPartner} {order.trackingNumber ? `(${order.trackingNumber})` : ""}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Card Actions */}
+                  <div className="flex items-center gap-2 pt-1 border-t border-[#F0E5D8]/70">
+                    <Link
+                      href={`/admin/orders/${order.id}`}
+                      className="flex-1 py-2 bg-[#6D1A2A] text-white text-center text-xs uppercase tracking-wider font-semibold rounded-sm hover:bg-[#581522] transition-colors flex items-center justify-center gap-1.5 shadow-2xs"
+                    >
+                      <Eye className="w-3.5 h-3.5" />
+                      <span>Manage Order</span>
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteOrder(order.id, order.orderNumber)}
+                      disabled={deletingId === order.id}
+                      className="px-3 py-2 bg-white hover:bg-red-50 text-red-600 border border-red-200 rounded-sm text-xs font-medium transition-colors disabled:opacity-50 cursor-pointer shadow-2xs flex items-center gap-1"
+                      title="Delete Order"
+                    >
+                      {deletingId === order.id ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      ) : (
+                        <Trash2 className="w-3.5 h-3.5" />
+                      )}
+                      <span>Delete</span>
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* ── DESKTOP VIEW: Full Data Table (hidden md:block) ── */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full min-w-[780px] text-left border-collapse text-xs">
               <thead>
                 <tr className="bg-[#F8F1E7] border-b border-[#EBD9C8] text-[#4A3E37] uppercase tracking-wider text-[11px] font-medium">

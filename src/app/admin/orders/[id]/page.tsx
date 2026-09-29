@@ -383,70 +383,76 @@ export default function AdminOrderDetailPage() {
         </div>
 
         {/* Quick Save Indicator / Action & Invoice Print & Resend & Delete */}
-        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+        <div className="w-full sm:w-auto space-y-2">
           {saveSuccessMsg && (
-            <span className="w-full sm:w-auto text-xs text-emerald-700 font-medium bg-emerald-50 border border-emerald-200 px-3 py-1 rounded text-center">
+            <div className="w-full text-xs text-emerald-700 font-medium bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded text-center">
               {saveSuccessMsg}
-            </span>
+            </div>
           )}
           {resendSuccessMsg && (
-            <span className="w-full sm:w-auto text-xs text-emerald-800 font-semibold bg-emerald-50 border border-emerald-300 px-3 py-1 rounded text-center animate-in fade-in">
+            <div className="w-full text-xs text-emerald-800 font-semibold bg-emerald-50 border border-emerald-300 px-3 py-1.5 rounded text-center animate-in fade-in">
               ✓ {resendSuccessMsg}
-            </span>
+            </div>
           )}
-          <button
-            type="button"
-            onClick={() => {
-              setCustomEmailInput(customerEmail !== "N/A" ? customerEmail : "");
-              setIsResendModalOpen(true);
-            }}
-            disabled={isSaving || isDeleting || isResendingEmail}
-            className="flex-1 sm:flex-initial justify-center px-3.5 py-2 bg-[#FAF5EE] hover:bg-[#F3EBE1] text-[#6D1A2A] border border-[#EBD9C8] text-xs uppercase tracking-[0.16em] font-medium transition-colors rounded-sm flex items-center gap-1.5 cursor-pointer shadow-2xs whitespace-nowrap"
-            title="Resend Order Confirmation & Tracking Link to Customer"
-          >
-            {isResendingEmail ? (
-              <Loader2 className="w-3.5 h-3.5 animate-spin text-[#6D1A2A]" />
-            ) : (
-              <Mail className="w-3.5 h-3.5 text-[#6D1A2A]" />
-            )}
-            <span>Resend Email</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => downloadReceipt(order)}
-            className="flex-1 sm:flex-initial justify-center px-3.5 py-2 bg-white hover:bg-[#FAF5EE] text-[#855D25] border border-[#EBD9C8] text-xs uppercase tracking-[0.16em] font-medium transition-colors rounded-sm flex items-center gap-1.5 cursor-pointer shadow-2xs whitespace-nowrap"
-            title="Generate & Download Official GST Invoice"
-          >
-            <Download className="w-3.5 h-3.5" />
-            <span>Download Invoice</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => handleSaveProgressAndTracking()}
-            disabled={isSaving || isDeleting}
-            className="flex-1 sm:flex-initial justify-center px-4 py-2 bg-[#6D1A2A] hover:bg-[#581522] text-[#FAF5EE] text-xs uppercase tracking-[0.16em] font-medium transition-colors rounded-sm flex items-center gap-2 cursor-pointer shadow-xs disabled:opacity-50 whitespace-nowrap"
-          >
-            {isSaving ? (
-              <Loader2 className="w-3.5 h-3.5 animate-spin" />
-            ) : (
-              <Save className="w-3.5 h-3.5" />
-            )}
-            <span>Save Progress</span>
-          </button>
-          <button
-            type="button"
-            onClick={handleDeleteOrder}
-            disabled={isSaving || isDeleting}
-            className="w-full sm:w-auto justify-center px-3.5 py-2 bg-white hover:bg-red-50 text-red-700 hover:text-red-800 border border-red-200 hover:border-red-300 text-xs uppercase tracking-[0.16em] font-medium transition-colors rounded-sm flex items-center gap-1.5 cursor-pointer shadow-2xs disabled:opacity-50 whitespace-nowrap"
-            title="Permanently Delete Order from Database (Free Storage)"
-          >
-            {isDeleting ? (
-              <Loader2 className="w-3.5 h-3.5 animate-spin text-red-700" />
-            ) : (
-              <Trash2 className="w-3.5 h-3.5 text-red-700" />
-            )}
-            <span>Delete Order</span>
-          </button>
+
+          <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                setCustomEmailInput(customerEmail !== "N/A" ? customerEmail : "");
+                setIsResendModalOpen(true);
+              }}
+              disabled={isSaving || isDeleting || isResendingEmail}
+              className="w-full sm:w-auto justify-center px-3 py-2.5 bg-[#FAF5EE] hover:bg-[#F3EBE1] text-[#6D1A2A] border border-[#EBD9C8] text-xs uppercase tracking-[0.14em] font-medium transition-colors rounded-sm flex items-center gap-1.5 cursor-pointer shadow-2xs whitespace-nowrap"
+              title="Resend Order Confirmation & Tracking Link to Customer"
+            >
+              {isResendingEmail ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-[#6D1A2A]" />
+              ) : (
+                <Mail className="w-3.5 h-3.5 text-[#6D1A2A]" />
+              )}
+              <span>Resend Email</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => downloadReceipt(order)}
+              className="w-full sm:w-auto justify-center px-3 py-2.5 bg-white hover:bg-[#FAF5EE] text-[#855D25] border border-[#EBD9C8] text-xs uppercase tracking-[0.14em] font-medium transition-colors rounded-sm flex items-center gap-1.5 cursor-pointer shadow-2xs whitespace-nowrap"
+              title="Generate & Download Official GST Invoice"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>Invoice</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleSaveProgressAndTracking()}
+              disabled={isSaving || isDeleting}
+              className="w-full sm:w-auto justify-center px-4 py-2.5 bg-[#6D1A2A] hover:bg-[#581522] text-[#FAF5EE] text-xs uppercase tracking-[0.14em] font-medium transition-colors rounded-sm flex items-center gap-1.5 cursor-pointer shadow-xs disabled:opacity-50 whitespace-nowrap"
+            >
+              {isSaving ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <Save className="w-3.5 h-3.5" />
+              )}
+              <span>Save Changes</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleDeleteOrder}
+              disabled={isSaving || isDeleting}
+              className="w-full sm:w-auto justify-center px-3 py-2.5 bg-white hover:bg-red-50 text-red-700 hover:text-red-800 border border-red-200 hover:border-red-300 text-xs uppercase tracking-[0.14em] font-medium transition-colors rounded-sm flex items-center gap-1.5 cursor-pointer shadow-2xs disabled:opacity-50 whitespace-nowrap"
+              title="Permanently Delete Order from Database"
+            >
+              {isDeleting ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-red-700" />
+              ) : (
+                <Trash2 className="w-3.5 h-3.5 text-red-700" />
+              )}
+              <span>Delete</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -613,7 +619,7 @@ export default function AdminOrderDetailPage() {
         {/* Visual Stepper Bar */}
         {selectedStatus !== "CANCELLED" ? (
           <div className="pt-2 pb-4">
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-3 relative">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 sm:gap-3 relative">
               {ATELIER_STAGES.map((stage, idx) => {
                 const Icon = stage.icon;
                 const isPassed = idx <= selectedStageIndex;

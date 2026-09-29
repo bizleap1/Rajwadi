@@ -23,25 +23,25 @@ export default async function AdminLayout({
     <div className="min-h-screen bg-[#FAF6F0] text-[#171717] font-sans flex flex-col selection:bg-[#6D1A2A] selection:text-white">
       {admin && (
         <header className="bg-white border-b border-[#EBD9C8] sticky top-0 z-40 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-16 sm:h-18">
+          <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between h-14 sm:h-18">
               {/* Brand Logo & Portal Tag */}
-              <div className="flex items-center gap-4 sm:gap-6">
-                <Link href="/admin" className="flex items-center gap-3">
+              <div className="flex items-center gap-3 sm:gap-6">
+                <Link href="/admin" className="flex items-center gap-2.5 sm:gap-3">
                   <Image
                     src="/logo without bg.png"
                     alt="Rajwadi"
                     width={110}
                     height={38}
-                    className="h-8 sm:h-9 w-auto object-contain brightness-90"
+                    className="h-7 sm:h-9 w-auto object-contain brightness-90"
                     priority
                   />
-                  <div className="hidden sm:flex flex-col border-l border-[#EBD9C8] pl-3 py-0.5">
-                    <span className="text-[9px] uppercase tracking-[0.25em] text-[#855D25] font-semibold">
+                  <div className="flex flex-col border-l border-[#EBD9C8] pl-2 sm:pl-3 py-0.5">
+                    <span className="text-[8.5px] sm:text-[9px] uppercase tracking-[0.2em] text-[#855D25] font-semibold">
                       ATELIER OWNER
                     </span>
-                    <span className="text-[11px] font-serif text-[#171717] italic">
-                      Admin Control
+                    <span className="text-[10px] sm:text-[11px] font-serif text-[#171717] italic">
+                      Admin Portal
                     </span>
                   </div>
                 </Link>
@@ -54,12 +54,12 @@ export default async function AdminLayout({
         </header>
       )}
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8 pb-24 sm:pb-8">
         {children}
       </main>
 
       {admin && (
-        <footer className="bg-white border-t border-[#EBD9C8] py-4 text-center text-xs text-[#8A796B]">
+        <footer className="bg-white border-t border-[#EBD9C8] py-4 text-center text-xs text-[#8A796B] mb-14 md:mb-0">
           <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
             <span>Rajwadi Luxury Poshaks — Owner Administration</span>
             <span className="text-[11px] text-[#A09285]">
