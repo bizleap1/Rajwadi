@@ -297,7 +297,7 @@ export function generateMonthlyReportHtml(data: MonthlyReportData): string {
     <!-- Top Action Toolbar (Hidden during print) -->
     <div class="no-print" style="background: #F3EBE1; border: 1px solid #EBD9C8; padding: 10px 16px; border-radius: 4px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
       <div style="font-size: 12px; color: #6D1A2A; font-weight: 600;">
-        👑 Official Executive Report — ${reportPeriod.label}
+        Official Executive Report — ${reportPeriod.label}
       </div>
       <div>
         <button onclick="window.print()" style="padding: 6px 14px; background: #6D1A2A; color: white; border: none; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; border-radius: 2px; cursor: pointer;">

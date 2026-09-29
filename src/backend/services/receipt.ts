@@ -670,7 +670,7 @@ export function generateReceiptHtml(order: ReceiptOrderData, options?: ReceiptHt
           ? `<!-- Owner New Order Email Banner -->
     <div style="background-color: #581522; color: #FFFFFF; padding: 14px 18px; border-radius: 4px; margin-bottom: 16px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
       <div style="font-family: 'Playfair Display', Georgia, serif; font-size: 16px; font-weight: 700; letter-spacing: 0.05em; color: #FDFBF7; text-transform: uppercase;">
-        👑 New Order Received &bull; Order #${orderNum}
+        New Order Received &bull; Order #${orderNum}
       </div>
       <div style="font-size: 12px; color: #E8D8B0; margin-top: 4px; line-height: 1.5;">
         Customer: <strong>${patronName}</strong> (${patronPhone}) &bull; Total: <strong>Rs. ${(totalPaise / 100).toLocaleString("en-IN")}</strong> &bull; Status: <strong>${order.paymentStatus || "VERIFICATION_PENDING"}</strong>
@@ -679,7 +679,7 @@ export function generateReceiptHtml(order: ReceiptOrderData, options?: ReceiptHt
           : `<!-- Customer Confirmation Email Banner -->
     <div style="background-color: #FAF6F0; border: 1px solid #EBD9C8; padding: 14px 18px; border-radius: 4px; margin-bottom: 16px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
       <div style="font-family: 'Playfair Display', Georgia, serif; font-size: 16px; font-weight: 700; letter-spacing: 0.05em; color: #581522; text-transform: uppercase;">
-        👑 Royal Order Confirmation &bull; Rajwadi Rajputi Poshak
+        Order Confirmation &bull; Rajwadi Rajputi Poshak
       </div>
       <div style="font-size: 12px; color: #66584F; margin-top: 4px; line-height: 1.5;">
         Valued Patron <strong>${patronName}</strong>, your Rajputi poshak order has been placed successfully. Please find your official tax invoice below.
@@ -694,7 +694,7 @@ export function generateReceiptHtml(order: ReceiptOrderData, options?: ReceiptHt
       : `<!-- Onscreen Print Button Toolbar (Hidden in print/pdf) -->
     <div class="no-print">
       <div style="font-size: 11.5px; font-weight: 600; color: #581522;">
-        👑 Official Tax Invoice &bull; #${orderNum}
+        Official Tax Invoice &bull; #${orderNum}
       </div>
       <div>
         <button onclick="window.print()" style="padding: 5px 14px; background: #581522; color: #FFFFFF; border: none; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; border-radius: 2px; cursor: pointer;">

@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
     });
 
     // 1. Dispatch Email to Atelier Owner (bizleap1@gmail.com)
-    const ownerSubject = `👑 [New Atelier Enquiry] ${name} — ${occasion}`;
+    const ownerSubject = `[New Atelier Enquiry] ${name} — ${occasion}`;
     const ownerHtml = `
 <!DOCTYPE html>
 <html lang="en">
@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
     <tr>
       <td style="padding:28px 24px;">
         <h2 style="margin:0 0 16px; font-family:Georgia,serif; font-size:18px; color:#581522; border-bottom:1px solid #E6DCB8; padding-bottom:8px;">
-          👑 New Patron Enquiry Details
+          New Patron Enquiry Details
         </h2>
         <table role="presentation" width="100%" style="font-size:14px; line-height:1.6; color:#333;">
           <tr>
@@ -110,7 +110,7 @@ export async function POST(req: NextRequest) {
     `;
 
     // 2. Dispatch Patron Confirmation Email
-    const patronSubject = `👑 Thank You for Contacting Rajwadi Rajputi Poshak Atelier`;
+    const patronSubject = `Thank You for Contacting Rajwadi Rajputi Poshak Atelier`;
     const patronHtml = `
 <!DOCTYPE html>
 <html lang="en">

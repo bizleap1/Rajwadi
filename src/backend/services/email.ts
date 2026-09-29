@@ -434,7 +434,7 @@ export async function sendOrderInvoiceEmail(
     console.log("=======================================================\n");
 
     // 1. Generate Customer Confirmation Email
-    const customerSubject = `👑 Order Confirmed: Your Rajwadi Rajputi Poshak Tax Invoice #${orderNum}`;
+    const customerSubject = `Order Confirmed: Your Rajwadi Rajputi Poshak Tax Invoice #${orderNum}`;
     const customerHtml = generateReceiptHtml(orderData, {
       isEmail: true,
       emailRecipientType: "customer",
@@ -443,12 +443,12 @@ export async function sendOrderInvoiceEmail(
     const customerText = `Rajwadi Rajputi Poshak — Order Confirmation\nOrder Reference: #${orderNum}\nTotal Amount: ₹${totalRupees}\nStatus: ${orderData.paymentStatus || "PENDING"}\n\nDear ${patronName},\nThank you for placing your order with Rajwadi Rajputi Poshak. Your official tax invoice has been generated.\n\n📦 TRACK YOUR ORDER: ${trackingUrl}\n\nFor any assistance, please write to support@rajwadirajputiposhak.com or call +91 8766667101.`;
 
     // 2. Generate Owner Alert Email
-    const ownerSubject = `👑 [New Order Alert] Rajwadi Rajputi Poshak #${orderNum} — ₹${totalRupees}`;
+    const ownerSubject = `[New Order Alert] Rajwadi Rajputi Poshak #${orderNum} — ₹${totalRupees}`;
     const ownerHtml = generateReceiptHtml(orderData, {
       isEmail: true,
       emailRecipientType: "owner",
     });
-    const ownerText = `👑 NEW ORDER ALERT #${orderNum}\nCustomer: ${patronName}\nEmail: ${customerEmail || "N/A"}\nAmount: ₹${totalRupees}\nPayment Method: ${orderData.paymentMethod || "UPI"}\nStatus: ${orderData.paymentStatus || "PENDING"}\n\nCheck full details in your admin dashboard: /admin/orders`;
+    const ownerText = `NEW ORDER ALERT #${orderNum}\nCustomer: ${patronName}\nEmail: ${customerEmail || "N/A"}\nAmount: ₹${totalRupees}\nPayment Method: ${orderData.paymentMethod || "UPI"}\nStatus: ${orderData.paymentStatus || "PENDING"}\n\nCheck full details in your admin dashboard: /admin/orders`;
 
     // 3. Dispatch both in parallel
     const [customerRes, ownerRes] = await Promise.allSettled([
