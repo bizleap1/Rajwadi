@@ -78,6 +78,7 @@ export const RAJWADI_LOGO_URL =
 export interface ReceiptHtmlOptions {
   isEmail?: boolean;
   emailRecipientType?: "customer" | "owner";
+  trackingUrl?: string;
 }
 
 export function generateReceiptHtml(order: ReceiptOrderData, options?: ReceiptHtmlOptions): string {
@@ -147,12 +148,21 @@ export function generateReceiptHtml(order: ReceiptOrderData, options?: ReceiptHt
   const netGoodsPaise = Math.max(0, subtotalPaise - discountPaise);
   const netGoodsRs = netGoodsPaise / 100;
 
-  // 18% GST Inclusive calculation with paise-level precision:
-  // Taxable Base = Net Goods / 1.18
-  const taxableBasePaise = Math.round(netGoodsPaise / 1.18);
+  // ── GST Slab Determination (Apparel & Textile Regulations) ──
+  // Rule:
+  // • Above Rs. 5,000 : 18% GST (CGST 9% + SGST 9%) -> Taxable = Total / 1.18
+  // • Below / Up to Rs. 5,000 : 5% GST (CGST 2.5% + SGST 2.5%) -> Taxable = Total / 1.05
+  const isAbove5k = netGoodsRs > 5000;
+  const gstRatePercent = isAbove5k ? 18 : 5;
+  const gstDivisor = isAbove5k ? 1.18 : 1.05;
+  const cgstRatePercent = isAbove5k ? 9 : 2.5;
+  const sgstRatePercent = isAbove5k ? 9 : 2.5;
+
+  // Taxable Base (excluding GST) = Net Goods / Divisor
+  const taxableBasePaise = Math.round(netGoodsPaise / gstDivisor);
   const totalGstPaise = netGoodsPaise - taxableBasePaise;
 
-  // Split GST 50/50: CGST (9%) and SGST (9%) with zero-drift guarantee
+  // Split GST 50/50: CGST and SGST with zero-drift guarantee
   const cgstPaise = Math.floor(totalGstPaise / 2);
   const sgstPaise = totalGstPaise - cgstPaise;
 
@@ -674,6 +684,12 @@ export function generateReceiptHtml(order: ReceiptOrderData, options?: ReceiptHt
       <div style="font-size: 12px; color: #66584F; margin-top: 4px; line-height: 1.5;">
         Valued Patron <strong>${patronName}</strong>, your Rajputi poshak order has been placed successfully. Please find your official tax invoice below.
       </div>
+      ${options?.trackingUrl ? `<div style="margin-top: 12px;">
+        <a href="${options.trackingUrl}" style="display: inline-block; background-color: #6D1A2A; color: #FFFFFF; text-decoration: none; padding: 9px 20px; font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; border-radius: 3px;">
+          📦 Track Your Order
+        </a>
+        <div style="font-size: 10px; color: #8A796B; margin-top: 6px;">Or copy this link: ${options.trackingUrl}</div>
+      </div>` : ""}
     </div>`)
       : `<!-- Onscreen Print Button Toolbar (Hidden in print/pdf) -->
     <div class="no-print">
@@ -784,8 +800,8 @@ export function generateReceiptHtml(order: ReceiptOrderData, options?: ReceiptHt
         }
         <div class="status-line"><strong>${paymentMethodLabel}</strong></div>
         <div class="status-line">Transaction Ref: <strong>${paymentRefLabel}</strong></div>
-        <div class="status-line">GST Compliance: <strong>18% Inclusive Tax Included</strong></div>
-        <div class="status-line">Tax Regime: <strong>CGST 9% + SGST 9% (Nagpur, Maharashtra)</strong></div>
+        <div class="status-line">GST Compliance: <strong>${gstRatePercent}% Inclusive Tax Included (${isAbove5k ? "Above ₹5,000" : "Below ₹5,000"})</strong></div>
+        <div class="status-line">Tax Regime: <strong>CGST ${cgstRatePercent}% + SGST ${sgstRatePercent}% (Nagpur, Maharashtra)</strong></div>
         <div class="status-line">Place of Supply: <strong>Nagpur, Maharashtra (State Code: 27)</strong></div>
         <div class="status-line">Order Status: <strong>PROCESSING</strong></div>
         <div class="status-line">Authenticity: <strong>100% Handcrafted Atelier Certified</strong></div>
@@ -814,23 +830,23 @@ export function generateReceiptHtml(order: ReceiptOrderData, options?: ReceiptHt
           <span style="font-family: monospace;">Rs. ${netGoodsRs.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
         </div>` : ""}
 
-        <!-- GST 18% Official Breakdown Box -->
+        <!-- GST Official Breakdown Box -->
         <div style="margin: 6px 0; padding: 7px 9px; background: #F5EFEB; border: 1px dashed #D6C2AF; border-radius: 3px;">
           <div class="summary-row" style="font-size: 10px; color: #4A3E37; padding: 1.5px 0;">
-            <span>Taxable Base Value (Excl. 18% GST):</span>
-            <span style="font-family: monospace;">Rs. ${taxableBase.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+            <span>Taxable Value (Excl. ${gstRatePercent}% GST):</span>
+            <span style="font-family: monospace;">Rs. ${taxableBase.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
           </div>
           <div class="summary-row" style="font-size: 9.5px; color: #5A4E45; padding: 1.5px 0;">
-            <span>&nbsp;&bull; CGST @ 9% (Central Tax):</span>
-            <span style="font-family: monospace;">Rs. ${cgst.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+            <span>&nbsp;&bull; CGST @ ${cgstRatePercent}% (Central Tax):</span>
+            <span style="font-family: monospace;">Rs. ${cgst.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
           </div>
           <div class="summary-row" style="font-size: 9.5px; color: #5A4E45; padding: 1.5px 0;">
-            <span>&nbsp;&bull; SGST @ 9% (Maharashtra State Tax):</span>
-            <span style="font-family: monospace;">Rs. ${sgst.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+            <span>&nbsp;&bull; SGST @ ${sgstRatePercent}% (Maharashtra State Tax):</span>
+            <span style="font-family: monospace;">Rs. ${sgst.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
           </div>
           <div class="summary-row" style="border-top: 1px dotted #CBB8A5; margin-top: 4px; padding-top: 4px; font-weight: 700; color: #581522; font-size: 10.5px;">
-            <span>Total 18% GST (Included in Price):</span>
-            <span style="font-family: monospace;">Rs. ${totalGst.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+            <span>Total ${gstRatePercent}% GST (Included in Price):</span>
+            <span style="font-family: monospace;">Rs. ${totalGst.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
           </div>
         </div>
 

@@ -87,12 +87,32 @@ function ensureProduct(item: any): CartItem {
     item.product?.image ||
     (item.product?.images && item.product.images[0]) ||
     "/placeholder.webp";
-  const priceInPaise = item.unitPriceInPaise || item.totalInPaise || 0;
-  const priceStr =
-    item.product?.price ||
-    (priceInPaise
-      ? `₹ ${(priceInPaise / 100).toLocaleString("en-IN")}`
-      : "₹ 0");
+
+  let unitPriceInPaise = item.unitPriceInPaise;
+  if (!unitPriceInPaise && item.product?.priceInPaise) {
+    unitPriceInPaise = item.product.priceInPaise;
+  }
+  if (!unitPriceInPaise && item.product?.price) {
+    const numeric = String(item.product.price).replace(/[^0-9]/g, "");
+    unitPriceInPaise = (numeric ? parseInt(numeric, 10) : 0) * 100;
+  }
+  if (!unitPriceInPaise && item.price) {
+    const numeric = String(item.price).replace(/[^0-9]/g, "");
+    unitPriceInPaise = (numeric ? parseInt(numeric, 10) : 0) * 100;
+  }
+  if (!unitPriceInPaise && item.totalInPaise && item.quantity) {
+    unitPriceInPaise = Math.round(item.totalInPaise / item.quantity);
+  }
+  unitPriceInPaise = Number(unitPriceInPaise) || 0;
+
+  const stitchingSelected = Boolean(item.stitchingSelected);
+  const stitchingPriceInPaise = stitchingSelected
+    ? Number(item.stitchingPriceInPaise) || 250000
+    : 0;
+  const quantity = Math.max(1, Number(item.quantity) || 1);
+  const totalInPaise = (unitPriceInPaise + stitchingPriceInPaise) * quantity;
+
+  const priceStr = `₹ ${(unitPriceInPaise / 100).toLocaleString("en-IN")}`;
 
   const productObj = {
     id: pId,
@@ -105,7 +125,7 @@ function ensureProduct(item: any): CartItem {
     imagePosition: item.product?.imagePosition || "center 5%",
     imageScale: item.product?.imageScale || 1,
     stitchingAvailable: item.product?.stitchingAvailable ?? true,
-    stitchingPriceInPaise: item.stitchingPriceInPaise || 0,
+    stitchingPriceInPaise,
     ...(item.product || {}),
   };
 
@@ -115,11 +135,11 @@ function ensureProduct(item: any): CartItem {
     name,
     category,
     size: item.size || "Standard",
-    stitchingSelected: Boolean(item.stitchingSelected),
-    stitchingPriceInPaise: item.stitchingPriceInPaise || 0,
-    unitPriceInPaise: item.unitPriceInPaise || priceInPaise,
-    quantity: item.quantity || 1,
-    totalInPaise: item.totalInPaise || priceInPaise * (item.quantity || 1),
+    stitchingSelected,
+    stitchingPriceInPaise,
+    unitPriceInPaise,
+    quantity,
+    totalInPaise,
     image,
     inStock: item.inStock ?? true,
     stock: item.stock,
@@ -130,10 +150,6 @@ function ensureProduct(item: any): CartItem {
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [subtotalInPaise, setSubtotalInPaise] = useState(0);
-  const [stitchingInPaise, setStitchingInPaise] = useState(0);
-  const [shippingInPaise, setShippingInPaise] = useState(0);
-  const [totalInPaise, setTotalInPaise] = useState(0);
   const [warnings, setWarnings] = useState<string[]>([]);
 
   const isLoadedRef = useRef(false);
@@ -166,11 +182,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
       if (res.ok) {
         const data = await res.json();
-        setCartItems((data.items || []).map(ensureProduct));
-        setSubtotalInPaise(data.subtotalInPaise || 0);
-        setStitchingInPaise(data.stitchingInPaise || 0);
-        setShippingInPaise(data.shippingInPaise || 0);
-        setTotalInPaise(data.totalInPaise || 0);
+        if (data.items && Array.isArray(data.items)) {
+          setCartItems(data.items.map(ensureProduct));
+        }
         if (data.warnings && data.warnings.length > 0) {
           setWarnings(data.warnings);
         }
@@ -258,7 +272,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
 
     const stitchingPriceInPaise =
-      stitchingSelected && product.stitchingAvailable
+      stitchingSelected && product.stitchingAvailable !== false
         ? product.stitchingPriceInPaise || 250000
         : 0;
 
@@ -275,11 +289,18 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
       if (existingIdx > -1) {
         const updated = [...prev];
-        const newQty = updated[existingIdx].quantity + quantity;
+        const existing = updated[existingIdx];
+        const newQty = existing.quantity + quantity;
+        const uPrice = existing.unitPriceInPaise || unitPriceInPaise || 0;
+        const sPrice = existing.stitchingSelected
+          ? existing.stitchingPriceInPaise || stitchingPriceInPaise || 0
+          : 0;
         updated[existingIdx] = ensureProduct({
-          ...updated[existingIdx],
+          ...existing,
           quantity: newQty,
-          totalInPaise: (unitPriceInPaise + stitchingPriceInPaise) * newQty,
+          unitPriceInPaise: uPrice,
+          stitchingPriceInPaise: sPrice,
+          totalInPaise: (uPrice + sPrice) * newQty,
         });
         return updated;
       } else {
@@ -345,11 +366,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           if (matchId && matchSize && matchStitching) {
             const newQty = item.quantity + delta;
             if (newQty <= 0) return null;
-            const singleUnitPrice = item.unitPriceInPaise || (item.totalInPaise / item.quantity);
-            const singleStitching = item.stitchingPriceInPaise || 0;
+            const singleUnitPrice =
+              item.unitPriceInPaise ||
+              (item.totalInPaise && item.quantity ? Math.round(item.totalInPaise / item.quantity) : 0);
+            const singleStitching = item.stitchingSelected
+              ? item.stitchingPriceInPaise || 0
+              : 0;
             return ensureProduct({
               ...item,
               quantity: newQty,
+              unitPriceInPaise: singleUnitPrice,
+              stitchingPriceInPaise: singleStitching,
               totalInPaise: (singleUnitPrice + singleStitching) * newQty,
             });
           }
@@ -361,27 +388,28 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const clearCart = () => {
     setCartItems([]);
-    setSubtotalInPaise(0);
-    setStitchingInPaise(0);
-    setShippingInPaise(0);
-    setTotalInPaise(0);
-    localStorage.removeItem("rajwadi_cart");
+    setWarnings([]);
+    try {
+      localStorage.removeItem("rajwadi_cart");
+    } catch {}
   };
 
+  // Authoritative real-time synchronized calculations
   const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
 
-  const calculatedSubtotal = cartItems.reduce(
-    (acc, item) => acc + item.unitPriceInPaise * item.quantity,
+  const subtotalInPaise = cartItems.reduce(
+    (acc, item) => acc + (item.unitPriceInPaise || 0) * item.quantity,
     0
   );
-  const calculatedStitching = cartItems.reduce(
-    (acc, item) => acc + item.stitchingPriceInPaise * item.quantity,
+  const stitchingInPaise = cartItems.reduce(
+    (acc, item) =>
+      acc +
+      (item.stitchingSelected ? (item.stitchingPriceInPaise || 0) : 0) * item.quantity,
     0
   );
-  const calculatedTotal = calculatedSubtotal + calculatedStitching + shippingInPaise;
-
-  const authoritativeTotalInPaise = totalInPaise || calculatedTotal;
-  const cartTotal = authoritativeTotalInPaise / 100; // In INR for UI
+  const shippingInPaise = 0; // Complimentary free delivery
+  const cartTotalInPaise = subtotalInPaise + stitchingInPaise + shippingInPaise;
+  const cartTotal = cartTotalInPaise / 100; // in INR for UI display
 
   return (
     <CartContext.Provider
@@ -389,9 +417,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         cartItems,
         cartCount,
         cartTotal,
-        cartTotalInPaise: authoritativeTotalInPaise,
-        subtotalInPaise: subtotalInPaise || calculatedSubtotal,
-        stitchingInPaise: stitchingInPaise || calculatedStitching,
+        cartTotalInPaise,
+        subtotalInPaise,
+        stitchingInPaise,
         shippingInPaise,
         isCartOpen,
         warnings,

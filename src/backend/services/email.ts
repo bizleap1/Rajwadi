@@ -345,6 +345,7 @@ export async function sendOrderInvoiceEmail(
         orderNumber: orderRecord.orderNumber,
         createdAt: orderRecord.createdAt.toISOString(),
         guestEmail: orderRecord.guestEmail || undefined,
+        guestAccessToken: orderRecord.guestAccessToken || undefined,
         paymentStatus: orderRecord.paymentStatus,
         paymentMethod: orderRecord.paymentMethod,
         razorpayPaymentId: orderRecord.razorpayPaymentId || undefined,
@@ -373,7 +374,7 @@ export async function sendOrderInvoiceEmail(
           quantity: it.quantity,
           totalInPaise: it.totalInPaise,
         })),
-      };
+      } as any;
     } else {
       orderData = orderOrId;
     }
@@ -415,6 +416,13 @@ export async function sendOrderInvoiceEmail(
       }
     }
 
+    // Build tracking URL for guest access
+    const siteBase = process.env.NEXT_PUBLIC_SITE_URL || "https://rajwadirajputiposhak.com";
+    const guestToken = (orderData as any).guestAccessToken;
+    const trackingUrl = guestToken
+      ? `${siteBase}/order/${orderData.id}?token=${guestToken}`
+      : `${siteBase}/order/${orderData.id}`;
+
     const ownerEmail = OWNER_ORDER_EMAIL.trim().toLowerCase();
 
     console.log("\n=======================================================");
@@ -430,8 +438,9 @@ export async function sendOrderInvoiceEmail(
     const customerHtml = generateReceiptHtml(orderData, {
       isEmail: true,
       emailRecipientType: "customer",
+      trackingUrl,
     });
-    const customerText = `Rajwadi Rajputi Poshak — Order Confirmation\nOrder Reference: #${orderNum}\nTotal Amount: ₹${totalRupees}\nStatus: ${orderData.paymentStatus || "PENDING"}\n\nDear ${patronName},\nThank you for placing your order with Rajwadi Rajputi Poshak. Your official tax invoice has been generated.\nFor any assistance, please write to support@rajwadirajputiposhak.com or call +91 8766667101.`;
+    const customerText = `Rajwadi Rajputi Poshak — Order Confirmation\nOrder Reference: #${orderNum}\nTotal Amount: ₹${totalRupees}\nStatus: ${orderData.paymentStatus || "PENDING"}\n\nDear ${patronName},\nThank you for placing your order with Rajwadi Rajputi Poshak. Your official tax invoice has been generated.\n\n📦 TRACK YOUR ORDER: ${trackingUrl}\n\nFor any assistance, please write to support@rajwadirajputiposhak.com or call +91 8766667101.`;
 
     // 2. Generate Owner Alert Email
     const ownerSubject = `👑 [New Order Alert] Rajwadi Rajputi Poshak #${orderNum} — ₹${totalRupees}`;

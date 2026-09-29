@@ -203,39 +203,14 @@ export default function CheckoutPage() {
     upiUri
   )}`;
 
-  // Load and pre-fill saved address from database (if logged in) or localStorage (for repeat patrons)
+  // ponytail: saved address pre-fill disabled in guest checkout mode
   useEffect(() => {
-    if (user && addresses && addresses.length > 0) {
-      const defaultAddr = addresses.find((a) => a.isDefault) || addresses[0];
-      const addrData = {
-        email: user.email || "",
-        fullName: defaultAddr.name || user.name || "",
-        phone: defaultAddr.phone || user.phone || "",
-        address: defaultAddr.address || "",
-        city: defaultAddr.city || "",
-        state: defaultAddr.state || "Maharashtra",
-        pincode: defaultAddr.pincode || "",
-      };
-      setSavedAddress(addrData);
-      setFormData(addrData);
-      setUseSavedAddress(true);
-      return;
-    }
-
     try {
-      const localSaved = localStorage.getItem("rajwadi_saved_delivery_address");
-      if (localSaved) {
-        const parsed = JSON.parse(localSaved);
-        if (parsed && parsed.fullName && parsed.address && parsed.pincode) {
-          setSavedAddress(parsed);
-          setFormData(parsed);
-          setUseSavedAddress(true);
-        }
-      }
+      localStorage.removeItem("rajwadi_saved_delivery_address");
     } catch {
       // ignore
     }
-  }, [user, addresses]);
+  }, []);
 
   // Load only currently active coupons from database (automatically hides deactivated coupons)
   useEffect(() => {
@@ -311,15 +286,7 @@ export default function CheckoutPage() {
       return;
     }
 
-    // Persist delivery address locally
-    try {
-      localStorage.setItem(
-        "rajwadi_saved_delivery_address",
-        JSON.stringify(formData)
-      );
-    } catch {
-      // ignore
-    }
+    // ponytail: address localStorage persistence removed in guest checkout mode
 
     setCurrentStep("payment");
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -588,126 +555,16 @@ export default function CheckoutPage() {
                   </h2>
                 </div>
 
-                {savedAddress && useSavedAddress ? (
-                  /* Saved Address Card */
-                  <div className="space-y-5">
-                    <div className="bg-[#FAF5EE] border-2 border-[#855D25] p-5 rounded-sm shadow-xs relative">
-                      <div className="flex items-center justify-between pb-3 border-b border-[#EBD9C8]">
-                        <div className="flex items-center gap-2">
-                          <Sparkles className="w-4 h-4 text-[#855D25]" />
-                          <span className="text-xs font-semibold text-[#855D25] uppercase tracking-wider">
-                            Deliver to this saved address?
-                          </span>
-                        </div>
-                        <span className="text-[10px] bg-[#6D1A2A] text-white px-2.5 py-0.5 rounded-xs uppercase tracking-wider font-semibold">
-                          Saved Patron Address
-                        </span>
-                      </div>
-
-                      <div className="mt-3.5 space-y-1.5 text-xs text-[#171717]">
-                        <div className="flex items-center gap-2">
-                          <MapPin className="w-4 h-4 text-[#6D1A2A] flex-shrink-0" />
-                          <span className="font-serif font-bold text-base text-[#6D1A2A]">
-                            {savedAddress.fullName}
-                          </span>
-                        </div>
-                        <p className="text-[#4A3E37] font-medium pl-6 leading-relaxed">
-                          {savedAddress.address}
-                        </p>
-                        <p className="text-[#4A3E37] font-medium pl-6">
-                          {savedAddress.city}, {savedAddress.state} &ndash;{" "}
-                          <span className="font-mono font-bold text-[#171717]">
-                            {savedAddress.pincode}
-                          </span>
-                        </p>
-                        <div className="pt-2 pl-6 text-[11px] text-[#8A796B] flex flex-wrap gap-x-4 gap-y-1">
-                          <span>
-                            <strong>Mobile:</strong>{" "}
-                            <span className="font-mono text-[#171717]">
-                              {savedAddress.phone}
-                            </span>
-                          </span>
-                          <span>
-                            <strong>Email:</strong> {savedAddress.email}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="mt-4 pt-3 border-t border-[#EBD9C8] flex flex-wrap items-center justify-between gap-3">
-                        <div className="flex items-center gap-2">
-                          <div className="w-4 h-4 rounded-full bg-[#047857] flex items-center justify-center">
-                            <Check className="w-2.5 h-2.5 text-white" />
-                          </div>
-                          <span className="text-xs font-semibold text-[#047857]">
-                            Selected for Delivery
-                          </span>
-                        </div>
-
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setUseSavedAddress(false);
-                          }}
-                          className="inline-flex items-center gap-1.5 text-xs text-[#6D1A2A] hover:text-[#855D25] font-semibold underline cursor-pointer"
-                        >
-                          <Edit2 className="w-3.5 h-3.5" />
-                          <span>Deliver to a Different Address</span>
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Proceed Button */}
-                    <div className="pt-2">
-                      <button
-                        type="button"
-                        onClick={() => handleProceedToPayment()}
-                        className="w-full py-3.5 bg-[#6D1A2A] hover:bg-[#581522] text-white text-xs uppercase tracking-[0.2em] font-medium transition-colors shadow-sm flex items-center justify-center gap-2 cursor-pointer"
-                      >
-                        <QrCode className="w-4 h-4 text-[#E6DCB8]" />
-                        <span>
-                          Continue to UPI Payment (₹ {formattedAmount})
-                        </span>
-                        <ArrowRight className="w-3.5 h-3.5" />
-                      </button>
-
-                      <p className="mt-2.5 text-center text-[10.5px] text-[#8A796B] flex items-center justify-center gap-1.5">
-                        <ShieldCheck className="w-3.5 h-3.5 text-[#855D25]" />
-                        <span>
-                          Delivering to {savedAddress.fullName}, {savedAddress.city} &bull; Next: UPI QR &amp; Screenshot Upload
-                        </span>
-                      </p>
-                    </div>
-                  </div>
-                ) : (
-                  /* Editable Address Form */
-                  <form
-                    ref={formRef}
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      handleProceedToPayment();
-                    }}
-                    className="space-y-4"
-                  >
-                    {savedAddress && (
-                      <div className="p-3 bg-[#FAF5EE] border border-[#EBD9C8] rounded-sm flex items-center justify-between text-xs mb-2">
-                        <span className="text-[#6B5E55]">
-                          Saved address available ({savedAddress.fullName},{" "}
-                          {savedAddress.city})
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setFormData(savedAddress);
-                            setUseSavedAddress(true);
-                          }}
-                          className="text-[#6D1A2A] font-semibold underline cursor-pointer hover:text-[#855D25]"
-                        >
-                          Use Saved Address
-                        </button>
-                      </div>
-                    )}
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* ponytail: in guest checkout mode, display direct address form without saved address cards */}
+                <form
+                  ref={formRef}
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    handleProceedToPayment();
+                  }}
+                  className="space-y-4"
+                >
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-xs uppercase tracking-wider text-[#171717] font-medium mb-1">
                           Full Name *
@@ -868,7 +725,6 @@ export default function CheckoutPage() {
                       </p>
                     </div>
                   </form>
-                )}
               </div>
             ) : (
               /* ── STEP 2: FULL PAGE UPI PAYMENT & SCREENSHOT PROOF UPLOAD ── */
@@ -1127,12 +983,29 @@ export default function CheckoutPage() {
                       )}
                     </button>
 
-                    <p className="text-[10.5px] text-center text-[#8A796B] flex items-center justify-center gap-1.5">
-                      <ShieldCheck className="w-3.5 h-3.5 text-[#855D25]" />
-                      <span>
-                        Official Rajwadi Atelier Order Verification &bull; Instant GST Invoice &amp; Live Tracking
-                      </span>
-                    </p>
+                    <div className="space-y-1.5 text-center">
+                      <p className="text-[10.5px] text-[#8A796B] flex items-center justify-center gap-1.5">
+                        <ShieldCheck className="w-3.5 h-3.5 text-[#855D25]" />
+                        <span>
+                          Official Rajwadi Atelier Order Verification &bull; Instant GST Invoice &amp; Live Tracking
+                        </span>
+                      </p>
+                      <p className="text-[10px] text-[#8A796B] leading-relaxed">
+                        By confirming your order, you agree to our{" "}
+                        <Link href="/terms-and-conditions" target="_blank" className="text-[#855D25] underline hover:text-[#6D1A2A]">
+                          Terms &amp; Conditions
+                        </Link>
+                        ,{" "}
+                        <Link href="/privacy-policy" target="_blank" className="text-[#855D25] underline hover:text-[#6D1A2A]">
+                          Privacy Policy
+                        </Link>
+                        , and{" "}
+                        <Link href="/shipping-policy" target="_blank" className="text-[#855D25] underline hover:text-[#6D1A2A]">
+                          Shipping Policy
+                        </Link>
+                        .
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>

@@ -185,11 +185,11 @@ export default function OrderTrackingPage() {
       <main className="pt-24 sm:pt-28 md:pt-32 pb-20 max-w-4xl mx-auto w-full px-4 sm:px-6 space-y-6">
         <div>
           <Link
-            href="/account"
+            href="/collection"
             className="inline-flex items-center gap-1.5 text-xs uppercase tracking-wider text-[#855D25] hover:text-[#6D1A2A] font-medium"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Back to Account</span>
+            <span>Back to Collection</span>
           </Link>
         </div>
 

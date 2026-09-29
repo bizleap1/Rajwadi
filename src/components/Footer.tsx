@@ -408,19 +408,26 @@ export default function Footer({ onOpenConsultation }: FooterProps) {
         {/* Bottom — Thin Divider & Legal Notice */}
         <div className="pt-4 border-t border-[#FAF6F0]/10 flex flex-col sm:flex-row items-center justify-between text-[11px] text-[#FAF6F0]/50 font-sans tracking-wide gap-2.5 sm:gap-0 text-center sm:text-left">
           <p>© 2026 Rajwadi. All rights reserved.</p>
-          <div className="flex items-center justify-center gap-3">
+          <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-4">
             <Link
-              href="/contact"
+              href="/privacy-policy"
               className="hover:text-[#C6A15B] transition-colors duration-200"
             >
               Privacy Policy
             </Link>
             <span>·</span>
             <Link
-              href="/contact"
+              href="/shipping-policy"
               className="hover:text-[#C6A15B] transition-colors duration-200"
             >
-              Terms
+              Shipping Policy
+            </Link>
+            <span>·</span>
+            <Link
+              href="/terms-and-conditions"
+              className="hover:text-[#C6A15B] transition-colors duration-200"
+            >
+              Terms & Conditions
             </Link>
           </div>
         </div>

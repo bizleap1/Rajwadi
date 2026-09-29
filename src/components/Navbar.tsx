@@ -232,40 +232,42 @@ export default function Navbar({
               </Link>
             )}
 
-            {/* 4. My Account Icon (Accessible on desktop & mobile) */}
-            <div className="relative">
-              <button
-                onClick={() => setIsAccountOpen((prev) => !prev)}
-                aria-label="My Account"
-                className={`${
-                  useSolidStyle ? "text-charcoal" : "text-royal-ivory"
-                } hover:text-[#C6A15B] transition-colors duration-300 p-1.5 cursor-pointer flex items-center justify-center relative`}
-              >
-                <User className="w-4 h-4 sm:w-[18px] sm:h-[18px] stroke-[1.35]" />
-                {user?.role === "ADMIN" && (
-                  <span className="absolute -top-1 -right-0.5 text-[9px] leading-none select-none" title="Owner Admin Active">
-                    👑
-                  </span>
-                )}
-              </button>
-
-              {/* Desktop Popover */}
-              <AccountPopover
-                isOpen={isAccountOpen}
-                onClose={() => setIsAccountOpen(false)}
-                view="desktop"
-              />
-            </div>
+            {/* ponytail: account icon hidden — guest checkout mode, re-enable when auth is restored */}
+            {false && (
+              <div className="relative">
+                <button
+                  onClick={() => setIsAccountOpen((prev) => !prev)}
+                  aria-label="My Account"
+                  className={`${
+                    useSolidStyle ? "text-charcoal" : "text-royal-ivory"
+                  } hover:text-[#C6A15B] transition-colors duration-300 p-1.5 cursor-pointer flex items-center justify-center relative`}
+                >
+                  <User className="w-4 h-4 sm:w-[18px] sm:h-[18px] stroke-[1.35]" />
+                  {user?.role === "ADMIN" && (
+                    <span className="absolute -top-1 -right-0.5 text-[9px] leading-none select-none" title="Owner Admin Active">
+                      👑
+                    </span>
+                  )}
+                </button>
+                <AccountPopover
+                  isOpen={isAccountOpen}
+                  onClose={() => setIsAccountOpen(false)}
+                  view="desktop"
+                />
+              </div>
+            )}
           </div>
         </div>
       </header>
 
-      {/* Mobile Full-Screen Account Drawer */}
-      <AccountPopover
-        isOpen={isAccountOpen}
-        onClose={() => setIsAccountOpen(false)}
-        view="mobile"
-      />
+      {/* ponytail: account drawer hidden — guest checkout mode */}
+      {false && (
+        <AccountPopover
+          isOpen={isAccountOpen}
+          onClose={() => setIsAccountOpen(false)}
+          view="mobile"
+        />
+      )}
 
       {/* Global Luxury Search Modal */}
       <SearchModal
@@ -329,7 +331,7 @@ export default function Navbar({
                 ))}
               </div>
 
-              {/* Actions: Book Consultation + Account */}
+              {/* Actions: Book Consultation */}
               <div className="pt-4 border-t border-soft-beige flex flex-col items-center gap-3">
                 {user?.role === "ADMIN" && (
                   <Link
@@ -349,16 +351,19 @@ export default function Navbar({
                 >
                   Book Royal Consultation
                 </button>
-                <button
-                  onClick={() => {
-                    setIsMobileMenuOpen(false);
-                    setIsAccountOpen(true);
-                  }}
-                  className="inline-flex items-center gap-2 text-xs uppercase tracking-wider text-charcoal/70 hover:text-charcoal pt-1 transition-colors cursor-pointer"
-                >
-                  <User className="w-3.5 h-3.5 stroke-[1.5]" />
-                  <span>My Account &amp; Services</span>
-                </button>
+                {/* ponytail: account button hidden — guest checkout mode */}
+                {false && (
+                  <button
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      setIsAccountOpen(true);
+                    }}
+                    className="inline-flex items-center gap-2 text-xs uppercase tracking-wider text-charcoal/70 hover:text-charcoal pt-1 transition-colors cursor-pointer"
+                  >
+                    <User className="w-3.5 h-3.5 stroke-[1.5]" />
+                    <span>My Account &amp; Services</span>
+                  </button>
+                )}
               </div>
             </div>
           </motion.div>

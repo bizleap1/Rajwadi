@@ -32,6 +32,8 @@ import {
   X,
   Maximize2,
   Trash2,
+  Copy,
+  Send,
 } from "lucide-react";
 import { downloadReceipt } from "@/lib/receiptGenerator";
 
@@ -89,6 +91,12 @@ export default function AdminOrderDetailPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [saveSuccessMsg, setSaveSuccessMsg] = useState("");
+
+  const [isResendingEmail, setIsResendingEmail] = useState(false);
+  const [isResendModalOpen, setIsResendModalOpen] = useState(false);
+  const [customEmailInput, setCustomEmailInput] = useState("");
+  const [resendSuccessMsg, setResendSuccessMsg] = useState("");
+  const [copiedLink, setCopiedLink] = useState(false);
 
   const loadOrder = async () => {
     setIsLoading(true);
@@ -266,6 +274,33 @@ export default function AdminOrderDetailPage() {
     setSelectedStatus(stageKey);
   };
 
+  const handleResendEmail = async (overrideEmail?: string) => {
+    const emailToSend = (overrideEmail !== undefined ? overrideEmail : customEmailInput).trim();
+    setIsResendingEmail(true);
+    setResendSuccessMsg("");
+    try {
+      const res = await fetch(`/api/admin/orders/${order.id}/resend-email`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ customEmail: emailToSend || undefined }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to resend invoice & tracking email");
+      }
+
+      setResendSuccessMsg(`Tracking email & invoice sent to ${data.emailSentTo}!`);
+      setIsResendModalOpen(false);
+      loadOrder();
+      setTimeout(() => setResendSuccessMsg(""), 5000);
+    } catch (err: any) {
+      alert(err.message || "Error resending email");
+    } finally {
+      setIsResendingEmail(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="py-24 flex flex-col items-center justify-center text-[#8A796B]">
@@ -296,6 +331,10 @@ export default function AdminOrderDetailPage() {
   const customerEmail = order.guestEmail || order.user?.email || shippingAddr?.email || "N/A";
   const rawPhone = shippingAddr?.phone || shippingAddr?.mobile || order.user?.phone || "";
   const cleanPhone = rawPhone.replace(/[^0-9]/g, "");
+
+  const guestToken = order.guestAccessToken;
+  const siteUrl = typeof window !== "undefined" ? window.location.origin : (process.env.NEXT_PUBLIC_SITE_URL || "https://rajwadirajputiposhak.com");
+  const customerTrackingLink = guestToken ? `${siteUrl}/order/${order.id}?token=${guestToken}` : `${siteUrl}/order/${order.id}`;
 
   const dateStr = new Date(order.createdAt).toLocaleDateString("en-IN", {
     weekday: "short",
@@ -343,13 +382,35 @@ export default function AdminOrderDetailPage() {
           </div>
         </div>
 
-        {/* Quick Save Indicator / Action & Invoice Print & Delete */}
+        {/* Quick Save Indicator / Action & Invoice Print & Resend & Delete */}
         <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
           {saveSuccessMsg && (
             <span className="w-full sm:w-auto text-xs text-emerald-700 font-medium bg-emerald-50 border border-emerald-200 px-3 py-1 rounded text-center">
               {saveSuccessMsg}
             </span>
           )}
+          {resendSuccessMsg && (
+            <span className="w-full sm:w-auto text-xs text-emerald-800 font-semibold bg-emerald-50 border border-emerald-300 px-3 py-1 rounded text-center animate-in fade-in">
+              ✓ {resendSuccessMsg}
+            </span>
+          )}
+          <button
+            type="button"
+            onClick={() => {
+              setCustomEmailInput(customerEmail !== "N/A" ? customerEmail : "");
+              setIsResendModalOpen(true);
+            }}
+            disabled={isSaving || isDeleting || isResendingEmail}
+            className="flex-1 sm:flex-initial justify-center px-3.5 py-2 bg-[#FAF5EE] hover:bg-[#F3EBE1] text-[#6D1A2A] border border-[#EBD9C8] text-xs uppercase tracking-[0.16em] font-medium transition-colors rounded-sm flex items-center gap-1.5 cursor-pointer shadow-2xs whitespace-nowrap"
+            title="Resend Order Confirmation & Tracking Link to Customer"
+          >
+            {isResendingEmail ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin text-[#6D1A2A]" />
+            ) : (
+              <Mail className="w-3.5 h-3.5 text-[#6D1A2A]" />
+            )}
+            <span>Resend Email</span>
+          </button>
           <button
             type="button"
             onClick={() => downloadReceipt(order)}
@@ -978,11 +1039,11 @@ export default function AdminOrderDetailPage() {
                       <span>Call</span>
                     </a>
                     <a
-                      href={`https://wa.me/91${cleanPhone.slice(-10)}?text=${encodeURIComponent(`Hello ${customerName}, this is regarding your Rajwadi Couture Order #${order.orderNumber}.`)}`}
+                      href={`https://wa.me/91${cleanPhone.slice(-10)}?text=${encodeURIComponent(`Hello ${customerName}, this is regarding your Rajwadi Couture Order #${order.orderNumber}. You can track your order status here: ${customerTrackingLink}`)}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded text-[11px] font-medium flex items-center gap-1 transition-colors"
-                      title="WhatsApp Customer"
+                      title="WhatsApp Customer with Tracking Link"
                     >
                       <MessageCircle className="w-3 h-3 text-emerald-600" />
                       <span>WhatsApp</span>
@@ -999,6 +1060,68 @@ export default function AdminOrderDetailPage() {
                     <span>Email</span>
                   </a>
                 )}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCustomEmailInput(customerEmail !== "N/A" ? customerEmail : "");
+                    setIsResendModalOpen(true);
+                  }}
+                  className="px-2.5 py-1.5 bg-[#6D1A2A] hover:bg-[#581522] text-white rounded text-[11px] font-medium flex items-center gap-1 transition-colors cursor-pointer"
+                  title="Resend Official Tax Invoice & Tracking Link Email"
+                >
+                  <Send className="w-3 h-3 text-[#E6DCB8]" />
+                  <span>Resend Mail</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Patron Direct Tracking Link Section */}
+            <div className="pt-3 border-t border-[#F0E5D8] space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-[#855D25] uppercase tracking-wider flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Guest Tracking Link</span>
+                </span>
+                <span className="text-[10px] bg-[#FAF5EE] text-[#855D25] border border-[#EBD9C8] px-2 py-0.5 rounded font-semibold uppercase">
+                  No Login Required
+                </span>
+              </div>
+              <p className="text-[11px] text-[#6B5E55]">
+                If customer lost their email, copy this link and send via WhatsApp/SMS:
+              </p>
+              <div className="flex items-center gap-1.5">
+                <input
+                  type="text"
+                  readOnly
+                  value={customerTrackingLink}
+                  className="flex-1 px-2.5 py-1.5 bg-[#FCFAF6] border border-[#D9C4B0] text-xs font-mono text-[#171717] rounded select-all truncate"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText(customerTrackingLink);
+                    setCopiedLink(true);
+                    setTimeout(() => setCopiedLink(false), 3000);
+                  }}
+                  className="px-2.5 py-1.5 bg-[#FAF5EE] hover:bg-[#F3EBE1] text-[#6D1A2A] border border-[#EBD9C8] rounded text-xs font-medium cursor-pointer flex items-center gap-1 flex-shrink-0"
+                  title="Copy Tracking Link"
+                >
+                  {copiedLink ? (
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                  ) : (
+                    <Copy className="w-3.5 h-3.5" />
+                  )}
+                  <span>{copiedLink ? "Copied!" : "Copy"}</span>
+                </button>
+                <a
+                  href={customerTrackingLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-1.5 bg-white hover:bg-slate-50 border border-[#D9C4B0] rounded text-[#171717] cursor-pointer"
+                  title="Open Customer Tracking Page"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
               </div>
             </div>
 
@@ -1133,6 +1256,123 @@ export default function AdminOrderDetailPage() {
                   Close Viewer
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─────────────────────────────────────────────────────────────────── */}
+      {/* 5. RESEND TRACKING LINK & INVOICE EMAIL MODAL                       */}
+      {/* ─────────────────────────────────────────────────────────────────── */}
+      {isResendModalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-in fade-in"
+          onClick={() => !isResendingEmail && setIsResendModalOpen(false)}
+        >
+          <div
+            className="bg-white rounded-sm max-w-lg w-full overflow-hidden shadow-2xl flex flex-col relative border border-[#EBD9C8]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="bg-[#6D1A2A] text-white px-5 py-3.5 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Mail className="w-4 h-4 text-[#E6DCB8]" />
+                <h3 className="font-serif text-sm font-semibold tracking-wide uppercase">
+                  Resend Order Confirmation &amp; Tracking Email
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => !isResendingEmail && setIsResendModalOpen(false)}
+                disabled={isResendingEmail}
+                className="p-1 rounded text-[#E6DCB8] hover:text-white hover:bg-white/10 transition-colors cursor-pointer disabled:opacity-50"
+                title="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 space-y-4 text-xs">
+              <div className="p-3 bg-[#FAF5EE] border border-[#EBD9C8] rounded text-[#4A3E37] space-y-1">
+                <div className="font-semibold text-[#6D1A2A] flex items-center justify-between">
+                  <span>Order #{order.orderNumber}</span>
+                  <span className="text-[11px] font-mono">₹ {(order.totalInPaise / 100).toLocaleString("en-IN")}</span>
+                </div>
+                <p className="text-[11.5px]">
+                  <strong>Patron:</strong> {customerName}
+                </p>
+                <p className="text-[11px] text-[#8A796B]">
+                  This will generate and dispatch the official Rajwadi Tax Invoice and guest tracking link directly to the patron.
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-xs uppercase tracking-wider text-[#171717] font-medium mb-1.5">
+                  Recipient Email Address *
+                </label>
+                <input
+                  type="email"
+                  value={customEmailInput}
+                  onChange={(e) => setCustomEmailInput(e.target.value)}
+                  placeholder="customer@example.com"
+                  className="w-full px-3.5 py-2.5 bg-[#FCFAF6] border border-[#D9C4B0] text-xs text-[#171717] rounded-sm focus:outline-none focus:ring-1 focus:ring-[#855D25]"
+                  disabled={isResendingEmail}
+                  autoFocus
+                />
+                <span className="text-[10.5px] text-[#8A796B] mt-1 block">
+                  You can edit the email address above if the patron requested sending to a different email.
+                </span>
+              </div>
+
+              <div className="pt-2 border-t border-[#F0E5D8] space-y-2">
+                <span className="font-medium text-[#855D25] block">Customer Tracking Link:</span>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    readOnly
+                    value={customerTrackingLink}
+                    className="flex-1 px-2.5 py-1.5 bg-[#FAF5EE] border border-[#EBD9C8] text-[11px] font-mono text-[#171717] rounded truncate select-all"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText(customerTrackingLink);
+                      setCopiedLink(true);
+                      setTimeout(() => setCopiedLink(false), 3000);
+                    }}
+                    className="px-2.5 py-1.5 bg-white border border-[#D9C4B0] text-xs rounded hover:bg-slate-50 flex items-center gap-1 cursor-pointer flex-shrink-0"
+                  >
+                    {copiedLink ? <CheckCircle2 className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                    <span>{copiedLink ? "Copied" : "Copy"}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="bg-[#FAF5EE] px-5 py-3 border-t border-[#EBD9C8] flex items-center justify-end gap-2 text-xs">
+              <button
+                type="button"
+                onClick={() => setIsResendModalOpen(false)}
+                disabled={isResendingEmail}
+                className="px-4 py-2 bg-white hover:bg-[#F3EBE1] text-[#4A3E37] border border-[#D9C4B0] rounded text-xs font-medium cursor-pointer disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => handleResendEmail(customEmailInput)}
+                disabled={isResendingEmail || !customEmailInput.trim()}
+                className="px-4 py-2 bg-[#6D1A2A] hover:bg-[#581522] text-white rounded text-xs font-medium cursor-pointer flex items-center gap-1.5 shadow-xs disabled:opacity-50"
+              >
+                {isResendingEmail ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Send className="w-3.5 h-3.5 text-[#E6DCB8]" />
+                )}
+                <span>{isResendingEmail ? "Sending..." : "Send Tracking Email"}</span>
+              </button>
             </div>
           </div>
         </div>

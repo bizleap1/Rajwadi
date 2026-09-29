@@ -169,9 +169,7 @@ export default function AdminLoginPage() {
           </div>
         </div>
 
-        <p className="mt-6 text-center text-[11px] text-[#A09285]">
-          New admin accounts can be bootstrapped via <code className="bg-[#EFE8DD] px-1 py-0.5 rounded text-[#4A3E37]">npm run bootstrap:admin</code>.
-        </p>
+
       </div>
     </div>
   );
