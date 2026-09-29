@@ -182,7 +182,7 @@ export default function OrderTrackingPage() {
     <div className="min-h-screen bg-[#FDFBF7] text-[#171717] font-sans selection:bg-[#6D1A2A] selection:text-white flex flex-col justify-between">
       <Navbar />
 
-      <main className="pt-24 sm:pt-28 md:pt-32 pb-20 max-w-4xl mx-auto w-full px-4 sm:px-6 space-y-6">
+      <main className="pt-20 sm:pt-28 md:pt-32 pb-20 max-w-4xl mx-auto w-full px-3.5 sm:px-6 space-y-5 sm:space-y-6">
         <div>
           <Link
             href="/collection"
@@ -194,7 +194,7 @@ export default function OrderTrackingPage() {
         </div>
 
         {/* ── 1. REAL-TIME DELIVERY TIMELINE STEPPER ── */}
-        <div className="bg-white p-4 sm:p-6 border border-[#EBD9C8] rounded-sm shadow-2xs space-y-6">
+        <div className="bg-white p-4 sm:p-6 border border-[#EBD9C8] rounded-sm shadow-2xs space-y-5 sm:space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4 border-b border-[#F0E5D8]">
             <div>
               <div className="flex items-center gap-2">
@@ -203,7 +203,7 @@ export default function OrderTrackingPage() {
                 </span>
                 <span className="text-[11px] text-[#8A796B]">Placed {dateStr}</span>
               </div>
-              <h1 className="text-2xl font-serif text-[#171717] mt-0.5">
+              <h1 className="text-xl sm:text-2xl font-serif text-[#171717] mt-0.5">
                 Order <span className="font-mono font-bold tracking-tight">#{order.orderNumber}</span>
               </h1>
             </div>
@@ -212,7 +212,7 @@ export default function OrderTrackingPage() {
               <button
                 type="button"
                 onClick={() => downloadReceipt(order)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#FAF5EE] hover:bg-[#F3EBE1] text-[#855D25] hover:text-[#6D1A2A] border border-[#EBD9C8] rounded text-xs uppercase tracking-wider font-semibold transition-colors cursor-pointer"
+                className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-[#FAF5EE] hover:bg-[#F3EBE1] text-[#855D25] hover:text-[#6D1A2A] border border-[#EBD9C8] rounded text-xs uppercase tracking-wider font-semibold transition-colors cursor-pointer"
                 title="Download Official Tax Invoice / Receipt"
               >
                 <Download className="w-3.5 h-3.5" />

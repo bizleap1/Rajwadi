@@ -646,6 +646,66 @@ export function generateReceiptHtml(order: ReceiptOrderData, options?: ReceiptHt
       font-weight: 600;
     }
 
+    /* Mobile Responsive Optimizations for Emails & Invoices */
+    @media only screen and (max-width: 640px) {
+      body {
+        padding: 0 !important;
+      }
+      .invoice-wrapper {
+        padding: 4px 6px !important;
+        max-width: 100% !important;
+      }
+      .header-table, .header-table tbody, .header-table tr {
+        display: block !important;
+        width: 100% !important;
+      }
+      .brand-logo-cell, .brand-info-cell, .meta-cell {
+        display: block !important;
+        width: 100% !important;
+        text-align: left !important;
+        padding-right: 0 !important;
+        padding-bottom: 6px !important;
+      }
+      .meta-cell {
+        margin-top: 8px !important;
+        border-top: 1px dashed #E6D9C8 !important;
+        padding-top: 8px !important;
+      }
+      .brand-title {
+        font-size: 19px !important;
+      }
+      .client-grid, .summary-grid, .terms-grid {
+        display: block !important;
+        width: 100% !important;
+      }
+      .client-card, .summary-card, .terms-cell, .seal-cell {
+        display: block !important;
+        width: 100% !important;
+        margin-bottom: 10px !important;
+      }
+      .client-card-spacer {
+        display: none !important;
+      }
+      .items-table-wrapper {
+        width: 100% !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        margin-bottom: 12px !important;
+      }
+      .items-table {
+        min-width: 520px !important;
+      }
+      .items-table th, .items-table td {
+        padding: 6px 4px !important;
+        font-size: 8.5px !important;
+      }
+      .footer-bar {
+        flex-direction: column !important;
+        gap: 4px !important;
+        text-align: center !important;
+      }
+    }
+
     @media print {
       body {
         margin: 0;
@@ -774,22 +834,24 @@ export function generateReceiptHtml(order: ReceiptOrderData, options?: ReceiptHt
       <div class="items-count-tag">${totalItemsCount} ${totalItemsCount === 1 ? "ITEM" : "ITEMS"}</div>
     </div>
 
-    <table class="items-table">
-      <thead>
-        <tr>
-          <th style="width: 38px; text-align: center;">S.NO</th>
-          <th style="text-align: left;">ITEM &amp; DESIGN SPECIFICATION</th>
-          <th style="width: 55px; text-align: center;">HSN</th>
-          <th style="width: 75px; text-align: center;">SIZE / SKU</th>
-          <th style="width: 45px; text-align: center;">QTY</th>
-          <th style="width: 85px; text-align: right;">RATE (INR)</th>
-          <th style="width: 95px; text-align: right;">AMOUNT (INR)</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${itemsHtml}
-      </tbody>
-    </table>
+    <div class="items-table-wrapper">
+      <table class="items-table">
+        <thead>
+          <tr>
+            <th style="width: 38px; text-align: center;">S.NO</th>
+            <th style="text-align: left;">ITEM &amp; DESIGN SPECIFICATION</th>
+            <th style="width: 55px; text-align: center;">HSN</th>
+            <th style="width: 75px; text-align: center;">SIZE / SKU</th>
+            <th style="width: 45px; text-align: center;">QTY</th>
+            <th style="width: 85px; text-align: right;">RATE (INR)</th>
+            <th style="width: 95px; text-align: right;">AMOUNT (INR)</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${itemsHtml}
+        </tbody>
+      </table>
+    </div>
 
     <!-- 4. FINANCIAL & PAYMENT SUMMARY -->
     <div class="summary-grid">
