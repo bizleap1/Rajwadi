@@ -236,7 +236,7 @@ export default function AdminProductsPage() {
               }}
               className="w-full sm:w-auto bg-[#FCFAF6] border border-[#D9C4B0] text-xs py-2 px-2.5 rounded-sm text-[#171717] focus:outline-none focus:ring-1 focus:ring-[#855D25]"
             >
-              <option value="ALL">All Statuses</option>
+              <option value="ALL">All Status</option>
               <option value="PUBLISHED">Published</option>
               <option value="DRAFT">Draft</option>
               <option value="ARCHIVED">Archived</option>
