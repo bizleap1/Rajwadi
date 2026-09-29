@@ -108,8 +108,8 @@ export function generateReceiptHtml(order: ReceiptOrderData, options?: ReceiptHt
   const stateCode =
     STATE_CODES[cleanStateKey] ||
     (cleanStateKey.includes("maharashtra") ? "27" : cleanStateKey.includes("rajasthan") ? "08" : cleanStateKey.includes("gujarat") ? "24" : "27");
-  // Seller and operations are anchored in Nagpur, Maharashtra (State Code 27) with CGST 9% + SGST 9%.
-  const isIntraState = true;
+  // Seller is anchored in Nagpur, Maharashtra (State Code 27). If delivery is outside Maharashtra, IGST applies.
+  const isIntraState = cleanStateKey.includes("maharashtra") || stateCode === "27";
 
   const orderNum = order.orderNumber || order.id || "ORD-9999";
   const cleanOrderNum = String(orderNum).replace(/[^0-9A-Z]/gi, "");
@@ -801,8 +801,8 @@ export function generateReceiptHtml(order: ReceiptOrderData, options?: ReceiptHt
         <div class="status-line"><strong>${paymentMethodLabel}</strong></div>
         <div class="status-line">Transaction Ref: <strong>${paymentRefLabel}</strong></div>
         <div class="status-line">GST Compliance: <strong>${gstRatePercent}% Inclusive Tax Included (${isAbove5k ? "Above ₹5,000" : "Below ₹5,000"})</strong></div>
-        <div class="status-line">Tax Regime: <strong>CGST ${cgstRatePercent}% + SGST ${sgstRatePercent}% (Nagpur, Maharashtra)</strong></div>
-        <div class="status-line">Place of Supply: <strong>Nagpur, Maharashtra (State Code: 27)</strong></div>
+        <div class="status-line">Tax Regime: <strong>${isIntraState ? `CGST ${cgstRatePercent}% + SGST ${sgstRatePercent}% (Intra-State: Maharashtra)` : `IGST ${gstRatePercent}% (Inter-State Supply to ${patronState})`}</strong></div>
+        <div class="status-line">Place of Supply: <strong>${patronState} (State Code: ${stateCode})</strong></div>
         <div class="status-line">Order Status: <strong>PROCESSING</strong></div>
         <div class="status-line">Authenticity: <strong>100% Handcrafted Atelier Certified</strong></div>
       </div>
@@ -836,6 +836,7 @@ export function generateReceiptHtml(order: ReceiptOrderData, options?: ReceiptHt
             <span>Taxable Value (Excl. ${gstRatePercent}% GST):</span>
             <span style="font-family: monospace;">Rs. ${taxableBase.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
           </div>
+          ${isIntraState ? `
           <div class="summary-row" style="font-size: 9.5px; color: #5A4E45; padding: 1.5px 0;">
             <span>&nbsp;&bull; CGST @ ${cgstRatePercent}% (Central Tax):</span>
             <span style="font-family: monospace;">Rs. ${cgst.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
@@ -843,7 +844,11 @@ export function generateReceiptHtml(order: ReceiptOrderData, options?: ReceiptHt
           <div class="summary-row" style="font-size: 9.5px; color: #5A4E45; padding: 1.5px 0;">
             <span>&nbsp;&bull; SGST @ ${sgstRatePercent}% (Maharashtra State Tax):</span>
             <span style="font-family: monospace;">Rs. ${sgst.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-          </div>
+          </div>` : `
+          <div class="summary-row" style="font-size: 9.5px; color: #5A4E45; padding: 1.5px 0;">
+            <span>&nbsp;&bull; IGST @ ${gstRatePercent}% (Integrated Tax - Inter-State):</span>
+            <span style="font-family: monospace;">Rs. ${totalGst.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+          </div>`}
           <div class="summary-row" style="border-top: 1px dotted #CBB8A5; margin-top: 4px; padding-top: 4px; font-weight: 700; color: #581522; font-size: 10.5px;">
             <span>Total ${gstRatePercent}% GST (Included in Price):</span>
             <span style="font-family: monospace;">Rs. ${totalGst.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
