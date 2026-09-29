@@ -227,8 +227,8 @@ export default function AdminDashboardPage() {
         </div>
       ) : data ? (
         <>
-          {/* ================= ROW 1: 5 EXECUTIVE METRIC CARDS ================= */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+          {/* ================= ROW 1: 4 EXECUTIVE METRIC CARDS ================= */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             {/* 1. Net Revenue */}
             <div className="p-4 bg-white border border-[#EBD9C8] rounded-sm shadow-2xs relative overflow-hidden flex flex-col justify-between">
               <div>
@@ -326,32 +326,6 @@ export default function AdminDashboardPage() {
                 <span className="block text-[10px] text-[#6D1A2A]">
                   Saved ₹{data.metrics.discounts.totalDiscountGivenInRupees.toLocaleString("en-IN")}
                 </span>
-              </div>
-            </div>
-
-            {/* 5. Exchanges / Inquiries */}
-            <div className="p-4 bg-white border border-[#EBD9C8] rounded-sm shadow-2xs flex flex-col justify-between col-span-2 md:col-span-1">
-              <div>
-                <div className="flex items-center justify-between text-[#855D25] mb-2">
-                  <span className="text-[10.5px] uppercase tracking-wider font-semibold">
-                    Exchanges & Alterations
-                  </span>
-                  <div className="p-1.5 bg-[#FAF6F0] rounded-xs text-[#855D25]">
-                    <ArrowRightLeft className="w-4 h-4" />
-                  </div>
-                </div>
-                <div className="text-2xl font-serif font-bold text-[#171717]">
-                  {data.metrics.exchanges.pendingRequests} Pending
-                </div>
-              </div>
-              <div className="mt-2 pt-2 border-t border-[#FAF6F0] text-[11px] text-[#8A796B] flex items-center justify-between">
-                <span>{data.metrics.exchanges.totalRequests} total requests</span>
-                <Link
-                  href="/admin/exchanges"
-                  className="text-[#6D1A2A] hover:underline font-medium text-[10px]"
-                >
-                  Review →
-                </Link>
               </div>
             </div>
           </div>
@@ -859,21 +833,6 @@ export default function AdminDashboardPage() {
                       </span>
                       <span className="text-[10px] text-[#8A796B]">
                         Promos & Vouchers
-                      </span>
-                    </div>
-                  </Link>
-
-                  <Link
-                    href="/admin/exchanges"
-                    className="p-3 bg-[#FAF6F0] border border-[#EBD9C8] hover:border-[#855D25] rounded-sm transition-all group flex flex-col justify-between"
-                  >
-                    <ArrowRightLeft className="w-4 h-4 text-[#855D25] mb-2 group-hover:scale-110 transition-transform" />
-                    <div>
-                      <span className="text-xs font-semibold text-[#171717] block">
-                        Exchanges
-                      </span>
-                      <span className="text-[10px] text-[#8A796B]">
-                        Patron Requests
                       </span>
                     </div>
                   </Link>
