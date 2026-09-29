@@ -2,6 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 interface StitchedWithPrecisionProps {
   onOpenConsultation?: () => void;
@@ -15,6 +16,7 @@ const POSHAK_OPTIONS = [
     description: "Finished poshaks, ready for your celebrations.",
     image: "/stitching_finished_detail.webp",
     alt: "Ready-to-wear stitched Rajputi poshak with flared kalidar ghagra and borders",
+    href: "/collection?type=stitched",
   },
   {
     step: "02",
@@ -23,6 +25,7 @@ const POSHAK_OPTIONS = [
     description: "Select your preferred poshak and receive it unstitched.",
     image: "/unstitched_fabric_closeup.webp",
     alt: "Curated unstitched poshak fabric with gota borders and zari motifs",
+    href: "/collection?type=unstitched",
   },
   {
     step: "03",
@@ -31,6 +34,7 @@ const POSHAK_OPTIONS = [
     description: "Have your unstitched poshak stitched to your measurements.",
     image: "/stitching_needlework.webp",
     alt: "Precision stitching service for custom poshak tailoring",
+    href: "/contact",
   },
 ];
 
@@ -67,9 +71,10 @@ export default function StitchedWithPrecision({
           {/* Visual Strip: Pure Clean Imagery without text overlays */}
           <div className="grid grid-cols-3 gap-2.5 lg:gap-3">
             {POSHAK_OPTIONS.map((item) => (
-              <div
+              <Link
                 key={item.step}
-                className="group relative aspect-[4/4.6] overflow-hidden bg-[#EAE0D2]"
+                href={item.href}
+                className="group relative aspect-[4/4.6] overflow-hidden bg-[#EAE0D2] block"
               >
                 <Image
                   src={item.image}
@@ -78,7 +83,7 @@ export default function StitchedWithPrecision({
                   sizes="(max-width: 1024px) 33vw, 340px"
                   className="object-cover object-center transition-transform duration-700 ease-out group-hover:scale-[1.03]"
                 />
-              </div>
+              </Link>
             ))}
           </div>
 
@@ -89,15 +94,17 @@ export default function StitchedWithPrecision({
                 key={item.step}
                 className="text-center px-1 sm:px-2"
               >
-                {/* 01 — STITCHED (small uppercase) */}
-                <span className="font-sans text-[11px] lg:text-[11.5px] uppercase tracking-[0.24em] text-[#855D25] font-semibold block leading-none mb-1.5">
-                  {item.step} — {item.label}
-                </span>
+                <Link href={item.href} className="group inline-block">
+                  {/* 01 — STITCHED (small uppercase) */}
+                  <span className="font-sans text-[11px] lg:text-[11.5px] uppercase tracking-[0.24em] text-[#855D25] font-semibold block leading-none mb-1.5 group-hover:text-[#5A1F2B] transition-colors">
+                    {item.step} — {item.label}
+                  </span>
 
-                {/* Ready to wear. (larger serif/italic heading) */}
-                <h3 className="font-serif italic text-xl sm:text-2xl lg:text-[24px] text-[#171717] font-normal leading-snug tracking-normal">
-                  {item.headline}
-                </h3>
+                  {/* Ready to wear. (larger serif/italic heading) */}
+                  <h3 className="font-serif italic text-xl sm:text-2xl lg:text-[24px] text-[#171717] font-normal leading-snug tracking-normal group-hover:text-[#5A1F2B] transition-colors">
+                    {item.headline}
+                  </h3>
+                </Link>
 
                 {/* Short 1–2 line description */}
                 <p className="font-sans text-[14px] sm:text-[15px] lg:text-[15.5px] text-[#171717]/90 font-light leading-relaxed mt-1.5 max-w-[280px] mx-auto">
@@ -115,8 +122,11 @@ export default function StitchedWithPrecision({
               key={item.step}
               className="flex flex-col items-center text-center"
             >
-              {/* 1. Image: ~100% content width, controlled height ~290px, clean without badges */}
-              <div className="relative w-full h-[290px] sm:h-[330px] overflow-hidden bg-[#EAE0D2]">
+              {/* 1. Image */}
+              <Link
+                href={item.href}
+                className="relative w-full h-[290px] sm:h-[330px] overflow-hidden bg-[#EAE0D2] block"
+              >
                 <Image
                   src={item.image}
                   alt={item.alt}
@@ -124,19 +134,20 @@ export default function StitchedWithPrecision({
                   sizes="100vw"
                   className="object-cover object-center"
                 />
-              </div>
+              </Link>
 
-              {/* 2. Label: 01 — STITCHED */}
-              <span className="font-sans text-[11px] sm:text-[11.5px] uppercase tracking-[0.24em] text-[#855D25] font-semibold block leading-none mt-4 sm:mt-4.5 mb-1.5">
-                {item.step} — {item.label}
-              </span>
+              {/* 2. Label & Subheading */}
+              <Link href={item.href} className="group inline-block">
+                <span className="font-sans text-[11px] sm:text-[11.5px] uppercase tracking-[0.24em] text-[#855D25] font-semibold block leading-none mt-4 sm:mt-4.5 mb-1.5">
+                  {item.step} — {item.label}
+                </span>
 
-              {/* 3. Subheading: Ready to wear. */}
-              <h3 className="font-serif italic text-2xl sm:text-[26px] text-[#171717] font-normal leading-snug">
-                {item.headline}
-              </h3>
+                <h3 className="font-serif italic text-2xl sm:text-[26px] text-[#171717] font-normal leading-snug">
+                  {item.headline}
+                </h3>
+              </Link>
 
-              {/* 4. Description: Finished poshaks, ready for your celebrations. */}
+              {/* 3. Description */}
               <p className="font-sans text-[14.5px] sm:text-[15px] text-[#171717]/90 font-light leading-relaxed mt-1.5 max-w-[290px] mx-auto">
                 {item.description}
               </p>

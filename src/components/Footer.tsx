@@ -206,7 +206,7 @@ export default function Footer({ onOpenConsultation }: FooterProps) {
                     <ul className="space-y-2.5 pb-4 pt-1 text-[13px] text-[#FAF6F0]/75 font-light font-sans tracking-wide">
                       <li>
                         <Link
-                          href="/#poshak-your-way"
+                          href="/collection?type=stitched"
                           className="hover:text-[#C6A15B] transition-colors duration-200 block"
                         >
                           Stitched
@@ -214,7 +214,7 @@ export default function Footer({ onOpenConsultation }: FooterProps) {
                       </li>
                       <li>
                         <Link
-                          href="/#poshak-your-way"
+                          href="/collection?type=unstitched"
                           className="hover:text-[#C6A15B] transition-colors duration-200 block"
                         >
                           Unstitched
@@ -222,7 +222,7 @@ export default function Footer({ onOpenConsultation }: FooterProps) {
                       </li>
                       <li>
                         <Link
-                          href="/#collections"
+                          href="/collection?category=classic"
                           className="hover:text-[#C6A15B] transition-colors duration-200 block"
                         >
                           Traditional
@@ -345,7 +345,7 @@ export default function Footer({ onOpenConsultation }: FooterProps) {
               <ul className="space-y-2 text-[12.5px] sm:text-[13px] text-[#FAF6F0]/75 font-light font-sans tracking-wide">
                 <li>
                   <Link
-                    href="/#poshak-your-way"
+                    href="/collection?type=stitched"
                     className="hover:text-[#C6A15B] transition-colors duration-200 block"
                   >
                     Stitched
@@ -353,7 +353,7 @@ export default function Footer({ onOpenConsultation }: FooterProps) {
                 </li>
                 <li>
                   <Link
-                    href="/#poshak-your-way"
+                    href="/collection?type=unstitched"
                     className="hover:text-[#C6A15B] transition-colors duration-200 block"
                   >
                     Unstitched
@@ -361,7 +361,7 @@ export default function Footer({ onOpenConsultation }: FooterProps) {
                 </li>
                 <li>
                   <Link
-                    href="/#collections"
+                    href="/collection?category=classic"
                     className="hover:text-[#C6A15B] transition-colors duration-200 block"
                   >
                     Traditional

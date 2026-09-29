@@ -209,37 +209,45 @@ function CollectionContent() {
         setActiveCategory(upper as CategoryFilter);
       } else if (upper === "HEAVY" || upper === "HEAVY-POSHAK" || upper === "HEAVY_POSHAK" || upper === "HEAVY-POSHAKS") {
         setActiveCategory("BRIDAL");
-      } else if (upper === "CLASSIC" || upper === "CLASSIC-POSHAK" || upper === "CLASSIC_POSHAK" || upper === "CLASSIC-POSHAKS" || upper === "EVERYDAY") {
+      } else if (upper === "CLASSIC" || upper === "CLASSIC-POSHAK" || upper === "CLASSIC_POSHAK" || upper === "CLASSIC-POSHAKS" || upper === "EVERYDAY" || upper === "TRADITIONAL" || upper === "TRADITIONAL-POSHAK") {
         setActiveCategory("CLASSIC");
       } else if (upper === "STITCHED") {
         setActiveType("STITCHED");
       } else if (upper === "UNSTITCHED") {
         setActiveType("UNSTITCHED");
       }
-      setTimeout(() => window.scrollTo({ top: 0, behavior: 'instant' }), 50);
+    } else {
+      setActiveCategory("ALL");
     }
+
     if (subQuery) {
       const upperSub = subQuery.toUpperCase();
       if (["BRIDAL", "FESTIVE"].includes(upperSub)) {
         setActiveCategory(upperSub as CategoryFilter);
       } else if (upperSub === "HEAVY" || upperSub === "HEAVY-POSHAK") {
         setActiveCategory("BRIDAL");
-      } else if (upperSub === "CLASSIC" || upperSub === "CLASSIC-POSHAK" || upperSub === "EVERYDAY") {
+      } else if (upperSub === "CLASSIC" || upperSub === "CLASSIC-POSHAK" || upperSub === "EVERYDAY" || upperSub === "TRADITIONAL") {
         setActiveCategory("CLASSIC");
       }
-      setTimeout(() => window.scrollTo({ top: 0, behavior: 'instant' }), 50);
     }
+
     if (typeQuery) {
       const upperType = typeQuery.toUpperCase();
       if (upperType === "STITCHED") {
         setActiveType("STITCHED");
-      } else if (upperType === "UNSTITCHED" || upperType === "POSHAK-MATERIAL") {
+      } else if (upperType === "UNSTITCHED" || upperType === "POSHAK-MATERIAL" || upperType === "SEMI-STITCHED" || upperType === "SEMISTITCHED") {
         setActiveType("UNSTITCHED");
       } else if (upperType === "JEWELLERY") {
         setActiveType("JEWELLERY");
       }
-      setTimeout(() => window.scrollTo({ top: 0, behavior: 'instant' }), 50);
+    } else {
+      const isStitchedInCat = categoryQuery && (categoryQuery.toUpperCase() === "STITCHED" || categoryQuery.toUpperCase() === "UNSTITCHED");
+      if (!isStitchedInCat) {
+        setActiveType("ALL");
+      }
     }
+
+    setTimeout(() => window.scrollTo({ top: 0, behavior: 'instant' }), 50);
   }, [categoryQuery, subQuery, typeQuery]);
 
   // Accordions for compact sidebar height (Colour and Price collapsed by default)

@@ -19,21 +19,21 @@ const OCCASIONS: OccasionItem[] = [
     title: "Bridal",
     subtitle: "For the most cherished beginnings.",
     image: "/bridal.webp",
-    link: "#collections",
+    link: "/collection?category=bridal",
   },
   {
     id: "festive",
     title: "Festive",
     subtitle: "For celebrations steeped in tradition.",
     image: "/festive.webp",
-    link: "#collections",
+    link: "/collection?category=festive",
   },
   {
     id: "heritage",
     title: "Heritage",
     subtitle: "For timeless Indian elegance.",
     image: "/traditonal.webp",
-    link: "#collections",
+    link: "/collection?category=classic",
   },
 ];
 
