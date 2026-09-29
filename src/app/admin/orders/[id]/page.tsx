@@ -758,33 +758,53 @@ export default function AdminOrderDetailPage() {
             </h2>
 
             <div className="divide-y divide-[#F0E5D8]">
-              {order.items.map((item: any) => (
-                <div key={item.id} className="py-4 flex gap-4 first:pt-0 last:pb-0">
-                  <div className="w-16 h-22 bg-[#F3EBE1] relative rounded overflow-hidden flex-shrink-0 border border-[#EBD9C8]">
-                    <Image
-                      src={item.imageUrl || "/placeholder.webp"}
-                      alt={item.productName}
-                      fill
-                      className="object-cover"
-                      sizes="64px"
-                    />
-                  </div>
+              {order.items.map((item: any) => {
+                const productHref = item.productSlug
+                  ? `/product/${item.productSlug}`
+                  : item.productId
+                  ? `/product/${item.productId}`
+                  : `/collection?search=${encodeURIComponent(item.productName)}`;
 
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <h3 className="font-serif text-sm font-medium text-[#171717]">
-                          {item.productName}
-                        </h3>
-                        <p className="text-xs text-[#8A796B] mt-0.5">
-                          Category: <span className="text-[#171717]">{item.category || "Traditional"}</span> | Size:{" "}
-                          <span className="text-[#171717] font-medium">{item.size || "Standard"}</span>
-                        </p>
+                return (
+                  <div key={item.id} className="py-4 flex gap-4 first:pt-0 last:pb-0">
+                    <Link
+                      href={productHref}
+                      target="_blank"
+                      className="w-16 h-22 bg-[#F3EBE1] relative rounded overflow-hidden flex-shrink-0 border border-[#EBD9C8] group block hover:opacity-90 transition-opacity"
+                      title="View product on storefront"
+                    >
+                      <Image
+                        src={item.imageUrl || "/placeholder.webp"}
+                        alt={item.productName}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        sizes="64px"
+                      />
+                    </Link>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <Link
+                            href={productHref}
+                            target="_blank"
+                            className="group inline-flex items-center gap-1.5 hover:text-[#6D1A2A]"
+                            title="View product on storefront"
+                          >
+                            <h3 className="font-serif text-sm font-medium text-[#171717] group-hover:text-[#6D1A2A] transition-colors">
+                              {item.productName}
+                            </h3>
+                            <ExternalLink className="w-3 h-3 text-[#8A796B] group-hover:text-[#6D1A2A] transition-colors" />
+                          </Link>
+                          <p className="text-xs text-[#8A796B] mt-0.5">
+                            Category: <span className="text-[#171717]">{item.category || "Traditional"}</span> | Size:{" "}
+                            <span className="text-[#171717] font-medium">{item.size || "Standard"}</span>
+                          </p>
+                        </div>
+                        <span className="font-semibold text-xs text-[#171717]">
+                          ₹ {(item.totalInPaise / 100).toLocaleString("en-IN")}
+                        </span>
                       </div>
-                      <span className="font-semibold text-xs text-[#171717]">
-                        ₹ {(item.totalInPaise / 100).toLocaleString("en-IN")}
-                      </span>
-                    </div>
 
                     {item.stitchingSelected && (
                       <div className="mt-2 p-2 bg-[#FAF6F0] border border-[#EBD9C8] rounded text-[11px] text-[#855D25] flex items-center gap-1.5">
@@ -802,7 +822,8 @@ export default function AdminOrderDetailPage() {
                     </div>
                   </div>
                 </div>
-              ))}
+              );
+            })}
             </div>
           </div>
 

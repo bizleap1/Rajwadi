@@ -638,9 +638,12 @@ export default function AdminDashboardPage() {
                       {data.recentOrders.map((ord) => (
                         <tr key={ord.id} className="hover:bg-[#FAF6F0]/60 transition-colors">
                           <td className="py-3">
-                            <span className="font-mono font-bold text-[#6D1A2A]">
+                            <Link
+                              href={`/admin/orders/${ord.id}`}
+                              className="font-mono font-bold text-[#6D1A2A] hover:underline"
+                            >
                               #{ord.orderNumber}
-                            </span>
+                            </Link>
                             <span className="block text-[10px] text-[#8A796B]">
                               {ord.totalItems} {ord.totalItems === 1 ? "poshak" : "poshaks"}
                             </span>
@@ -680,7 +683,7 @@ export default function AdminDashboardPage() {
                           </td>
                           <td className="py-3 text-right">
                             <Link
-                              href="/admin/orders"
+                              href={`/admin/orders/${ord.id}`}
                               className="px-2.5 py-1 text-[11px] text-[#6D1A2A] hover:bg-[#6D1A2A] hover:text-white rounded-xs transition-colors font-medium border border-[#EBD9C8]"
                             >
                               Manage
