@@ -8,6 +8,7 @@ import {
   Package,
   ShoppingBag,
   Tag,
+  Users,
   ExternalLink,
   LogOut,
   Menu,
@@ -62,6 +63,12 @@ export default function AdminNav({ user }: { user?: { name?: string; email?: str
       active: pathname.startsWith("/admin/products"),
     },
     {
+      label: "Customers",
+      href: "/admin/customers",
+      icon: Users,
+      active: pathname.startsWith("/admin/customers"),
+    },
+    {
       label: "Discounts",
       href: "/admin/discounts",
       icon: Tag,
@@ -79,7 +86,7 @@ export default function AdminNav({ user }: { user?: { name?: string; email?: str
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-2 px-3.5 py-2 text-xs uppercase tracking-wider font-medium transition-all rounded-sm ${
+              className={`flex items-center gap-2 px-3 py-2 text-xs uppercase tracking-wider font-medium transition-all rounded-sm ${
                 item.active
                   ? "bg-[#6D1A2A] text-white shadow-xs"
                   : "text-[#4A3E37] hover:bg-[#F3EBE1] hover:text-[#171717]"
@@ -141,14 +148,14 @@ export default function AdminNav({ user }: { user?: { name?: string; email?: str
 
       {/* ── MOBILE BOTTOM STICKY NAVIGATION BAR (Fixed at bottom) ── */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-[#EBD9C8] px-2 py-1.5 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
-        <div className="grid grid-cols-5 gap-1 items-center max-w-md mx-auto">
+        <div className="grid grid-cols-6 gap-1 items-center max-w-lg mx-auto">
           {navItems.map((item) => {
             const Icon = item.icon;
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex flex-col items-center justify-center py-1.5 px-1 rounded-md transition-colors ${
+                className={`flex flex-col items-center justify-center py-1.5 px-0.5 rounded-md transition-colors ${
                   item.active
                     ? "text-[#6D1A2A] font-bold"
                     : "text-[#8A796B] hover:text-[#171717]"
@@ -161,23 +168,25 @@ export default function AdminNav({ user }: { user?: { name?: string; email?: str
                 >
                   <Icon className={`w-4 h-4 ${item.active ? "stroke-[2.5]" : ""}`} />
                 </div>
-                <span className="text-[10px] tracking-tight mt-0.5">{item.label}</span>
+                <span className="text-[9.5px] tracking-tight mt-0.5 truncate max-w-[50px] text-center">
+                  {item.label}
+                </span>
               </Link>
             );
           })}
 
-          {/* 5th Tab: More / Account */}
+          {/* 6th Tab: More / Account */}
           <button
             type="button"
             onClick={() => setIsMoreMenuOpen(true)}
-            className={`flex flex-col items-center justify-center py-1.5 px-1 rounded-md transition-colors ${
+            className={`flex flex-col items-center justify-center py-1.5 px-0.5 rounded-md transition-colors ${
               isMoreMenuOpen ? "text-[#6D1A2A] font-bold" : "text-[#8A796B] hover:text-[#171717]"
             }`}
           >
             <div className="p-1 rounded-full">
               <MoreHorizontal className="w-4 h-4" />
             </div>
-            <span className="text-[10px] tracking-tight mt-0.5">More</span>
+            <span className="text-[9.5px] tracking-tight mt-0.5">More</span>
           </button>
         </div>
       </div>
@@ -250,6 +259,17 @@ export default function AdminNav({ user }: { user?: { name?: string; email?: str
                 <div className="flex items-center gap-3">
                   <Package className="w-4 h-4 text-[#855D25]" />
                   <span>Product Catalog</span>
+                </div>
+              </Link>
+
+              <Link
+                href="/admin/customers"
+                onClick={() => setIsMoreMenuOpen(false)}
+                className="w-full flex items-center justify-between p-3 rounded-lg bg-[#FCFAF6] hover:bg-[#F3EBE1] text-xs font-semibold text-[#171717] border border-[#EBD9C8]/60"
+              >
+                <div className="flex items-center gap-3">
+                  <Users className="w-4 h-4 text-[#855D25]" />
+                  <span>Customers &amp; Patrons</span>
                 </div>
               </Link>
 
