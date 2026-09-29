@@ -20,13 +20,13 @@ export default function Collections() {
     if (id === "jewellery") return "object-center";
     if (id === "festive-poshaks") return "poshak-img-traditional";
     if (id === "bridal-poshaks") return "poshak-img-stitched";
-    if (id === "everyday-poshaks") return "poshak-img-unstitched";
+    if (id === "everyday-poshaks" || id === "classic-poshaks") return "poshak-img-unstitched";
     return "object-center";
   };
 
   const getCollectionHref = (item: CollectionItem) => {
     if (item.id === "bridal-poshaks") return "/collection?category=bridal";
-    if (item.id === "everyday-poshaks") return "/collection?category=everyday";
+    if (item.id === "everyday-poshaks" || item.id === "classic-poshaks") return "/collection?category=classic";
     if (item.id === "festive-poshaks") return "/collection?category=festive";
     if (item.id === "jewellery") return "/collection?category=jewellery";
     return "/collection";

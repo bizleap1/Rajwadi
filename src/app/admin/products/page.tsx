@@ -48,7 +48,7 @@ export default function AdminProductsPage() {
   const [categoriesList, setCategoriesList] = useState<string[]>([
     "Bridal",
     "Festive",
-    "Everyday",
+    "Classic Poshak",
     "Jewellery",
     "Stitched",
     "Unstitched",

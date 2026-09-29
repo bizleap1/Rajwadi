@@ -109,7 +109,7 @@ export async function GET(req: NextRequest) {
     const standardCategories = [
       "Bridal",
       "Festive",
-      "Everyday",
+      "Classic Poshak",
       "Jewellery",
       "Stitched",
       "Unstitched",

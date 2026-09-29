@@ -74,7 +74,7 @@ export default function FeaturedPoshaks({ onSelectProduct }: FeaturedPoshaksProp
               <div className="p-6 flex flex-col flex-1 justify-between text-center bg-royal-ivory">
                 <div>
                   <span className="text-[10px] uppercase tracking-[0.25em] text-antique-gold block mb-1.5 font-medium">
-                    {product.category}
+                    {(product.category || "").toLowerCase() === "everyday" ? "Classic Poshak" : product.category}
                   </span>
                   <h3 className="font-serif text-xl md:text-2xl text-charcoal font-normal mb-2 leading-snug group-hover:text-heritage-maroon transition-colors">
                     {product.name}

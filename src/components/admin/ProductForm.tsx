@@ -46,7 +46,7 @@ interface ProductFormProps {
 const PRESET_CATEGORIES = [
   "Bridal",
   "Festive",
-  "Everyday",
+  "Classic Poshak",
   "Jewellery",
   "Stitched",
   "Unstitched",

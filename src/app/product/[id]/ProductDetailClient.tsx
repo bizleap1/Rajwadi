@@ -444,7 +444,7 @@ function ProductDetailInner({
           <div className="lg:col-span-5 flex flex-col text-left px-4 sm:px-0 pt-4 sm:pt-0">
             {/* 1. CATEGORY */}
             <span className="text-[10px] sm:text-[11px] uppercase tracking-[0.26em] text-[#855D25] font-semibold font-sans block mb-1">
-              {product.category}
+              {(product.category || "").toUpperCase() === "EVERYDAY" ? "CLASSIC POSHAK" : product.category}
             </span>
 
             {/* 2. PRODUCT NAME */}
@@ -585,7 +585,10 @@ function ProductDetailInner({
                 <div className="py-2.5 flex justify-between items-center gap-3">
                   <span className="text-[#8A796B] flex-shrink-0">Best For</span>
                   <span className="text-[#171717] font-medium text-right">
-                    {product.bestFor || product.subCategory || product.category || "Bridal"}
+                    {(() => {
+                      const val = product.bestFor || product.subCategory || product.category || "Bridal";
+                      return val.toLowerCase() === "everyday" ? "Classic Poshak" : val;
+                    })()}
                   </span>
                 </div>
               </div>

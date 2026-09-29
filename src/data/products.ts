@@ -1,4 +1,4 @@
-export type PrimaryCategory = "Bridal" | "Festive" | "Everyday" | "Jewellery";
+export type PrimaryCategory = "Bridal" | "Festive" | "Classic Poshak" | "Jewellery";
 export type ProductType = "Stitched" | "Unstitched" | "Jewellery";
 
 export interface PoshakProduct {
@@ -138,7 +138,7 @@ export function getCategoryEyebrow(product: { category?: string; type?: string }
   const rawCat = (product.category || "FESTIVE").toUpperCase();
   let categoryUpper = rawCat;
   if (rawCat === "BRIDAL") categoryUpper = "HEAVY";
-  else if (rawCat === "EVERYDAY") categoryUpper = "CLASSIC";
+  else if (rawCat === "EVERYDAY" || rawCat === "CLASSIC" || rawCat === "CLASSIC POSHAK") categoryUpper = "CLASSIC";
 
   const isUnstitched =
     (product.type || "").toLowerCase() === "unstitched" ||
@@ -447,8 +447,8 @@ export const REAL_POSHAKS: PoshakProduct[] = [
   {
     id: "kesariya-sunehri-rajputi-poshak",
     name: "Kesariya Sunehri Poshak",
-    category: "Everyday",
-    subCategory: "Everyday",
+    category: "Classic Poshak",
+    subCategory: "Classic Poshak",
 
     price: "₹ 3,055",
     priceNote: "Inclusive of stitching",
@@ -470,7 +470,7 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     quality: "Semi-Pure Poshak",
     work: "Heavy Kundan Work",
     odhna: "Four-side border with Gota Kiran",
-    bestFor: "Everyday",
+    bestFor: "Classic Poshak",
     details: [
       "Semi-pure poshak",
       "Georgette material",
@@ -490,9 +490,9 @@ export const REAL_POSHAKS: PoshakProduct[] = [
   {
     id: "kesariya-utsav-rajputi-poshak",
     name: "Kesariya Utsav Poshak",
-    category: "Everyday",
+    category: "Classic Poshak",
     type: "Stitched",
-    subCategory: "Everyday",
+    subCategory: "Classic Poshak",
 
     price: "₹ 3,106",
     priceNote: "Inclusive of stitching",
@@ -882,8 +882,8 @@ export const REAL_POSHAKS: PoshakProduct[] = [
   {
     id: "kesariya-gulab-rajputi-poshak",
     name: "Kesariya Gulab Poshak",
-    category: "Everyday",
-    subCategory: "Everyday",
+    category: "Classic Poshak",
+    subCategory: "Classic Poshak",
 
     price: "₹ 2,800",
     priceNote: "Inclusive of stitching",
@@ -905,7 +905,7 @@ export const REAL_POSHAKS: PoshakProduct[] = [
     quality: "Semi-Pure Poshak",
     work: "Yellow Sequin Work",
     odhna: "Four-side border with Gota Kiran",
-    bestFor: "Everyday",
+    bestFor: "Classic Poshak",
     details: [
       "Semi-pure poshak",
       "Georgette fabric",
@@ -1856,8 +1856,8 @@ export const COLLECTIONS_DATA: CollectionItem[] = [
     imagePositionDesktop: "md:object-top",
     imagePositionMobile: "object-top",
     subCategories: [
-      { id: "stitched", title: "Stitched", href: "/collection?category=everyday&type=stitched" },
-      { id: "poshak-material", title: "Semi-Stitched", href: "/collection?category=everyday&type=unstitched" },
+      { id: "stitched", title: "Stitched", href: "/collection?category=classic&type=stitched" },
+      { id: "poshak-material", title: "Semi-Stitched", href: "/collection?category=classic&type=unstitched" },
     ],
   },
   {
@@ -1929,14 +1929,14 @@ export const LOOKBOOK_ITEMS = [
   {
     id: "lb-3",
     title: "Heritage Court Ensemble",
-    category: "Everyday Elegance",
+    category: "Classic Elegance",
     image: "/hero_couture.webp",
     note: "Emerald georgette kalidar lehenga with ancestral zari border finish.",
   },
   {
     id: "lb-4",
     title: "Heirloom Saffron Draping",
-    category: "Everyday Elegance",
+    category: "Classic Elegance",
     image: "/hero_couture.webp",
     note: "Kesariya gold threadwork tailored for sacred family ceremonies.",
   },

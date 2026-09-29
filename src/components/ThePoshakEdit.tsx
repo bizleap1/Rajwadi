@@ -176,7 +176,7 @@ export default function ThePoshakEdit({ onSelectProduct }: ThePoshakEditProps) {
                           </h3>
 
                           <span className="text-[9.5px] sm:text-[10px] uppercase tracking-[0.2em] text-[#8C827A] font-medium font-sans mt-0.5 block">
-                            {product.category}
+                            {(product.category || "").toLowerCase() === "everyday" ? "Classic Poshak" : product.category}
                           </span>
 
                           <p className="font-serif italic text-[12px] sm:text-[12.5px] text-[#6B635B] mt-0.5 line-clamp-1">

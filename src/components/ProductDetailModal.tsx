@@ -109,7 +109,7 @@ export default function ProductDetailModal({
                 <div className="flex items-center gap-2 mb-1.5">
                   <span className="h-[1px] w-4 bg-[#855D25]" />
                   <span className="text-[10px] uppercase tracking-[0.26em] text-[#855D25] font-semibold font-sans">
-                    RAJPUTI POSHAK • {product.category.toUpperCase()}
+                    RAJPUTI POSHAK • {(product.category || "").toUpperCase() === "EVERYDAY" ? "CLASSIC POSHAK" : product.category.toUpperCase()}
                   </span>
                 </div>
 

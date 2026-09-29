@@ -231,7 +231,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                         {product.name}
                       </h4>
                       <p className="text-[10px] text-[#8A796B] uppercase tracking-wider mt-0.5">
-                        {product.category}
+                        {(product.category || "").toLowerCase() === "everyday" ? "Classic Poshak" : product.category}
                       </p>
                       {isProductEnquiryOnly(product) ? (
                         <p className="text-xs font-semibold text-[#128C7E] mt-1 flex items-center gap-1">

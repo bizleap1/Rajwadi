@@ -21,7 +21,7 @@ const CartDrawer = dynamic(() => import("@/components/CartDrawer"), {
   ssr: false,
 });
 
-type CategoryFilter = "ALL" | "BRIDAL" | "FESTIVE" | "EVERYDAY" | "JEWELLERY";
+type CategoryFilter = "ALL" | "BRIDAL" | "FESTIVE" | "CLASSIC" | "EVERYDAY" | "JEWELLERY";
 type ProductTypeFilter = "ALL" | "STITCHED" | "UNSTITCHED" | "JEWELLERY";
 type SortOption = "featured" | "newest" | "price-asc" | "price-desc";
 
@@ -205,12 +205,12 @@ function CollectionContent() {
   useEffect(() => {
     if (categoryQuery) {
       const upper = categoryQuery.toUpperCase();
-      if (["BRIDAL", "FESTIVE", "EVERYDAY", "JEWELLERY"].includes(upper)) {
+      if (["BRIDAL", "FESTIVE", "JEWELLERY"].includes(upper)) {
         setActiveCategory(upper as CategoryFilter);
       } else if (upper === "HEAVY" || upper === "HEAVY-POSHAK" || upper === "HEAVY_POSHAK" || upper === "HEAVY-POSHAKS") {
         setActiveCategory("BRIDAL");
-      } else if (upper === "CLASSIC" || upper === "CLASSIC-POSHAK" || upper === "CLASSIC_POSHAK" || upper === "CLASSIC-POSHAKS") {
-        setActiveCategory("EVERYDAY");
+      } else if (upper === "CLASSIC" || upper === "CLASSIC-POSHAK" || upper === "CLASSIC_POSHAK" || upper === "CLASSIC-POSHAKS" || upper === "EVERYDAY") {
+        setActiveCategory("CLASSIC");
       } else if (upper === "STITCHED") {
         setActiveType("STITCHED");
       } else if (upper === "UNSTITCHED") {
@@ -220,12 +220,12 @@ function CollectionContent() {
     }
     if (subQuery) {
       const upperSub = subQuery.toUpperCase();
-      if (["BRIDAL", "FESTIVE", "EVERYDAY"].includes(upperSub)) {
+      if (["BRIDAL", "FESTIVE"].includes(upperSub)) {
         setActiveCategory(upperSub as CategoryFilter);
       } else if (upperSub === "HEAVY" || upperSub === "HEAVY-POSHAK") {
         setActiveCategory("BRIDAL");
-      } else if (upperSub === "CLASSIC" || upperSub === "CLASSIC-POSHAK") {
-        setActiveCategory("EVERYDAY");
+      } else if (upperSub === "CLASSIC" || upperSub === "CLASSIC-POSHAK" || upperSub === "EVERYDAY") {
+        setActiveCategory("CLASSIC");
       }
       setTimeout(() => window.scrollTo({ top: 0, behavior: 'instant' }), 50);
     }
@@ -318,11 +318,12 @@ function CollectionContent() {
           ).length,
         },
         {
-          key: "EVERYDAY",
+          key: "CLASSIC",
           label: "Classic Poshak",
-          count: allProducts.filter(
-            (p) => (p.category || "").toUpperCase() === "EVERYDAY"
-          ).length,
+          count: allProducts.filter((p) => {
+            const cat = (p.category || "").toUpperCase();
+            return cat === "CLASSIC" || cat === "CLASSIC POSHAK" || cat === "EVERYDAY";
+          }).length,
         },
         {
           key: "FESTIVE",
@@ -429,6 +430,11 @@ function CollectionContent() {
           return cat !== "JEWELLERY" && type !== "JEWELLERY";
         });
       }
+    } else if (activeCategory === "CLASSIC" || (activeCategory as string) === "EVERYDAY") {
+      list = list.filter((p) => {
+        const cat = (p.category || "").toUpperCase();
+        return cat === "CLASSIC" || cat === "CLASSIC POSHAK" || cat === "EVERYDAY";
+      });
     } else {
       list = list.filter((p) => (p.category || "").toUpperCase() === activeCategory);
     }

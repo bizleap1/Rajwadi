@@ -186,7 +186,7 @@ export default function ProductCard({
           <div className="min-w-0 flex-1">
             {/* Category in Small Uppercase */}
             <span className="text-[8.5px] sm:text-[9.5px] uppercase tracking-[0.22em] text-[#8C827A] font-semibold font-sans block leading-none mb-1">
-              {product.category}
+              {(product.category || "").toUpperCase() === "EVERYDAY" ? "CLASSIC POSHAK" : product.category}
             </span>
 
             {/* Product Name */}

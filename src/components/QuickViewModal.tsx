@@ -105,7 +105,10 @@ export default function QuickViewModal({
             <div className="p-6 sm:p-8 flex flex-col justify-between">
               <div>
                 <span className="text-[10px] uppercase tracking-[0.25em] text-[#855D25] font-semibold font-sans block mb-1">
-                  {product.category} Poshak
+                  {(() => {
+                    const cat = (product.category || "").toLowerCase() === "everyday" ? "Classic Poshak" : (product.category || "Rajputi");
+                    return cat.toLowerCase().includes("poshak") ? cat : `${cat} Poshak`;
+                  })()}
                 </span>
 
                 <h3 className="font-serif text-2xl sm:text-3xl text-[#171717] font-normal leading-tight mb-2">
