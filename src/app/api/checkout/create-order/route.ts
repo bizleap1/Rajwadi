@@ -11,21 +11,22 @@ export const dynamic = "force-dynamic";
 
 async function generateUniqueOrderNumber(): Promise<string> {
   try {
-    // Find the latest orders to determine the current highest sequential ID
+    // Find latest orders to determine the current highest sequential ID
     const recentOrders = await prisma.order.findMany({
       select: { orderNumber: true },
       orderBy: { createdAt: "desc" },
-      take: 50,
+      take: 100,
     });
 
-    let highestSeq = 1000; // Baseline starting number (first order will be RW1001)
+    let highestSeq = 0; // Baseline: first order starts at 0001
 
     for (const ord of recentOrders) {
       if (ord.orderNumber) {
         const match = ord.orderNumber.match(/\d+/);
         if (match) {
           const num = parseInt(match[0], 10);
-          if (!isNaN(num) && num > highestSeq && num < 9000000) {
+          // Filter out long timestamp/random IDs (> 90000)
+          if (!isNaN(num) && num > highestSeq && num < 90000) {
             highestSeq = num;
           }
         }
@@ -35,8 +36,9 @@ async function generateUniqueOrderNumber(): Promise<string> {
     let nextSeq = highestSeq + 1;
 
     // Verify candidate does not already exist in database
-    for (let attempt = 0; attempt < 50; attempt++) {
-      const candidate = `RW${nextSeq}`;
+    for (let attempt = 0; attempt < 100; attempt++) {
+      const paddedNum = String(nextSeq).padStart(4, "0");
+      const candidate = `RW${paddedNum}`;
       const exists = await prisma.order.findUnique({
         where: { orderNumber: candidate },
       });
@@ -46,10 +48,11 @@ async function generateUniqueOrderNumber(): Promise<string> {
       nextSeq++;
     }
 
-    return `RW${nextSeq}`;
+    const fallbackPadded = String(nextSeq).padStart(4, "0");
+    return `RW${fallbackPadded}`;
   } catch (error) {
     console.error("Error generating sequential orderNumber:", error);
-    return `RW${Date.now().toString().slice(-6)}`;
+    return `RW0001`;
   }
 }
 
