@@ -5,10 +5,11 @@ import { REAL_POSHAKS } from "@/data/products";
 export const revalidate = 3600; // Cache and revalidate every 1 hour for fast Googlebot crawling
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const envUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || "";
   const siteUrl =
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    process.env.NEXT_PUBLIC_APP_URL ||
-    "https://rajwadirajputiposhak.com";
+    envUrl && !envUrl.includes("vercel.app") && !envUrl.includes("localhost")
+      ? envUrl.replace(/\/$/, "")
+      : "https://www.rajwadirajputiposhak.com";
 
   // Static core routes
   const staticRoutes: MetadataRoute.Sitemap = [

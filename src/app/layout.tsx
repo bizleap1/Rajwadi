@@ -2,10 +2,11 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Providers from "@/components/Providers";
 
+const envUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || "";
 const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ||
-  process.env.NEXT_PUBLIC_APP_URL ||
-  "https://rajwadirajputiposhak.com";
+  envUrl && !envUrl.includes("vercel.app") && !envUrl.includes("localhost")
+    ? envUrl.replace(/\/$/, "")
+    : "https://www.rajwadirajputiposhak.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
