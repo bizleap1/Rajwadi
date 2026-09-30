@@ -43,6 +43,8 @@ export async function GET(req: NextRequest) {
       orderBy = [{ priceInPaise: "asc" }, { sequenceNumber: "asc" }, { createdAt: "asc" }];
     } else if (sort === "price-desc") {
       orderBy = [{ priceInPaise: "desc" }, { sequenceNumber: "asc" }, { createdAt: "asc" }];
+    } else if (featuredOnly) {
+      orderBy = [{ featuredOrder: "asc" }, { sequenceNumber: "asc" }, { createdAt: "asc" }];
     } else {
       // Default: stable sequence order internally assigned (#1, #2, #3, ...)
       orderBy = [{ sequenceNumber: "asc" }, { createdAt: "asc" }];
