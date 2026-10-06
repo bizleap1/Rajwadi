@@ -801,18 +801,14 @@ export default function CheckoutPage() {
                       disabled={isProcessing}
                       className="w-full py-4 bg-[#6D1A2A] hover:bg-[#581522] text-[#FAF5EE] text-xs uppercase tracking-[0.2em] font-semibold transition-colors rounded-sm flex items-center justify-center gap-2 cursor-pointer shadow-md disabled:opacity-60"
                     >
-                      {isProcessing ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          <span>Opening Razorpay Secure Gateway...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Lock className="w-4 h-4 text-[#E6DCB8]" />
-                          <span>Pay ₹ {formattedAmount} via Razorpay</span>
-                          <ArrowRight className="w-3.5 h-3.5" />
-                        </>
-                      )}
+                      {isProcessing && <Loader2 className="w-4 h-4 animate-spin" />}
+                      {!isProcessing && <Lock className="w-4 h-4 text-[#E6DCB8]" />}
+                      <span>
+                        {isProcessing
+                          ? "Opening Razorpay Secure Gateway..."
+                          : `Pay ₹ ${formattedAmount} via Razorpay`}
+                      </span>
+                      {!isProcessing && <ArrowRight className="w-3.5 h-3.5" />}
                     </button>
 
                     <div className="space-y-1.5 text-center">
