@@ -41,7 +41,7 @@ export default function AdminOrdersPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
-  const [paymentStatus, setPaymentStatus] = useState("ALL");
+  const [paymentStatus, setPaymentStatus] = useState("PAID");
   const [fulfilmentStatus, setFulfilmentStatus] = useState("ALL");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -246,9 +246,9 @@ export default function AdminOrdersPage() {
               }}
               className="w-full sm:w-auto bg-[#FCFAF6] border border-[#D9C4B0] text-xs py-2 px-2.5 rounded-sm text-[#171717] focus:outline-none focus:ring-1 focus:ring-[#855D25]"
             >
+              <option value="PAID">Paid (Confirmed)</option>
               <option value="ALL">All Payments</option>
-              <option value="PAID">Paid</option>
-              <option value="PENDING">Pending</option>
+              <option value="PENDING">Pending (Unpaid)</option>
               <option value="FAILED">Failed</option>
               <option value="CANCELLED">Cancelled</option>
             </select>
@@ -303,6 +303,17 @@ export default function AdminOrdersPage() {
               ? "No orders match the selected filters."
               : "When customers place orders, they will appear here with full payment and address snapshots."}
           </p>
+          {paymentStatus !== "ALL" && (
+            <button
+              onClick={() => {
+                setPaymentStatus("ALL");
+                setPage(1);
+              }}
+              className="mt-3 text-xs text-[#6D1A2A] font-medium underline hover:text-[#521320]"
+            >
+              View all orders (including unpaid attempts)
+            </button>
+          )}
         </div>
       ) : (
         /* Orders Table */
