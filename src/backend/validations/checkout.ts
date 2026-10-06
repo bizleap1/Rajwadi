@@ -27,6 +27,7 @@ export const CreateCheckoutOrderSchema = z.object({
     .array(CartCheckoutItemSchema)
     .min(1, "Your cart must contain at least one item"),
   deliveryAddress: DeliveryAddressSchema,
+  paymentMethod: z.enum(["RAZORPAY", "UPI_SCANNER"]).default("RAZORPAY").optional(),
   notes: z.string().max(500).optional().nullable(),
   paymentScreenshotUrl: z.string().optional().nullable(),
   utrNumber: z.string().max(100).optional().nullable(),

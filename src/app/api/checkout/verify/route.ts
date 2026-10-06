@@ -158,6 +158,14 @@ export async function POST(req: NextRequest) {
           data: { status: "FINALIZED" },
         });
 
+        // Increment coupon usedCount if coupon applied
+        if (order.couponId) {
+          await tx.coupon.update({
+            where: { id: order.couponId },
+            data: { usedCount: { increment: 1 } },
+          }).catch(() => {});
+        }
+
         // Record transaction
         await tx.paymentTransaction.create({
           data: {

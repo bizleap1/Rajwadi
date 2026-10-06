@@ -5,7 +5,6 @@ import { CreateCheckoutOrderSchema } from "@/lib/validations/checkout";
 import { getServerSession } from "@/lib/auth";
 import { razorpayInstance, isRazorpayConfigured } from "@/lib/razorpay";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
-import { sendOrderInvoiceEmail } from "@/backend/services/email";
 
 export const dynamic = "force-dynamic";
 
@@ -82,7 +81,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { items, deliveryAddress, notes, paymentScreenshotUrl, utrNumber, couponCode } = validated.data;
+    const {
+      items,
+      deliveryAddress,
+      notes,
+      paymentScreenshotUrl,
+      utrNumber,
+      couponCode,
+      paymentMethod,
+    } = validated.data;
     const session = await getServerSession();
     const userId = session?.user?.id || null;
 
@@ -270,112 +277,8 @@ export async function POST(req: NextRequest) {
     const guestAccessToken = crypto.randomBytes(32).toString("hex");
     const reservationExpiry = new Date(Date.now() + 15 * 60 * 1000); // 15-minute stock reservation
 
-    // ── RAZORPAY PAUSE MODE ──
-    // When paused, orders are confirmed directly without opening the payment gateway modal
-    const isRazorpayPaused = true;
-
-    if (isRazorpayPaused) {
-      const defaultDelivery = new Date();
-      defaultDelivery.setDate(defaultDelivery.getDate() + 7);
-
-      const savedOrder = await prisma.$transaction(
-        async (tx) => {
-          const order = await tx.order.create({
-            data: {
-              orderNumber,
-              userId,
-              guestAccessToken,
-              guestEmail: deliveryAddress.email.toLowerCase(),
-              subtotalInPaise,
-              shippingInPaise,
-              stitchingInPaise,
-              discountInPaise,
-              couponId: appliedCoupon ? appliedCoupon.id : null,
-              couponCode: appliedCoupon ? appliedCoupon.code : null,
-              discountDetails: discountDetails || undefined,
-              totalInPaise,
-              paymentStatus: "VERIFICATION_PENDING",
-              fulfilmentStatus: "PENDING",
-              paymentMethod: "UPI_SCANNER",
-              paymentScreenshotUrl: paymentScreenshotUrl || null,
-              utrNumber: utrNumber || null,
-              estimatedDeliveryDate: defaultDelivery,
-              shippingAddress: deliveryAddress as any,
-              notes: notes || null,
-              items: {
-                create: orderItemsData,
-              },
-            },
-          });
-
-          // Increment coupon usedCount if coupon applied
-          if (appliedCoupon) {
-            await tx.coupon.update({
-              where: { id: appliedCoupon.id },
-              data: { usedCount: { increment: 1 } },
-            }).catch(() => {});
-          }
-
-          // Deduct product stock concurrently
-          const stockUpdates = orderItemsData
-            .filter((item) => item.productId)
-            .map((item) =>
-              tx.product
-                .update({
-                  where: { id: item.productId },
-                  data: {
-                    stock: { decrement: item.quantity },
-                  },
-                })
-                .catch(() => {})
-            );
-
-          if (stockUpdates.length > 0) {
-            await Promise.all(stockUpdates);
-          }
-
-          // Save delivery address to user account for future checkouts
-          if (userId) {
-            await tx.address
-              .create({
-                data: {
-                  userId,
-                  name: deliveryAddress.fullName,
-                  phone: deliveryAddress.phone,
-                  address: deliveryAddress.address,
-                  city: deliveryAddress.city,
-                  state: deliveryAddress.state,
-                  pincode: deliveryAddress.pincode,
-                  isDefault: true,
-                },
-              })
-              .catch(() => {});
-          }
-
-          return order;
-        },
-        {
-          maxWait: 15000,
-          timeout: 30000,
-        }
-      );
-
-      // Asynchronously trigger tax invoice delivery to both customer & store owner (bizleap1@gmail.com)
-      sendOrderInvoiceEmail(savedOrder.id, deliveryAddress.email).catch((emailErr) => {
-        console.error("Async invoice delivery error:", emailErr);
-      });
-
-      return NextResponse.json({
-        success: true,
-        directSuccess: true,
-        orderId: savedOrder.id,
-        orderNumber: savedOrder.orderNumber,
-        guestAccessToken,
-        discountInPaise,
-        totalInPaise,
-        paymentStatus: "VERIFICATION_PENDING",
-      });
-    }
+    const defaultDelivery = new Date();
+    defaultDelivery.setDate(defaultDelivery.getDate() + 7);
 
     // Check Razorpay configuration
     if (!isRazorpayConfigured || !razorpayInstance) {
@@ -427,11 +330,16 @@ export async function POST(req: NextRequest) {
             subtotalInPaise,
             shippingInPaise,
             stitchingInPaise,
+            discountInPaise,
+            couponId: appliedCoupon ? appliedCoupon.id : null,
+            couponCode: appliedCoupon ? appliedCoupon.code : null,
+            discountDetails: discountDetails || undefined,
             totalInPaise,
             paymentStatus: "PENDING",
             fulfilmentStatus: "PENDING",
             paymentMethod: "RAZORPAY",
             razorpayOrderId: razorpayOrder.id,
+            estimatedDeliveryDate: defaultDelivery,
             shippingAddress: deliveryAddress as any,
             notes: notes || null,
             items: {
