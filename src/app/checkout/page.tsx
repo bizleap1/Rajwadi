@@ -216,12 +216,12 @@ export default function CheckoutPage() {
       newErrors.fullName = "Please enter your full name.";
     }
 
-    const cleanPhone = formData.phone.replace(/\D/g, "");
-    if (!cleanPhone || cleanPhone.length < 10) {
-      newErrors.phone = "Please enter a valid 10-digit mobile number.";
+    const cleanPhone = formData.phone.replace(/\D/g, "").slice(-10);
+    if (!cleanPhone || !/^[6-9]\d{9}$/.test(cleanPhone)) {
+      newErrors.phone = "Please enter a valid 10-digit Indian mobile number (e.g. 9876543210).";
     }
 
-    if (!formData.address.trim() || formData.address.trim().length < 6) {
+    if (!formData.address.trim() || formData.address.trim().length < 5) {
       newErrors.address = "Please enter your complete street address.";
     }
 
@@ -233,7 +233,7 @@ export default function CheckoutPage() {
       newErrors.state = "Please select a state.";
     }
 
-    const cleanPin = formData.pincode.replace(/\D/g, "");
+    const cleanPin = formData.pincode.replace(/\D/g, "").slice(-6);
     if (!cleanPin || cleanPin.length !== 6) {
       newErrors.pincode = "Please enter a valid 6-digit PIN code.";
     }
@@ -307,10 +307,15 @@ export default function CheckoutPage() {
 
       const orderPayload = {
         items: cartItems.map((item) => ({
-          productId: item.productId,
-          size: item.size,
-          stitchingSelected: item.stitchingSelected,
-          quantity: item.quantity,
+          productId:
+            item.productId ||
+            (item as any).product?.id ||
+            (item as any).product?.slug ||
+            (item as any).id ||
+            "",
+          size: item.size || "Standard",
+          stitchingSelected: Boolean(item.stitchingSelected),
+          quantity: Math.max(1, Number(item.quantity) || 1),
         })),
         deliveryAddress,
         paymentMethod: "RAZORPAY",
@@ -326,8 +331,13 @@ export default function CheckoutPage() {
       const orderData = await createRes.json();
 
       if (!createRes.ok) {
+        const fieldErrorMsg =
+          orderData.details?.fieldErrors &&
+          Object.values(orderData.details.fieldErrors).flat()[0];
         throw new Error(
-          orderData.error || "Failed to initiate Razorpay order. Please try again."
+          (typeof fieldErrorMsg === "string" ? fieldErrorMsg : null) ||
+            orderData.error ||
+            "Failed to initiate Razorpay order. Please try again."
         );
       }
 

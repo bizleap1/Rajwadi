@@ -75,8 +75,9 @@ export async function POST(req: NextRequest) {
     const validated = CreateCheckoutOrderSchema.safeParse(body);
 
     if (!validated.success) {
+      const firstIssue = validated.error.issues?.[0]?.message || "Invalid checkout details";
       return NextResponse.json(
-        { error: "Invalid checkout details", details: validated.error.flatten() },
+        { error: firstIssue, details: validated.error.flatten() },
         { status: 400 }
       );
     }

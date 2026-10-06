@@ -2,24 +2,32 @@ import { z } from "zod";
 
 export const CartCheckoutItemSchema = z.object({
   productId: z.string().min(1, "Product ID is required"),
-  variantId: z.string().optional().nullable(),
-  size: z.string().optional().nullable(),
-  stitchingSelected: z.boolean().default(false),
+  variantId: z.string().nullish(),
+  size: z.string().nullish(),
+  stitchingSelected: z.boolean().nullish().default(false),
   quantity: z.number().int().min(1, "Quantity must be at least 1").max(10, "Maximum 10 items per product"),
 });
 
 export const DeliveryAddressSchema = z.object({
-  fullName: z.string().min(2, "Full name must be at least 2 characters").max(100),
-  email: z.string().email("Please enter a valid email address"),
+  fullName: z.string().trim().min(2, "Full name must be at least 2 characters").max(100),
+  email: z.string().trim().email("Please enter a valid email address"),
   phone: z
     .string()
-    .regex(/^[6-9]\d{9}$/, "Please enter a valid 10-digit Indian mobile number"),
-  address: z.string().min(6, "Please enter your complete street address"),
-  city: z.string().min(2, "Please enter your city"),
-  state: z.string().min(2, "Please select a state"),
+    .trim()
+    .transform((val) => val.replace(/\D/g, "").slice(-10))
+    .refine((val) => /^[6-9]\d{9}$/.test(val), {
+      message: "Please enter a valid 10-digit Indian mobile number (starting with 6, 7, 8, or 9)",
+    }),
+  address: z.string().trim().min(5, "Please enter your complete street address"),
+  city: z.string().trim().min(2, "Please enter your city"),
+  state: z.string().trim().min(2, "Please select a state"),
   pincode: z
     .string()
-    .regex(/^\d{6}$/, "Please enter a valid 6-digit Indian PIN code"),
+    .trim()
+    .transform((val) => val.replace(/\D/g, "").slice(-6))
+    .refine((val) => /^\d{6}$/.test(val), {
+      message: "Please enter a valid 6-digit Indian PIN code",
+    }),
 });
 
 export const CreateCheckoutOrderSchema = z.object({
@@ -28,10 +36,10 @@ export const CreateCheckoutOrderSchema = z.object({
     .min(1, "Your cart must contain at least one item"),
   deliveryAddress: DeliveryAddressSchema,
   paymentMethod: z.enum(["RAZORPAY", "UPI_SCANNER"]).default("RAZORPAY").optional(),
-  notes: z.string().max(500).optional().nullable(),
-  paymentScreenshotUrl: z.string().optional().nullable(),
-  utrNumber: z.string().max(100).optional().nullable(),
-  couponCode: z.string().optional().nullable(),
+  notes: z.string().max(500).nullish(),
+  paymentScreenshotUrl: z.string().nullish(),
+  utrNumber: z.string().max(100).nullish(),
+  couponCode: z.string().nullish(),
 });
 
 export const VerifyPaymentSchema = z.object({
