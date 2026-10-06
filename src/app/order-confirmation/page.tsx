@@ -19,6 +19,7 @@ import {
   FileText,
   Truck,
   Sparkles,
+  CreditCard,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -154,10 +155,11 @@ function OrderConfirmationContent() {
 
             <div className="flex flex-wrap items-center justify-center gap-3 pt-5">
               <Link
-                href="/checkout"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#6D1A2A] hover:bg-[#581522] text-white text-xs uppercase tracking-wider font-semibold rounded-sm shadow-xs transition-colors"
+                href={`/order/${order.id}?token=${token || ""}`}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-[#6D1A2A] hover:bg-[#581522] text-white text-xs uppercase tracking-wider font-semibold rounded-sm shadow-xs transition-colors"
               >
-                <span>Return to Checkout &amp; Complete Payment</span>
+                <CreditCard className="w-4 h-4 text-[#E6DCB8]" />
+                <span>Complete Payment Now (₹ {(order.totalInPaise / 100).toLocaleString("en-IN")})</span>
               </Link>
               <Link
                 href={`https://wa.me/918766667101?text=${encodeURIComponent(`Pranam! I have a query regarding pending Order #${order.orderNumber}.`)}`}

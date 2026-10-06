@@ -25,6 +25,7 @@ import {
   HelpCircle,
   Download,
   FileText,
+  CreditCard,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -108,6 +109,121 @@ export default function OrderTrackingPage() {
       setIsLoading(false);
     }
   }
+
+  const [isPaying, setIsPaying] = useState(false);
+  const [payError, setPayError] = useState("");
+  const [paySuccess, setPaySuccess] = useState(false);
+
+  const loadRazorpayScript = (): Promise<boolean> => {
+    return new Promise((resolve) => {
+      if (typeof window === "undefined") return resolve(false);
+      if ((window as any).Razorpay) return resolve(true);
+
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.async = true;
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
+  const handlePayNow = async () => {
+    if (!order) return;
+    setIsPaying(true);
+    setPayError("");
+    setPaySuccess(false);
+
+    try {
+      const isLoaded = await loadRazorpayScript();
+      if (!isLoaded) {
+        throw new Error(
+          "Unable to load Razorpay payment gateway. Please check your internet connection."
+        );
+      }
+
+      const payRes = await fetch(`/api/orders/${order.id}/pay?token=${token || ""}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token }),
+      });
+
+      const payData = await payRes.json();
+      if (!payRes.ok) {
+        throw new Error(payData.error || "Failed to initiate payment retry.");
+      }
+
+      const options = {
+        key: payData.keyId,
+        amount: payData.amountInPaise,
+        currency: payData.currency || "INR",
+        name: "Rajwadi Rajputi Poshak",
+        description: `Order #${payData.orderNumber}`,
+        image: "/logo without bg.png",
+        order_id: payData.razorpayOrderId,
+        prefill: {
+          name: payData.customerName,
+          email: payData.customerEmail,
+          contact: payData.customerPhone,
+        },
+        theme: {
+          color: "#6D1A2A",
+        },
+        handler: async function (response: any) {
+          try {
+            setIsPaying(true);
+            const verifyRes = await fetch("/api/checkout/verify", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                orderId: payData.orderId,
+                razorpayOrderId: response.razorpay_order_id,
+                razorpayPaymentId: response.razorpay_payment_id,
+                razorpaySignature: response.razorpay_signature,
+              }),
+            });
+
+            const verifyData = await verifyRes.json();
+            if (!verifyRes.ok) {
+              throw new Error(
+                verifyData.error || "Payment verification failed."
+              );
+            }
+
+            setPaySuccess(true);
+            await loadOrder();
+          } catch (vErr: any) {
+            console.error("Verification error:", vErr);
+            setPayError(
+              vErr.message ||
+                "Payment was completed, but verification is processing. Please reload in a moment."
+            );
+          } finally {
+            setIsPaying(false);
+          }
+        },
+        modal: {
+          ondismiss: function () {
+            setIsPaying(false);
+          },
+        },
+      };
+
+      const rzp = new (window as any).Razorpay(options);
+      rzp.on("payment.failed", function (response: any) {
+        console.error("Razorpay failed:", response.error);
+        setPayError(
+          response.error?.description || "Payment failed or was cancelled."
+        );
+        setIsPaying(false);
+      });
+      rzp.open();
+    } catch (err: any) {
+      console.error(err);
+      setPayError(err.message || "Failed to launch Razorpay gateway.");
+      setIsPaying(false);
+    }
+  };
 
   useEffect(() => {
     loadOrder();
@@ -260,17 +376,75 @@ export default function OrderTrackingPage() {
             </div>
           </div>
 
-          {/* Unpaid Warning Banner */}
+          {/* Unpaid Action Banner & Razorpay Pay Now Button */}
           {order.paymentStatus !== "PAID" && (
-            <div className="bg-amber-50 border border-amber-300 p-4 rounded text-xs text-amber-950 flex items-start gap-3">
-              <AlertCircle className="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5" />
-              <div>
-                <strong className="block font-semibold uppercase tracking-wider text-amber-900">
-                  Payment Verification Pending
-                </strong>
-                <span>
-                  This order is awaiting payment confirmation via Razorpay. Crafting, custom tailoring, and insured courier dispatch will strictly begin only after payment is successfully captured.
-                </span>
+            <div className="bg-gradient-to-r from-amber-50 to-[#FAF5EE] border-2 border-amber-300 p-4 sm:p-5 rounded-sm shadow-xs space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div className="flex items-start gap-3">
+                  <div className="w-9 h-9 rounded-full bg-amber-100 flex items-center justify-center text-amber-800 flex-shrink-0 mt-0.5">
+                    <CreditCard className="w-4 h-4 text-[#6D1A2A]" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <strong className="text-xs uppercase tracking-wider text-[#6D1A2A] font-bold">
+                        Payment Incomplete &bull; Action Required
+                      </strong>
+                      <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-amber-200 text-amber-900 uppercase">
+                        Pending
+                      </span>
+                    </div>
+                    <p className="text-xs text-[#5C4A3E] mt-0.5 leading-relaxed">
+                      This royal order is awaiting payment confirmation. Complete payment to start atelier karigari, bespoke tailoring, and priority dispatch.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex-shrink-0 sm:text-right">
+                  <span className="text-[10px] uppercase tracking-wider text-[#8A796B] font-semibold block">Total Payable</span>
+                  <span className="text-lg font-serif font-bold text-[#6D1A2A]">
+                    {order.totalFormatted}
+                  </span>
+                </div>
+              </div>
+
+              {payError && (
+                <div className="p-2.5 bg-red-50 border border-red-200 rounded text-xs text-red-700 flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                  <span>{payError}</span>
+                </div>
+              )}
+
+              {paySuccess && (
+                <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded text-xs text-emerald-800 flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 flex-shrink-0 text-emerald-600" />
+                  <span>Payment captured successfully! Updating royal order records...</span>
+                </div>
+              )}
+
+              <div className="pt-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-t border-amber-200/80">
+                <div className="flex items-center gap-2 text-[11px] text-[#855D25]">
+                  <ShieldCheck className="w-4 h-4 text-emerald-700" />
+                  <span>100% Encrypted &bull; Razorpay Secure (UPI, GPay, PhonePe, Cards, NetBanking)</span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handlePayNow}
+                  disabled={isPaying}
+                  className="w-full sm:w-auto px-6 py-2.5 bg-[#6D1A2A] hover:bg-[#581522] text-white text-xs uppercase tracking-[0.15em] font-bold rounded-sm shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                >
+                  {isPaying ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin text-[#E6DCB8]" />
+                      <span>Opening Secure Razorpay...</span>
+                    </>
+                  ) : (
+                    <>
+                      <CreditCard className="w-4 h-4 text-[#E6DCB8]" />
+                      <span>Complete Payment Now ({order.totalFormatted})</span>
+                    </>
+                  )}
+                </button>
               </div>
             </div>
           )}
