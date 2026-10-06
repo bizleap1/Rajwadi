@@ -747,8 +747,9 @@ export default function CheckoutPage() {
                       <span className="text-[10px] uppercase tracking-[0.2em] text-[#855D25] font-bold block">
                         Total Amount Payable
                       </span>
-                      <span className="text-xs text-[#6B5E55]">
-                        Secure 256-bit SSL encrypted transaction
+                      <span className="text-[11px] text-[#8A796B] font-medium flex items-center gap-1.5 mt-0.5">
+                        <ShieldCheck className="w-3.5 h-3.5 text-[#855D25]" />
+                        <span>Secure 256-bit SSL encrypted transaction</span>
                       </span>
                     </div>
                     <div className="text-3xl font-serif font-bold text-[#6D1A2A] font-mono">
