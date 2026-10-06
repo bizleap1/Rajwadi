@@ -1,25 +1,12 @@
 import { MetadataRoute } from "next";
 import prisma from "@/lib/prisma";
 import { REAL_POSHAKS } from "@/data/products";
+import { SITE_URL } from "@/lib/siteUrl";
 
 export const revalidate = 3600; // Cache and revalidate every 1 hour for fast Googlebot crawling
 
-function getSiteUrl(): string {
-  const envUrl =
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    process.env.NEXT_PUBLIC_APP_URL ||
-    (process.env.VERCEL_PROJECT_PRODUCTION_URL
-      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-      : "");
-
-  if (envUrl && !envUrl.includes("localhost")) {
-    return envUrl.replace(/\/$/, "");
-  }
-  return "https://www.rajwadirajputiposhak.com";
-}
-
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const siteUrl = getSiteUrl();
+  const siteUrl = SITE_URL;
 
   // Static core routes
   const staticRoutes: MetadataRoute.Sitemap = [

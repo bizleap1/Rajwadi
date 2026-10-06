@@ -1,22 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Providers from "@/components/Providers";
+import { SITE_URL } from "@/lib/siteUrl";
 
-function getSiteUrl(): string {
-  const envUrl =
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    process.env.NEXT_PUBLIC_APP_URL ||
-    (process.env.VERCEL_PROJECT_PRODUCTION_URL
-      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-      : "");
-
-  if (envUrl && !envUrl.includes("localhost")) {
-    return envUrl.replace(/\/$/, "");
-  }
-  return "https://www.rajwadirajputiposhak.com";
-}
-
-const siteUrl = getSiteUrl();
+const siteUrl = SITE_URL;
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

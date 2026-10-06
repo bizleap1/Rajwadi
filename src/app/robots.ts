@@ -1,21 +1,8 @@
 import { MetadataRoute } from "next";
-
-function getSiteUrl(): string {
-  const envUrl =
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    process.env.NEXT_PUBLIC_APP_URL ||
-    (process.env.VERCEL_PROJECT_PRODUCTION_URL
-      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-      : "");
-
-  if (envUrl && !envUrl.includes("localhost")) {
-    return envUrl.replace(/\/$/, "");
-  }
-  return "https://www.rajwadirajputiposhak.com";
-}
+import { SITE_URL } from "@/lib/siteUrl";
 
 export default function robots(): MetadataRoute.Robots {
-  const siteUrl = getSiteUrl();
+  const siteUrl = SITE_URL;
 
   return {
     rules: [
