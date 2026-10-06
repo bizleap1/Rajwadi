@@ -3,13 +3,11 @@ import prisma from "@/lib/prisma";
 import ProductDetailClient from "./ProductDetailClient";
 import { REAL_POSHAKS } from "@/data/products";
 import type { Metadata } from "next";
+import { SITE_URL } from "@/lib/siteUrl";
 
 export const dynamic = "force-dynamic";
 
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ||
-  process.env.NEXT_PUBLIC_APP_URL ||
-  "https://rajwadirajputiposhak.com";
+const siteUrl = SITE_URL;
 
 function parsePriceToPaise(priceStr: string): number {
   const numeric = priceStr.replace(/[^0-9]/g, "");

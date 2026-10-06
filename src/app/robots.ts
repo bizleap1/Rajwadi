@@ -1,11 +1,21 @@
 import { MetadataRoute } from "next";
 
+function getSiteUrl(): string {
+  const envUrl =
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    process.env.NEXT_PUBLIC_APP_URL ||
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL
+      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+      : "");
+
+  if (envUrl && !envUrl.includes("localhost")) {
+    return envUrl.replace(/\/$/, "");
+  }
+  return "https://www.rajwadirajputiposhak.com";
+}
+
 export default function robots(): MetadataRoute.Robots {
-  const envUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || "";
-  const siteUrl =
-    envUrl && !envUrl.includes("vercel.app") && !envUrl.includes("localhost")
-      ? envUrl.replace(/\/$/, "")
-      : "https://www.rajwadirajputiposhak.com";
+  const siteUrl = getSiteUrl();
 
   return {
     rules: [
@@ -16,8 +26,12 @@ export default function robots(): MetadataRoute.Robots {
           "/collection",
           "/product/*",
           "/our-heritage",
-          "/contact",
           "/craft",
+          "/contact",
+          "/privacy-policy",
+          "/shipping-policy",
+          "/terms-and-conditions",
+          "/terms",
         ],
         disallow: [
           "/admin",

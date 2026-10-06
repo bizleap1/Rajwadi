@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
+import { SITE_URL } from "@/lib/siteUrl";
 
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ||
-  process.env.NEXT_PUBLIC_APP_URL ||
-  "https://rajwadirajputiposhak.com";
+const siteUrl = SITE_URL;
 
 export const metadata: Metadata = {
   title: "Royal Rajputi Poshaks Collection — Bridal, Festive & Pure Georgette",
@@ -11,6 +9,8 @@ export const metadata: Metadata = {
     "Explore Rajwadi's handcrafted royal Rajputi Poshak catalog. Featuring authentic bridal poshaks, pure georgette sets, gota patti work, and heirloom couture. Custom tailoring available.",
   keywords: [
     "Royal Rajputi Poshak Collection",
+    "Rajwadi Poshak Collection",
+    "Rajwadi Poshakh",
     "Bridal Rajputi Poshak",
     "Festive Rajputi Poshak",
     "Pure Georgette Poshak Online",
@@ -18,6 +18,7 @@ export const metadata: Metadata = {
     "Semi-Stitched Rajputi Poshak",
     "Rajwadi Collection",
     "Heirloom Bridal Poshak",
+    "Rajputi Poshak Nagpur",
   ],
   alternates: {
     canonical: "/collection",

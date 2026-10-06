@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
+import { SITE_URL } from "@/lib/siteUrl";
 
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ||
-  process.env.NEXT_PUBLIC_APP_URL ||
-  "https://rajwadirajputiposhak.com";
+const siteUrl = SITE_URL;
 
 export const metadata: Metadata = {
   title: "Contact Rajwadi Atelier — Royal Bespoke Consultation & Customer Support",
@@ -14,6 +12,7 @@ export const metadata: Metadata = {
     "Rajputi Poshak Consultation",
     "Bespoke Bridal Poshak Order",
     "Rajwadi Poshak Atelier Nagpur Contact",
+    "Rajwadi Poshakh Contact",
     "Rajwadi Support",
   ],
   alternates: {
@@ -52,11 +51,34 @@ const contactSchema = {
   description:
     "Connect with our master poshak stylists for bridal bespoke orders, sizing assistance, and royal inquiries.",
   url: `${siteUrl}/contact`,
+  breadcrumb: {
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: siteUrl,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Contact",
+        item: `${siteUrl}/contact`,
+      },
+    ],
+  },
   mainEntity: {
     "@type": "ClothingStore",
     name: "Rajwadi Rajputi Poshak",
+    alternateName: "Rajwadi Poshakh",
     telephone: "+91 8766667101",
     email: "support@rajwadirajputiposhak.com",
+    sameAs: [
+      "https://www.instagram.com/rajwadirajputiposhak/",
+      "https://www.facebook.com/p/Rajwadi-Rajputi-Poshak-100075751886924/",
+      "https://wa.me/918766667101",
+    ],
     address: {
       "@type": "PostalAddress",
       streetAddress: "EWS 41, near Maheshwari Bhawan, Hiwari Layout, Uday Nagar, Padole Nagar",

@@ -1,16 +1,15 @@
 import type { Metadata } from "next";
+import { SITE_URL } from "@/lib/siteUrl";
 
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ||
-  process.env.NEXT_PUBLIC_APP_URL ||
-  "https://rajwadirajputiposhak.com";
+const siteUrl = SITE_URL;
 
 export const metadata: Metadata = {
-  title: "Our Royal Heritage & Rajputi Artistry — Royal Atelier",
+  title: "Our Royal Heritage & Rajputi Artistry — Rajwadi Atelier",
   description:
     "Discover the royal heritage of Rajwadi: preservation of centuries-old Rajputi royal poshak craftsmanship, zardozi needlework, gota patti hand embroidery, and Rajasthani royal traditions.",
   keywords: [
     "Rajputi Poshak Heritage",
+    "Rajwadi Poshakh Heritage",
     "Rajasthani Royal Artistry",
     "Gota Patti Work History",
     "Zari Zardozi Embroidery",
@@ -46,10 +45,46 @@ export const metadata: Metadata = {
   },
 };
 
+const heritageSchema = {
+  "@context": "https://schema.org",
+  "@type": "AboutPage",
+  name: "Our Royal Heritage & Rajputi Artistry",
+  description:
+    "Discover the royal heritage of Rajwadi: preservation of centuries-old Rajputi royal poshak craftsmanship, zardozi needlework, gota patti hand embroidery, and Rajasthani royal traditions.",
+  url: `${siteUrl}/our-heritage`,
+  breadcrumb: {
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: siteUrl,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Our Heritage",
+        item: `${siteUrl}/our-heritage`,
+      },
+    ],
+  },
+};
+
 export default function OurHeritageLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <>{children}</>;
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(heritageSchema),
+        }}
+      />
+      {children}
+    </>
+  );
 }

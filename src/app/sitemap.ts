@@ -4,12 +4,22 @@ import { REAL_POSHAKS } from "@/data/products";
 
 export const revalidate = 3600; // Cache and revalidate every 1 hour for fast Googlebot crawling
 
+function getSiteUrl(): string {
+  const envUrl =
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    process.env.NEXT_PUBLIC_APP_URL ||
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL
+      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+      : "");
+
+  if (envUrl && !envUrl.includes("localhost")) {
+    return envUrl.replace(/\/$/, "");
+  }
+  return "https://www.rajwadirajputiposhak.com";
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const envUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || "";
-  const siteUrl =
-    envUrl && !envUrl.includes("vercel.app") && !envUrl.includes("localhost")
-      ? envUrl.replace(/\/$/, "")
-      : "https://www.rajwadirajputiposhak.com";
+  const siteUrl = getSiteUrl();
 
   // Static core routes
   const staticRoutes: MetadataRoute.Sitemap = [
@@ -26,6 +36,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.9,
     },
     {
+      url: `${siteUrl}/craft`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
+    {
       url: `${siteUrl}/our-heritage`,
       lastModified: new Date(),
       changeFrequency: "monthly",
@@ -35,7 +51,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${siteUrl}/contact`,
       lastModified: new Date(),
       changeFrequency: "monthly",
-      priority: 0.6,
+      priority: 0.7,
     },
     {
       url: `${siteUrl}/privacy-policy`,
@@ -55,6 +71,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "monthly",
       priority: 0.5,
     },
+    {
+      url: `${siteUrl}/terms`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.5,
+    },
   ];
 
   // Dynamic Product routes
@@ -64,18 +86,29 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     const dbProducts = await prisma.product.findMany({
       where: { status: "PUBLISHED" },
-      select: { id: true, slug: true, updatedAt: true },
+      select: {
+        id: true,
+        slug: true,
+        updatedAt: true,
+        images: {
+          take: 1,
+          orderBy: { displayOrder: "asc" },
+          select: { secureUrl: true },
+        },
+      },
     });
 
     for (const p of dbProducts) {
       const identifier = p.slug || p.id;
       if (!addedIds.has(identifier)) {
         addedIds.add(identifier);
+        const imageUrl = p.images?.[0]?.secureUrl;
         productRoutes.push({
           url: `${siteUrl}/product/${encodeURIComponent(identifier)}`,
           lastModified: p.updatedAt ? new Date(p.updatedAt) : new Date(),
           changeFrequency: "weekly",
           priority: 0.8,
+          ...(imageUrl ? { images: [imageUrl] } : {}),
         });
       }
     }
@@ -87,11 +120,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   for (const p of REAL_POSHAKS) {
     if (!addedIds.has(p.id)) {
       addedIds.add(p.id);
+      const imageUrl = p.image?.startsWith("http")
+        ? p.image
+        : `${siteUrl}${p.image}`;
       productRoutes.push({
         url: `${siteUrl}/product/${encodeURIComponent(p.id)}`,
         lastModified: new Date(),
         changeFrequency: "weekly",
         priority: 0.8,
+        ...(imageUrl ? { images: [imageUrl] } : {}),
       });
     }
   }

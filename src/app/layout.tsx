@@ -2,11 +2,21 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Providers from "@/components/Providers";
 
-const envUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || "";
-const siteUrl =
-  envUrl && !envUrl.includes("vercel.app") && !envUrl.includes("localhost")
-    ? envUrl.replace(/\/$/, "")
-    : "https://www.rajwadirajputiposhak.com";
+function getSiteUrl(): string {
+  const envUrl =
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    process.env.NEXT_PUBLIC_APP_URL ||
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL
+      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+      : "");
+
+  if (envUrl && !envUrl.includes("localhost")) {
+    return envUrl.replace(/\/$/, "");
+  }
+  return "https://www.rajwadirajputiposhak.com";
+}
+
+const siteUrl = getSiteUrl();
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -17,6 +27,10 @@ export const metadata: Metadata = {
   description:
     "Rajwadi Rajputi Poshak — Handcrafted Authentic Royal Rajputi Poshaks, Bridal Lehengas, Pure Georgette Ensembles, and Heirloom Gota Patti & Zardozi Couture. Worldwide Delivery.",
   keywords: [
+    "Rajwadi Poshak",
+    "Rajwadi Poshakh",
+    "Rajwadi Rajputi Poshak",
+    "Rajwadi Poshak Nagpur",
     "Rajputi Poshak",
     "Royal Rajputi Poshak",
     "Bridal Rajputi Poshak",
@@ -25,10 +39,10 @@ export const metadata: Metadata = {
     "Rajasthani Traditional Dress",
     "Kundan Work Poshak",
     "Rajwadi",
-    "Rajwadi Rajputi Poshak",
     "Heirloom Rajputi Couture",
     "Gota Patti Poshak",
     "Custom Tailored Rajputi Poshak",
+    "Rajputi Poshak Online Shopping",
   ],
   authors: [{ name: "Rajwadi Atelier", url: siteUrl }],
   creator: "Rajwadi Atelier",
@@ -40,6 +54,9 @@ export const metadata: Metadata = {
   },
   alternates: {
     canonical: "/",
+  },
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
   },
   openGraph: {
     type: "website",
@@ -87,7 +104,12 @@ const organizationSchema = {
   "@context": "https://schema.org",
   "@type": "ClothingStore",
   name: "Rajwadi",
-  alternateName: "Rajwadi Rajputi Poshak",
+  alternateName: [
+    "Rajwadi Rajputi Poshak",
+    "Rajwadi Poshak",
+    "Rajwadi Poshakh",
+    "Rajwadi Poshak Nagpur",
+  ],
   url: siteUrl,
   logo: `${siteUrl}/logo%20without%20bg.png`,
   image: `${siteUrl}/hero_bg.webp`,
@@ -96,6 +118,11 @@ const organizationSchema = {
   priceRange: "₹₹₹",
   currenciesAccepted: "INR",
   paymentAccepted: "UPI, Credit Card, Debit Card, Net Banking",
+  sameAs: [
+    "https://www.instagram.com/rajwadirajputiposhak/",
+    "https://www.facebook.com/p/Rajwadi-Rajputi-Poshak-100075751886924/",
+    "https://wa.me/918766667101",
+  ],
   address: {
     "@type": "PostalAddress",
     streetAddress: "EWS 41, near Maheshwari Bhawan, Hiwari Layout, Uday Nagar, Padole Nagar",
@@ -105,6 +132,22 @@ const organizationSchema = {
     addressCountry: "IN",
   },
   telephone: "+91 8766667101",
+};
+
+const websiteSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Rajwadi Rajputi Poshak",
+  alternateName: ["Rajwadi", "Rajwadi Poshak", "Rajwadi Poshakh"],
+  url: siteUrl,
+  potentialAction: {
+    "@type": "SearchAction",
+    target: {
+      "@type": "EntryPoint",
+      urlTemplate: `${siteUrl}/collection?search={search_term_string}`,
+    },
+    "query-input": "required name=search_term_string",
+  },
 };
 
 export default function RootLayout({
@@ -119,6 +162,12 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(organizationSchema),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(websiteSchema),
           }}
         />
       </head>
