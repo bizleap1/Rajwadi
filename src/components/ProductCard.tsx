@@ -37,9 +37,18 @@ export default function ProductCard({
     (product.category || "").toLowerCase() === "jewellery" ||
     (product.type || "").toLowerCase() === "jewellery";
 
+  const mainImage =
+    product.image ||
+    (Array.isArray(product.additionalImages) && product.additionalImages[0]) ||
+    (Array.isArray(product.images) && product.images[0] &&
+      (typeof product.images[0] === "string" ? product.images[0] : product.images[0]?.secureUrl || product.images[0]?.url)) ||
+    "/placeholder.webp";
+
   const secondaryImage =
     product.additionalImages && product.additionalImages.length > 1
       ? product.additionalImages[1]
+      : Array.isArray(product.images) && product.images.length > 1
+      ? (typeof product.images[1] === "string" ? product.images[1] : product.images[1]?.secureUrl || product.images[1]?.url)
       : null;
 
   // Calculate discount percentage if original price is provided
@@ -104,7 +113,7 @@ export default function ProductCard({
           }}
         >
           <Image
-            src={product.image}
+            src={mainImage}
             alt={product.name}
             fill
             priority={priority !== undefined ? priority : index < 4}

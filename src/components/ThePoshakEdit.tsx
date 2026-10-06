@@ -100,9 +100,18 @@ export default function ThePoshakEdit({ onSelectProduct }: ThePoshakEditProps) {
             <AnimatePresence mode="popLayout">
               {featuredProducts.map((product, index) => {
                 const isWishlisted = isInWishlist(product.id || product.slug);
+                const mainImage =
+                  product.image ||
+                  (Array.isArray(product.additionalImages) && product.additionalImages[0]) ||
+                  (Array.isArray(product.images) && product.images[0] &&
+                    (typeof product.images[0] === "string" ? product.images[0] : product.images[0]?.secureUrl || product.images[0]?.url)) ||
+                  "/placeholder.webp";
+
                 const secondImage =
                   product.additionalImages && product.additionalImages.length > 1
                     ? product.additionalImages[1]
+                    : Array.isArray(product.images) && product.images.length > 1
+                    ? (typeof product.images[1] === "string" ? product.images[1] : product.images[1]?.secureUrl || product.images[1]?.url)
                     : null;
 
                 return (
@@ -123,7 +132,7 @@ export default function ThePoshakEdit({ onSelectProduct }: ThePoshakEditProps) {
                         <div className="absolute inset-0 transition-transform duration-500 ease-in-out sm:group-hover:scale-[1.02]">
                           {/* Default Front Image */}
                           <Image
-                            src={product.image}
+                            src={mainImage}
                             alt={product.name}
                             fill
                             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 25vw"

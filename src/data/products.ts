@@ -15,6 +15,7 @@ export interface PoshakProduct {
   color: string;
   image: string;
   additionalImages?: string[];
+  images?: any[];
   imagePosition?: string;
   imageScale?: number;
   description: string;
