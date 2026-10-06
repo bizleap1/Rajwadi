@@ -56,8 +56,8 @@ function OrderConfirmationContent() {
 
         setOrder(data.order);
 
-        // Auto download receipt once order is ready
-        if (!autoDownloadTriggered.current && data.order) {
+        // Auto download receipt once order is verified and paid
+        if (!autoDownloadTriggered.current && data.order && data.order.paymentStatus === "PAID") {
           autoDownloadTriggered.current = true;
           setTimeout(() => {
             try {
@@ -136,60 +136,82 @@ function OrderConfirmationContent() {
       <Navbar />
 
       <main className="pt-24 sm:pt-28 md:pt-32 pb-16 max-w-4xl mx-auto w-full px-4 sm:px-6">
-        {/* Success Header */}
-        <div className="text-center pb-8 border-b border-[#EBD9C8]">
-          <div className="w-14 h-14 bg-emerald-50 border border-emerald-200 rounded-full flex items-center justify-center text-emerald-700 mx-auto mb-3 shadow-xs">
-            <CheckCircle2 className="w-7 h-7" />
-          </div>
-          <span className="text-[10.5px] uppercase tracking-[0.25em] text-[#855D25] font-semibold">
-            PAYMENT CONFIRMED &bull; ORDER DISPATCH QUEUED
-          </span>
-          <h1 className="text-2xl sm:text-3xl font-serif text-[#171717] mt-1">
-            Thank you for your order, {shippingAddr?.fullName || "Patron"}
-          </h1>
-          <p className="text-xs text-[#6B5E55] mt-1.5 font-serif italic">
-            Order #{order.orderNumber} placed on {dateStr}
-          </p>
-
-          {/* Quick Action Buttons: Download Receipt & Track Order */}
-          <div className="flex flex-wrap items-center justify-center gap-3 pt-5">
-            <button
-              type="button"
-              onClick={handleManualDownload}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#6D1A2A] hover:bg-[#581522] text-white text-xs uppercase tracking-wider font-medium rounded-sm shadow-xs transition-colors cursor-pointer"
-            >
-              <Download className="w-4 h-4" />
-              <span>Download Official Receipt (PDF)</span>
-            </button>
-
-            <Link
-              href={`/order/${order.id}${token ? `?token=${token}` : ""}`}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#FAF5EE] hover:bg-[#F3EBE1] text-[#855D25] border border-[#855D25] text-xs uppercase tracking-wider font-semibold rounded-sm shadow-2xs transition-colors"
-            >
-              <Truck className="w-4 h-4" />
-              <span>Track Live Delivery Status &rarr;</span>
-            </Link>
-          </div>
-
-          {downloadNotification && (
-            <div className="mt-3 p-2.5 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded text-xs inline-flex items-center gap-2 animate-in fade-in">
-              <CheckCircle2 className="w-3.5 h-3.5" />
-              <span>Official Tax Receipt &amp; Royal Invoice generated successfully!</span>
+        {/* Payment Verification Guard */}
+        {order.paymentStatus !== "PAID" ? (
+          <div className="text-center pb-8 border-b border-[#EBD9C8]">
+            <div className="w-14 h-14 bg-amber-50 border border-amber-300 rounded-full flex items-center justify-center text-amber-700 mx-auto mb-3 shadow-xs">
+              <AlertCircle className="w-7 h-7" />
             </div>
-          )}
+            <span className="text-[10.5px] uppercase tracking-[0.25em] text-amber-800 font-bold">
+              PAYMENT PENDING &bull; ORDER NOT CONFIRMED
+            </span>
+            <h1 className="text-2xl sm:text-3xl font-serif text-[#171717] mt-1">
+              Payment Awaiting Verification
+            </h1>
+            <p className="text-xs text-[#6B5E55] mt-2 max-w-lg mx-auto leading-relaxed">
+              We have not received payment confirmation for Order #{order.orderNumber}. Rajwadi Rajputi Poshak only accepts, tailors, and dispatches orders after payment is successfully captured via Razorpay.
+            </p>
 
-          {order.paymentStatus === "VERIFICATION_PENDING" && (
-            <div className="mt-4 p-3.5 bg-amber-50 text-amber-950 border border-amber-200 rounded text-xs text-left max-w-xl mx-auto space-y-1">
-              <div className="flex items-center gap-1.5 font-semibold text-[#855D25] uppercase tracking-wider">
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>UPI Payment Verification in Progress</span>
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-5">
+              <Link
+                href="/checkout"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#6D1A2A] hover:bg-[#581522] text-white text-xs uppercase tracking-wider font-semibold rounded-sm shadow-xs transition-colors"
+              >
+                <span>Return to Checkout &amp; Complete Payment</span>
+              </Link>
+              <Link
+                href={`https://wa.me/918766667101?text=${encodeURIComponent(`Pranam! I have a query regarding pending Order #${order.orderNumber}.`)}`}
+                target="_blank"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#FAF5EE] hover:bg-[#F3EBE1] text-[#855D25] border border-[#855D25] text-xs uppercase tracking-wider font-semibold rounded-sm shadow-2xs transition-colors"
+              >
+                <span>Inquire on WhatsApp</span>
+              </Link>
+            </div>
+          </div>
+        ) : (
+          /* Confirmed Order Header */
+          <div className="text-center pb-8 border-b border-[#EBD9C8]">
+            <div className="w-14 h-14 bg-emerald-50 border border-emerald-200 rounded-full flex items-center justify-center text-emerald-700 mx-auto mb-3 shadow-xs">
+              <CheckCircle2 className="w-7 h-7" />
+            </div>
+            <span className="text-[10.5px] uppercase tracking-[0.25em] text-[#855D25] font-semibold">
+              PAYMENT CONFIRMED &bull; ORDER DISPATCH QUEUED
+            </span>
+            <h1 className="text-2xl sm:text-3xl font-serif text-[#171717] mt-1">
+              Thank you for your order, {shippingAddr?.fullName || "Patron"}
+            </h1>
+            <p className="text-xs text-[#6B5E55] mt-1.5 font-serif italic">
+              Order #{order.orderNumber} placed on {dateStr}
+            </p>
+
+            {/* Quick Action Buttons: Download Receipt & Track Order */}
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-5">
+              <button
+                type="button"
+                onClick={handleManualDownload}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#6D1A2A] hover:bg-[#581522] text-white text-xs uppercase tracking-wider font-medium rounded-sm shadow-xs transition-colors cursor-pointer"
+              >
+                <Download className="w-4 h-4" />
+                <span>Download Official Receipt (PDF)</span>
+              </button>
+
+              <Link
+                href={`/order/${order.id}${token ? `?token=${token}` : ""}`}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#FAF5EE] hover:bg-[#F3EBE1] text-[#855D25] border border-[#855D25] text-xs uppercase tracking-wider font-semibold rounded-sm shadow-2xs transition-colors"
+              >
+                <Truck className="w-4 h-4" />
+                <span>Track Live Delivery Status &rarr;</span>
+              </Link>
+            </div>
+
+            {downloadNotification && (
+              <div className="mt-3 p-2.5 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded text-xs inline-flex items-center gap-2 animate-in fade-in">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>Official Tax Receipt &amp; Royal Invoice generated successfully!</span>
               </div>
-              <p className="text-[#6B5E55] leading-relaxed">
-                Your UPI payment reference has been received. Our atelier team will verify your bank transaction and confirm your crafting timeline. Your provisional receipt has been downloaded.
-              </p>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
 
         {/* Order Details & Summary Card */}
         <div className="mt-8 bg-white border border-[#EBD9C8] rounded-sm shadow-sm p-4 sm:p-8 space-y-6">

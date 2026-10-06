@@ -209,26 +209,48 @@ export default function OrderTrackingPage() {
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                onClick={() => downloadReceipt(order)}
-                className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-[#FAF5EE] hover:bg-[#F3EBE1] text-[#855D25] hover:text-[#6D1A2A] border border-[#EBD9C8] rounded text-xs uppercase tracking-wider font-semibold transition-colors cursor-pointer"
-                title="Download Official Tax Invoice / Receipt"
-              >
-                <Download className="w-3.5 h-3.5" />
-                <span>Download Receipt</span>
-              </button>
-              <span className="px-2.5 py-1 text-xs uppercase tracking-wider font-semibold rounded bg-emerald-50 text-emerald-800 border border-emerald-200">
-                {order.paymentStatus}
-              </span>
+              {order.paymentStatus === "PAID" ? (
+                <button
+                  type="button"
+                  onClick={() => downloadReceipt(order)}
+                  className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-[#FAF5EE] hover:bg-[#F3EBE1] text-[#855D25] hover:text-[#6D1A2A] border border-[#EBD9C8] rounded text-xs uppercase tracking-wider font-semibold transition-colors cursor-pointer"
+                  title="Download Official Tax Invoice / Receipt"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Download Receipt</span>
+                </button>
+              ) : (
+                <span
+                  className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-100 text-gray-500 border border-gray-200 rounded text-xs uppercase tracking-wider font-medium cursor-not-allowed"
+                  title="Receipt is issued once payment is completed"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Receipt Pending Payment</span>
+                </span>
+              )}
+
+              {order.paymentStatus === "PAID" ? (
+                <span className="px-2.5 py-1 text-xs uppercase tracking-wider font-semibold rounded bg-emerald-50 text-emerald-800 border border-emerald-200">
+                  PAID
+                </span>
+              ) : (
+                <span className="px-2.5 py-1 text-xs uppercase tracking-wider font-bold rounded bg-amber-50 text-amber-800 border border-amber-300">
+                  PAYMENT PENDING
+                </span>
+              )}
+
               {order.fulfilmentStatus === "DELIVERED" ? (
                 <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs uppercase tracking-wider font-semibold rounded bg-emerald-100 text-emerald-900 border border-emerald-300">
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" />
                   <span>Delivered</span>
                 </span>
+              ) : order.paymentStatus !== "PAID" ? (
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs uppercase tracking-wider font-semibold rounded bg-amber-50 text-amber-800 border border-amber-200">
+                  <span>Awaiting Payment</span>
+                </span>
               ) : order.fulfilmentStatus === "PENDING" ? (
                 <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs uppercase tracking-wider font-semibold rounded bg-[#F3EBE1] text-[#6D1A2A] border border-[#EBD9C8]">
-                  <span>Order Confirmed</span>
+                  <span>Order Confirmed &bull; In Queue</span>
                 </span>
               ) : (
                 <span className="px-2.5 py-1 text-xs uppercase tracking-wider font-medium rounded bg-[#F3EBE1] text-[#4A3E37]">
@@ -237,6 +259,21 @@ export default function OrderTrackingPage() {
               )}
             </div>
           </div>
+
+          {/* Unpaid Warning Banner */}
+          {order.paymentStatus !== "PAID" && (
+            <div className="bg-amber-50 border border-amber-300 p-4 rounded text-xs text-amber-950 flex items-start gap-3">
+              <AlertCircle className="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5" />
+              <div>
+                <strong className="block font-semibold uppercase tracking-wider text-amber-900">
+                  Payment Verification Pending
+                </strong>
+                <span>
+                  This order is awaiting payment confirmation via Razorpay. Crafting, custom tailoring, and insured courier dispatch will strictly begin only after payment is successfully captured.
+                </span>
+              </div>
+            </div>
+          )}
 
           {/* Estimated Delivery & Tracking Banner */}
           {order.fulfilmentStatus === "DELIVERED" ? (
