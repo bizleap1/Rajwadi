@@ -440,7 +440,7 @@ export default function AdminDashboardPage() {
                     <div className="flex items-center justify-between text-xs mb-1">
                       <span className="text-[#4A3E37] font-medium flex items-center gap-1.5">
                         <Clock className="w-3.5 h-3.5 text-amber-600" />
-                        <span>Pending Payment / Verification</span>
+                        <span>Pending Payment</span>
                       </span>
                       <span className="font-bold text-[#171717]">
                         {data.metrics.orders.pending}

@@ -144,53 +144,6 @@ export default function AdminOrderDetailPage() {
     }
   }, [id]);
 
-  const handleApprovePayment = async () => {
-    if (!confirm(`Confirm approval of ₹ ${(order.totalInPaise / 100).toLocaleString("en-IN")} payment for Order #${order.orderNumber}?`)) return;
-    setIsSaving(true);
-    try {
-      const res = await fetch(`/api/admin/orders/${order.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          paymentStatus: "PAID",
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to approve payment");
-      setOrder(data.order);
-      setSaveSuccessMsg("Payment verified and approved as PAID!");
-      setTimeout(() => setSaveSuccessMsg(""), 4000);
-    } catch (err: any) {
-      alert(err.message || "Failed to approve payment");
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleRejectPayment = async () => {
-    if (!confirm(`Are you sure you want to REJECT this payment and cancel Order #${order.orderNumber}?`)) return;
-    setIsSaving(true);
-    try {
-      const res = await fetch(`/api/admin/orders/${order.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          paymentStatus: "FAILED",
-          fulfilmentStatus: "CANCELLED",
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to reject payment");
-      setOrder(data.order);
-      setSelectedStatus("CANCELLED");
-      setSaveSuccessMsg("Payment rejected and order cancelled.");
-      setTimeout(() => setSaveSuccessMsg(""), 4000);
-    } catch (err: any) {
-      alert(err.message || "Failed to reject payment");
-    } finally {
-      setIsSaving(false);
-    }
-  };
 
   const handleDeleteOrder = async () => {
     if (
@@ -460,7 +413,7 @@ export default function AdminOrderDetailPage() {
       {/* 0. DIRECT UPI QR PAYMENT VERIFICATION CARD (ANTI-FRAUD PROTECTION)  */}
       {/* ─────────────────────────────────────────────────────────────────── */}
       {order.paymentStatus !== "PAID" && (
-        <div className="bg-amber-50 border-2 border-amber-300 rounded-sm p-5 space-y-4 shadow-sm">
+        <div className="bg-amber-50 border border-amber-200 rounded-sm p-4 shadow-2xs">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-amber-200">
             <div className="flex items-center gap-2.5">
               <div className="w-9 h-9 rounded-full bg-amber-100 flex items-center justify-center text-amber-800 flex-shrink-0">
@@ -468,10 +421,10 @@ export default function AdminOrderDetailPage() {
               </div>
               <div>
                 <h3 className="font-serif text-sm font-semibold text-amber-950 uppercase tracking-wide">
-                  UPI Payment Verification Required
+                  Razorpay Payment Awaiting Confirmation
                 </h3>
                 <p className="text-xs text-amber-900 mt-0.5">
-                  Patron submitted payment via UPI QR. Cross-check screenshot proof and your Bank/PhonePe statement before crafting.
+                  Payment has not yet been captured via Razorpay. Orders are confirmed automatically once PAID.
                 </p>
               </div>
             </div>
@@ -562,25 +515,7 @@ export default function AdminOrderDetailPage() {
             </div>
           )}
 
-          <div className="flex flex-wrap items-center justify-end gap-2 pt-1">
-            <button
-              type="button"
-              onClick={handleRejectPayment}
-              disabled={isSaving}
-              className="px-3.5 py-2 bg-white hover:bg-red-50 text-red-700 border border-red-300 text-xs uppercase tracking-wider font-semibold rounded transition-colors cursor-pointer"
-            >
-              ✕ Reject Fake / Unreceived
-            </button>
-            <button
-              type="button"
-              onClick={handleApprovePayment}
-              disabled={isSaving}
-              className="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs uppercase tracking-wider font-semibold rounded transition-colors cursor-pointer shadow-xs flex items-center gap-1.5"
-            >
-              <CheckCircle2 className="w-4 h-4" />
-              <span>✔ Verify &amp; Mark as PAID</span>
-            </button>
-          </div>
+
         </div>
       )}
 
@@ -898,7 +833,7 @@ export default function AdminOrderDetailPage() {
           <div className="bg-white p-6 border border-[#EBD9C8] rounded-sm shadow-sm space-y-4">
             <h2 className="text-sm font-serif text-[#171717] pb-2 border-b border-[#F0E5D8] flex items-center gap-2">
               <CreditCard className="w-4 h-4 text-[#855D25]" />
-              <span>Payment &amp; Gateway Verification</span>
+              <span>Payment &amp; Gateway Details</span>
             </h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-xs">
