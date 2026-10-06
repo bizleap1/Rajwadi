@@ -77,3 +77,21 @@ export async function fetchRazorpayPayment(paymentId: string) {
 
   return await razorpayInstance.payments.fetch(paymentId);
 }
+
+/**
+ * Initiate refund directly via Razorpay API.
+ */
+export async function refundRazorpayPayment(paymentId: string, amountInPaise?: number) {
+  if (!razorpayInstance) {
+    throw new Error(
+      "Razorpay is not configured. Please set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET."
+    );
+  }
+
+  const payload: any = {};
+  if (amountInPaise && amountInPaise > 0) {
+    payload.amount = amountInPaise;
+  }
+
+  return await razorpayInstance.payments.refund(paymentId, payload);
+}

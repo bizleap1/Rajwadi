@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { verifyRazorpayWebhookSignature } from "@/lib/razorpay";
+import { sendOrderInvoiceEmail } from "@/backend/services/email";
 
 export const dynamic = "force-dynamic";
 
@@ -94,6 +95,11 @@ export async function POST(req: NextRequest) {
               timeout: 30000,
             }
           );
+
+          // Asynchronously trigger tax invoice delivery to both customer & store owner
+          sendOrderInvoiceEmail(order.id).catch((emailErr) => {
+            console.error("Webhook invoice delivery error:", emailErr);
+          });
         }
       }
     } else if (eventType === "payment.failed") {
