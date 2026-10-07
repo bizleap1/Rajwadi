@@ -192,6 +192,9 @@ export default function CartDrawer({ onOpenConsultation }: CartDrawerProps) {
                       {formattedTotal}
                     </span>
                   </div>
+                  <p className="text-[10px] text-[#8C827A] text-right font-sans">
+                    Inclusive of all taxes &amp; GST
+                  </p>
                 </div>
 
                 <div className="space-y-2">

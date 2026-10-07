@@ -34,6 +34,7 @@ import {
   Trash2,
   Copy,
   Send,
+  Tag,
 } from "lucide-react";
 import { downloadReceipt } from "@/lib/receiptGenerator";
 
@@ -996,6 +997,16 @@ export default function AdminOrderDetailPage() {
                 </div>
               )}
 
+              {order.discountInPaise > 0 && (
+                <div className="flex justify-between text-emerald-800 font-medium bg-emerald-50/80 px-2 py-1 rounded-xs border border-emerald-200/50">
+                  <span className="flex items-center gap-1">
+                    <Tag className="w-3 h-3 text-emerald-700" />
+                    <span>Discount {order.couponCode ? `(${order.couponCode})` : ""}</span>
+                  </span>
+                  <span>- ₹ {(order.discountInPaise / 100).toLocaleString("en-IN")}</span>
+                </div>
+              )}
+
               <div className="flex justify-between text-[#6B5E55]">
                 <span>Insured Shipping</span>
                 <span className="font-medium text-emerald-700">
@@ -1004,6 +1015,21 @@ export default function AdminOrderDetailPage() {
                     : `₹ ${(order.shippingInPaise / 100).toLocaleString("en-IN")}`}
                 </span>
               </div>
+
+              {(() => {
+                const netGoods = Math.max(0, (order.totalInPaise || 0) - (order.shippingInPaise || 0));
+                const isAbove5k = (netGoods / 100) > 5000;
+                const gstRate = isAbove5k ? 18 : 5;
+                const gstDivisor = isAbove5k ? 1.18 : 1.05;
+                const taxablePaise = Math.round(netGoods / gstDivisor);
+                const gstPaise = netGoods - taxablePaise;
+                return (
+                  <div className="flex justify-between text-[11px] text-[#8A796B] pt-0.5">
+                    <span>GST ({gstRate}% Included in Total)</span>
+                    <span className="font-mono">₹ {(gstPaise / 100).toLocaleString("en-IN", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}</span>
+                  </div>
+                );
+              })()}
 
               <div className="pt-2 border-t border-[#EBD9C8] flex justify-between text-sm font-serif font-semibold text-[#171717]">
                 <span>Total Amount</span>

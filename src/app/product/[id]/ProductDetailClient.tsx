@@ -522,6 +522,10 @@ function ProductDetailInner({
                       You save ₹{savingsInRupees.toLocaleString("en-IN")} on this royal ensemble
                     </p>
                   )}
+
+                  <p className="text-[11px] text-[#8A796B] font-sans pt-0.5">
+                    Inclusive of all taxes &amp; GST &bull; Complimentary Insured Delivery
+                  </p>
                 </div>
               );
             })()}

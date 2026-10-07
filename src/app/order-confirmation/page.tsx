@@ -20,6 +20,7 @@ import {
   Truck,
   Sparkles,
   CreditCard,
+  Tag,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -312,6 +313,16 @@ function OrderConfirmationContent() {
                 </div>
               )}
 
+              {order.discountInPaise > 0 && (
+                <div className="flex justify-between text-emerald-800 font-medium bg-emerald-50/70 px-2 py-1 rounded-xs">
+                  <span className="flex items-center gap-1">
+                    <Tag className="w-3 h-3 text-emerald-700" />
+                    <span>Discount ({order.couponCode || "Coupon"})</span>
+                  </span>
+                  <span>- {order.discountFormatted || `₹ ${(order.discountInPaise / 100).toLocaleString("en-IN")}`}</span>
+                </div>
+              )}
+
               <div className="flex justify-between text-[#6B5E55]">
                 <span>Insured Express Shipping</span>
                 <span className="font-medium text-emerald-700">
@@ -319,11 +330,37 @@ function OrderConfirmationContent() {
                 </span>
               </div>
 
-              <div className="pt-2 border-t border-[#EBD9C8] flex justify-between text-sm font-serif font-semibold text-[#171717]">
-                <span>Amount Paid</span>
-                <span className="text-[#6D1A2A]">
-                  {order.totalFormatted || (order.totalInPaise != null ? `₹ ${(order.totalInPaise / 100).toLocaleString("en-IN")}` : "—")}
-                </span>
+              <div className="pt-2 border-t border-[#EBD9C8] space-y-1">
+                <div className="flex justify-between text-sm font-serif font-semibold text-[#171717]">
+                  <span>Amount Paid</span>
+                  <span className="text-[#6D1A2A]">
+                    {order.totalFormatted || (order.totalInPaise != null ? `₹ ${(order.totalInPaise / 100).toLocaleString("en-IN")}` : "—")}
+                  </span>
+                </div>
+
+                {(() => {
+                  const netGoodsInPaise = Math.max(0, (order.totalInPaise || 0) - (order.shippingInPaise || 0));
+                  const isAbove5k = (netGoodsInPaise / 100) > 5000;
+                  const gstRate = isAbove5k ? 18 : 5;
+                  const gstDivisor = isAbove5k ? 1.18 : 1.05;
+                  const taxableBasePaise = Math.round(netGoodsInPaise / gstDivisor);
+                  const gstAmountPaise = netGoodsInPaise - taxableBasePaise;
+                  const formattedGst = (gstAmountPaise / 100).toLocaleString("en-IN", {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 2,
+                  });
+                  return (
+                    <div className="pt-0.5 space-y-0.5">
+                      <div className="flex justify-between text-[11px] text-[#8A796B]">
+                        <span>GST ({gstRate}% Included in Total)</span>
+                        <span className="font-mono">₹ {formattedGst}</span>
+                      </div>
+                      <p className="text-[10px] text-[#8A796B] text-right">
+                        All taxes &amp; GST included &bull; Official Tax Invoice issued
+                      </p>
+                    </div>
+                  );
+                })()}
               </div>
             </div>
           </div>

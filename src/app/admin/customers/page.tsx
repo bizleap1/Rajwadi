@@ -74,6 +74,8 @@ interface FullCustomerDetail {
     id: string;
     orderNumber: string;
     totalInPaise: number;
+    discountInPaise?: number;
+    couponCode?: string | null;
     paymentStatus: string;
     fulfilmentStatus: string;
     createdAt: string;
@@ -771,6 +773,11 @@ export default function AdminCustomersPage() {
                                 <span className="font-serif font-bold text-sm text-[#171717]">
                                   ₹ {(order.totalInPaise / 100).toLocaleString("en-IN")}
                                 </span>
+                                {order.discountInPaise && order.discountInPaise > 0 ? (
+                                  <span className="text-[10px] text-emerald-700 font-medium block">
+                                    Saved -₹ {(order.discountInPaise / 100).toLocaleString("en-IN")} {order.couponCode ? `(${order.couponCode})` : ""}
+                                  </span>
+                                ) : null}
                                 <span className="text-[10.5px] text-[#8A796B] block">
                                   {order.items.length} {order.items.length === 1 ? "item" : "items"}
                                 </span>

@@ -123,6 +123,14 @@ export async function POST(req: NextRequest) {
     // 3. Atomically finalize payment and deduct product stock
     await prisma.$transaction(
       async (tx) => {
+        let resolvedUserId = order.userId;
+        if (!resolvedUserId && order.guestEmail) {
+          const u = await tx.user.findUnique({
+            where: { email: order.guestEmail.toLowerCase().trim() },
+          });
+          if (u) resolvedUserId = u.id;
+        }
+
         // Update Order Status
         await tx.order.update({
           where: { id: order.id },
@@ -131,6 +139,7 @@ export async function POST(req: NextRequest) {
             fulfilmentStatus: "IN_ATELIER",
             razorpayPaymentId,
             razorpaySignature,
+            ...(resolvedUserId ? { userId: resolvedUserId } : {}),
           },
         });
 

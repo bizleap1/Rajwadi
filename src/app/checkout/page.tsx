@@ -1005,11 +1005,37 @@ export default function CheckoutPage() {
                   </span>
                 </div>
 
-                <div className="pt-2 border-t border-[#EBD9C8] flex justify-between text-sm font-serif font-semibold text-[#171717]">
-                  <span>Grand Total</span>
-                  <span className="text-base text-[#6D1A2A]">
-                    ₹ {formattedAmount}
-                  </span>
+                <div className="pt-2 border-t border-[#EBD9C8] space-y-1">
+                  <div className="flex justify-between text-sm font-serif font-semibold text-[#171717]">
+                    <span>Grand Total</span>
+                    <span className="text-base text-[#6D1A2A]">
+                      ₹ {formattedAmount}
+                    </span>
+                  </div>
+
+                  {(() => {
+                    const netGoodsInPaise = Math.max(0, finalPayableInPaise - (shippingInPaise || 0));
+                    const isAbove5k = (netGoodsInPaise / 100) > 5000;
+                    const gstRate = isAbove5k ? 18 : 5;
+                    const gstDivisor = isAbove5k ? 1.18 : 1.05;
+                    const taxableBasePaise = Math.round(netGoodsInPaise / gstDivisor);
+                    const gstAmountPaise = netGoodsInPaise - taxableBasePaise;
+                    const formattedGst = (gstAmountPaise / 100).toLocaleString("en-IN", {
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 2,
+                    });
+                    return (
+                      <div className="pt-0.5 space-y-0.5">
+                        <div className="flex justify-between text-[11px] text-[#8A796B]">
+                          <span>GST ({gstRate}% Included in Total)</span>
+                          <span className="font-mono">₹ {formattedGst}</span>
+                        </div>
+                        <p className="text-[10px] text-[#8A796B] text-right">
+                          All taxes &amp; GST included &bull; Official Tax Invoice issued upon payment
+                        </p>
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
 

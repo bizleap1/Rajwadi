@@ -17,6 +17,58 @@ export async function GET(req: NextRequest) {
     const limit = parseInt(searchParams.get("limit") || "15", 10);
     const skip = (page - 1) * limit;
 
+    // Automatically reconcile any orders placed without a linked user
+    try {
+      const unlinkedOrders = await prisma.order.findMany({
+        where: { userId: null },
+        take: 50,
+      });
+
+      for (const ord of unlinkedOrders) {
+        const shipping: any = ord.shippingAddress || {};
+        const email = (ord.guestEmail || shipping.email || "").toLowerCase().trim();
+        if (!email) continue;
+
+        let user = await prisma.user.findUnique({
+          where: { email },
+        });
+
+        if (!user) {
+          user = await prisma.user.create({
+            data: {
+              name: shipping.fullName?.trim() || "Patron",
+              email,
+              phone: shipping.phone?.trim() || null,
+              role: "CUSTOMER",
+              emailVerified: false,
+            },
+          });
+
+          if (shipping.address && shipping.city) {
+            await prisma.address.create({
+              data: {
+                userId: user.id,
+                name: shipping.fullName?.trim() || "Patron",
+                phone: shipping.phone?.trim() || "",
+                address: shipping.address.trim(),
+                city: shipping.city.trim(),
+                state: shipping.state?.trim() || "",
+                pincode: shipping.pincode?.trim() || "",
+                isDefault: true,
+              },
+            }).catch(() => {});
+          }
+        }
+
+        await prisma.order.update({
+          where: { id: ord.id },
+          data: { userId: user.id },
+        });
+      }
+    } catch (reconcileErr) {
+      console.warn("Auto-reconcile orders warning:", reconcileErr);
+    }
+
     const where: any = {
       role: "CUSTOMER",
     };

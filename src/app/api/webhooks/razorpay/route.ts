@@ -59,12 +59,21 @@ export async function POST(req: NextRequest) {
         if (order && order.paymentStatus !== "PAID") {
           await prisma.$transaction(
             async (tx) => {
+              let resolvedUserId = order.userId;
+              if (!resolvedUserId && order.guestEmail) {
+                const u = await tx.user.findUnique({
+                  where: { email: order.guestEmail.toLowerCase().trim() },
+                });
+                if (u) resolvedUserId = u.id;
+              }
+
               await tx.order.update({
                 where: { id: order.id },
                 data: {
                   paymentStatus: "PAID",
                   fulfilmentStatus: "IN_ATELIER",
                   razorpayPaymentId: razorpayPaymentId || order.razorpayPaymentId,
+                  ...(resolvedUserId ? { userId: resolvedUserId } : {}),
                 },
               });
 

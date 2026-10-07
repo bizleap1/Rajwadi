@@ -887,6 +887,20 @@ export default function OrderTrackingPage() {
                 <span>Shipping</span>
                 <span className="font-medium text-emerald-700">{order.shippingFormatted || "FREE"}</span>
               </div>
+              {(() => {
+                const netGoods = Math.max(0, (order.totalInPaise || 0) - (order.shippingInPaise || 0));
+                const isAbove5k = (netGoods / 100) > 5000;
+                const gstRate = isAbove5k ? 18 : 5;
+                const gstDivisor = isAbove5k ? 1.18 : 1.05;
+                const taxablePaise = Math.round(netGoods / gstDivisor);
+                const gstPaise = netGoods - taxablePaise;
+                return (
+                  <div className="flex justify-between text-[11px] text-[#8A796B] pt-0.5">
+                    <span>GST ({gstRate}% Included in Total)</span>
+                    <span className="font-mono">₹ {(gstPaise / 100).toLocaleString("en-IN", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}</span>
+                  </div>
+                );
+              })()}
               <div className="pt-2 border-t border-[#EBD9C8] flex justify-between text-sm font-serif font-semibold text-[#171717]">
                 <span>Total Amount</span>
                 <span className="text-[#6D1A2A]">

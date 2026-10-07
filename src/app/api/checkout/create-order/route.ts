@@ -322,12 +322,93 @@ export async function POST(req: NextRequest) {
     // Persist pending Order and Stock Reservation in database transaction
     const savedOrder = await prisma.$transaction(
       async (tx) => {
+        let finalUserId = userId;
+
+        // Auto-associate or create customer profile from checkout details
+        if (deliveryAddress.email) {
+          const cleanEmail = deliveryAddress.email.toLowerCase().trim();
+          try {
+            let customerUser = await tx.user.findUnique({
+              where: { email: cleanEmail },
+            });
+
+            if (!customerUser) {
+              customerUser = await tx.user.create({
+                data: {
+                  name: deliveryAddress.fullName.trim() || "Patron",
+                  email: cleanEmail,
+                  phone: deliveryAddress.phone.trim() || null,
+                  role: "CUSTOMER",
+                  emailVerified: false,
+                },
+              });
+
+              if (deliveryAddress.address) {
+                await tx.address.create({
+                  data: {
+                    userId: customerUser.id,
+                    name: deliveryAddress.fullName.trim(),
+                    phone: deliveryAddress.phone.trim(),
+                    address: deliveryAddress.address.trim(),
+                    city: deliveryAddress.city.trim(),
+                    state: deliveryAddress.state.trim(),
+                    pincode: deliveryAddress.pincode.trim(),
+                    isDefault: true,
+                  },
+                });
+              }
+            } else {
+              // Update phone or name if currently missing or placeholder
+              const updates: any = {};
+              if (!customerUser.phone && deliveryAddress.phone) {
+                updates.phone = deliveryAddress.phone.trim();
+              }
+              if ((!customerUser.name || customerUser.name === "Patron") && deliveryAddress.fullName) {
+                updates.name = deliveryAddress.fullName.trim();
+              }
+              if (Object.keys(updates).length > 0) {
+                customerUser = await tx.user.update({
+                  where: { id: customerUser.id },
+                  data: updates,
+                });
+              }
+
+              // Check if address is already saved; if not, add it
+              const hasAddr = await tx.address.findFirst({
+                where: {
+                  userId: customerUser.id,
+                  pincode: deliveryAddress.pincode.trim(),
+                  city: deliveryAddress.city.trim(),
+                },
+              });
+              if (!hasAddr && deliveryAddress.address) {
+                await tx.address.create({
+                  data: {
+                    userId: customerUser.id,
+                    name: deliveryAddress.fullName.trim(),
+                    phone: deliveryAddress.phone.trim(),
+                    address: deliveryAddress.address.trim(),
+                    city: deliveryAddress.city.trim(),
+                    state: deliveryAddress.state.trim(),
+                    pincode: deliveryAddress.pincode.trim(),
+                    isDefault: false,
+                  },
+                });
+              }
+            }
+
+            finalUserId = customerUser.id;
+          } catch (userErr) {
+            console.warn("Failed to auto-link/create customer profile:", userErr);
+          }
+        }
+
         const order = await tx.order.create({
           data: {
             orderNumber,
-            userId,
+            userId: finalUserId,
             guestAccessToken,
-            guestEmail: deliveryAddress.email.toLowerCase(),
+            guestEmail: deliveryAddress.email.toLowerCase().trim(),
             subtotalInPaise,
             shippingInPaise,
             stitchingInPaise,
