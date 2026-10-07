@@ -5,6 +5,25 @@ import { SITE_URL } from "@/lib/siteUrl";
 
 export const revalidate = 3600; // Cache and revalidate every 1 hour for fast Googlebot crawling
 
+function formatSitemapImageUrl(
+  rawUrl: string | undefined | null,
+  siteUrl: string
+): string | undefined {
+  if (!rawUrl || typeof rawUrl !== "string") return undefined;
+  const trimmed = rawUrl.trim();
+  if (!trimmed) return undefined;
+
+  try {
+    if (/^https?:\/\//i.test(trimmed)) {
+      return new URL(trimmed).href;
+    }
+    const normalizedPath = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
+    return new URL(normalizedPath, siteUrl).href;
+  } catch {
+    return undefined;
+  }
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = SITE_URL;
 
@@ -89,7 +108,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       const identifier = p.slug || p.id;
       if (!addedIds.has(identifier)) {
         addedIds.add(identifier);
-        const imageUrl = p.images?.[0]?.secureUrl;
+        const imageUrl = formatSitemapImageUrl(p.images?.[0]?.secureUrl, siteUrl);
         productRoutes.push({
           url: `${siteUrl}/product/${encodeURIComponent(identifier)}`,
           lastModified: p.updatedAt ? new Date(p.updatedAt) : new Date(),
@@ -107,9 +126,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   for (const p of REAL_POSHAKS) {
     if (!addedIds.has(p.id)) {
       addedIds.add(p.id);
-      const imageUrl = p.image?.startsWith("http")
-        ? p.image
-        : `${siteUrl}${p.image}`;
+      const imageUrl = formatSitemapImageUrl(p.image, siteUrl);
       productRoutes.push({
         url: `${siteUrl}/product/${encodeURIComponent(p.id)}`,
         lastModified: new Date(),
