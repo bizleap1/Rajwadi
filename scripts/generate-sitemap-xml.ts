@@ -2,19 +2,35 @@ import "dotenv/config";
 import fs from "fs";
 import path from "path";
 import prisma from "../src/lib/prisma";
-import { REAL_POSHAKS } from "../src/data/products";
+import { ALL_COLLECTION_PRODUCTS } from "../src/data/collections";
 import { SITE_URL } from "../src/lib/siteUrl";
+
+function escapeXml(unsafe: string) {
+  return unsafe.replace(/[<>&'"]/g, function (c) {
+    switch (c) {
+      case "<": return "&lt;";
+      case ">": return "&gt;";
+      case "&": return "&amp;";
+      case "'": return "&apos;";
+      case "\"": return "&quot;";
+      default: return c;
+    }
+  });
+}
 
 function formatSitemapImageUrl(rawUrl: string | undefined | null, siteUrl: string): string | undefined {
   if (!rawUrl || typeof rawUrl !== "string") return undefined;
   const trimmed = rawUrl.trim();
   if (!trimmed) return undefined;
   try {
+    let finalUrl: string;
     if (/^https?:\/\//i.test(trimmed)) {
-      return new URL(trimmed).href;
+      finalUrl = new URL(trimmed).href;
+    } else {
+      const normalizedPath = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
+      finalUrl = new URL(normalizedPath, siteUrl).href;
     }
-    const normalizedPath = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
-    return new URL(normalizedPath, siteUrl).href;
+    return escapeXml(finalUrl);
   } catch {
     return undefined;
   }
@@ -40,7 +56,7 @@ async function main() {
 
   for (const r of staticRoutes) {
     xmlEntries.push(`  <url>
-    <loc>${r.url}</loc>
+    <loc>${escapeXml(r.url)}</loc>
     <lastmod>${today}</lastmod>
     <changefreq>${r.changefreq}</changefreq>
     <priority>${r.priority}</priority>
@@ -70,7 +86,7 @@ async function main() {
         addedIds.add(identifier);
         const imageUrl = formatSitemapImageUrl(p.images?.[0]?.secureUrl, siteUrl);
         const lastmod = p.updatedAt ? new Date(p.updatedAt).toISOString().split("T")[0] : today;
-        let entry = `  <url>\n    <loc>${siteUrl}/product/${encodeURIComponent(identifier)}</loc>\n    <lastmod>${lastmod}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>`;
+        let entry = `  <url>\n    <loc>${escapeXml(`${siteUrl}/product/${encodeURIComponent(identifier)}`)}</loc>\n    <lastmod>${lastmod}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>`;
         if (imageUrl) {
           entry += `\n    <image:image>\n      <image:loc>${imageUrl}</image:loc>\n    </image:image>`;
         }
@@ -82,11 +98,11 @@ async function main() {
     console.warn("Could not query DB products, falling back to static catalogue:", error);
   }
 
-  for (const p of REAL_POSHAKS) {
+  for (const p of ALL_COLLECTION_PRODUCTS) {
     if (!addedIds.has(p.id)) {
       addedIds.add(p.id);
       const imageUrl = formatSitemapImageUrl(p.image, siteUrl);
-      let entry = `  <url>\n    <loc>${siteUrl}/product/${encodeURIComponent(p.id)}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>`;
+      let entry = `  <url>\n    <loc>${escapeXml(`${siteUrl}/product/${encodeURIComponent(p.id)}`)}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>`;
       if (imageUrl) {
         entry += `\n    <image:image>\n      <image:loc>${imageUrl}</image:loc>\n    </image:image>`;
       }
