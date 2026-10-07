@@ -13,12 +13,10 @@ export default function robots(): MetadataRoute.Robots {
           "/collection",
           "/product/*",
           "/our-heritage",
-          "/craft",
           "/contact",
           "/privacy-policy",
           "/shipping-policy",
           "/terms-and-conditions",
-          "/terms",
         ],
         disallow: [
           "/admin",

@@ -2,13 +2,14 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { Heart, ShoppingBag } from "lucide-react";
 import { REAL_POSHAKS, PoshakProduct } from "@/data/products";
 import { useWishlist } from "@/context/WishlistContext";
 
 interface SignaturePoshaksProps {
-  onSelectProduct: (product: PoshakProduct) => void;
+  onSelectProduct?: (product: PoshakProduct) => void;
 }
 
 export default function SignaturePoshaks({
@@ -56,9 +57,14 @@ export default function SignaturePoshaks({
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.15 }}
                 transition={{ duration: 0.5, delay: index * 0.08 }}
-                className="group flex flex-col cursor-pointer select-none"
-                onClick={() => onSelectProduct(product)}
               >
+                <Link
+                  href={`/product/${encodeURIComponent((product as any).slug || product.id)}`}
+                  className="group flex flex-col cursor-pointer select-none"
+                  onClick={() => {
+                    if (onSelectProduct) onSelectProduct(product);
+                  }}
+                >
                 {/* Image Container: Tall 2:3 Aspect Ratio */}
                 <div className="relative w-full aspect-[2/3] overflow-hidden bg-[#EAE0D2] shadow-sm border border-[#E6DCB8]/50">
                   <Image
@@ -90,7 +96,7 @@ export default function SignaturePoshaks({
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        onSelectProduct(product);
+                        if (onSelectProduct) onSelectProduct(product);
                       }}
                       aria-label={`View poshak details for ${product.name}`}
                       title="View Details"
@@ -116,7 +122,8 @@ export default function SignaturePoshaks({
                     </button>
                   </div>
                 </div>
-              </motion.div>
+              </Link>
+            </motion.div>
             );
           })}
         </div>

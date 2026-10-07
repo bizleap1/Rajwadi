@@ -9,6 +9,9 @@ export const metadata: Metadata = {
   title: "Privacy Policy | Rajwadi Rajputi Poshak",
   description:
     "Read the Privacy Policy of Rajwadi Rajputi Poshak. Learn how we collect, protect, and handle your personal information with absolute royal discretion.",
+  alternates: {
+    canonical: "/privacy-policy",
+  },
 };
 
 export default function PrivacyPolicyPage() {

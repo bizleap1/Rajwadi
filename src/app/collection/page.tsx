@@ -1507,15 +1507,56 @@ function CollectionContent() {
   );
 }
 
+function CollectionFallback() {
+  return (
+    <div className="min-h-screen flex flex-col bg-[#FDFBF7] text-[#171717]">
+      <Navbar solidOnTop />
+      <div className="pt-24 sm:pt-28 md:pt-32 pb-16 max-w-7xl mx-auto px-4 sm:px-6 md:px-12 w-full">
+        <div className="text-center mb-10">
+          <span className="text-[10px] uppercase tracking-[0.3em] text-[#855D25] font-medium font-sans">
+            ROYAL RAJPUTI ATELIER
+          </span>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif text-[#171717] mt-2 font-normal">
+            Royal Rajputi Poshaks Collection
+          </h1>
+          <p className="text-xs sm:text-sm text-[#6B5E55] max-w-xl mx-auto mt-2 leading-relaxed">
+            Handcrafted authentic royal Rajputi Poshaks, bridal lehengas, pure georgette ensembles, and heirloom gota patti couture.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+          {REAL_POSHAKS.map((product) => (
+            <Link
+              key={product.id}
+              href={`/product/${encodeURIComponent((product as any).slug || product.id)}`}
+              className="group flex flex-col text-left"
+            >
+              <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#F4ECE1] border border-[#E6DCB8]/50 shadow-xs mb-3">
+                <Image
+                  src={product.image || "/placeholder.webp"}
+                  alt={product.name}
+                  fill
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                  className="object-cover"
+                />
+              </div>
+              <h2 className="font-serif text-[14px] sm:text-[15.5px] text-[#5A1F2B] font-normal leading-snug line-clamp-1">
+                {product.name}
+              </h2>
+              <p className="font-sans font-medium text-[12.5px] sm:text-[13.5px] text-[#171717] mt-1">
+                {product.price}
+              </p>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function CollectionPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen bg-[#FDFBF7] flex items-center justify-center font-sans text-xs text-[#8C827A]">
-          Loading collection...
-        </div>
-      }
-    >
+    <Suspense fallback={<CollectionFallback />}>
       <CollectionContent />
     </Suspense>
   );

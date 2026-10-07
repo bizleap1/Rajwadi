@@ -98,7 +98,7 @@ export default function ProductCard({
 
   return (
     <Link
-      href={`/product/${product.id}`}
+      href={`/product/${encodeURIComponent((product as any).slug || product.id)}`}
       className="group flex flex-col h-full text-left cursor-pointer focus:outline-none select-none relative"
     >
       {/* 1. Clean Image Container (Exact 3:4 ratio with normalized subject scaling) */}

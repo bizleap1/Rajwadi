@@ -9,6 +9,9 @@ export const metadata: Metadata = {
   title: "Shipping & Delivery Policy | Rajwadi Rajputi Poshak",
   description:
     "Explore the Shipping and Delivery Policy of Rajwadi Rajputi Poshak. Free delivery across India with insured luxury courier packaging and real-time order tracking.",
+  alternates: {
+    canonical: "/shipping-policy",
+  },
 };
 
 export default function ShippingPolicyPage() {

@@ -9,6 +9,9 @@ export const metadata: Metadata = {
   title: "Terms & Conditions | Rajwadi Rajputi Poshak",
   description:
     "Read the Terms and Conditions for Rajwadi Rajputi Poshak. Understand our policies regarding handcrafted royal garments, pricing, order processing, and returns.",
+  alternates: {
+    canonical: "/terms-and-conditions",
+  },
 };
 
 export default function TermsAndConditionsPage() {

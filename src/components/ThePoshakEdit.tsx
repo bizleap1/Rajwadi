@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Heart, ShoppingBag, MessageCircle } from "lucide-react";
 import { useWishlist } from "@/context/WishlistContext";
 import { useCart } from "@/context/CartContext";
-import { isProductEnquiryOnly, isProductAvailableIn10Days } from "@/data/products";
+import { isProductEnquiryOnly, isProductAvailableIn10Days, REAL_POSHAKS } from "@/data/products";
 
 interface ThePoshakEditProps {
   onSelectProduct?: (product: any) => void;
@@ -16,7 +16,7 @@ interface ThePoshakEditProps {
 export default function ThePoshakEdit({ onSelectProduct }: ThePoshakEditProps) {
   const { isInWishlist, toggleWishlist } = useWishlist();
   const { addToCart, setIsCartOpen } = useCart();
-  const [featuredProducts, setFeaturedProducts] = useState<any[]>([]);
+  const [featuredProducts, setFeaturedProducts] = useState<any[]>(() => REAL_POSHAKS.slice(0, 4));
 
   const fetchFeatured = useCallback(async () => {
     try {

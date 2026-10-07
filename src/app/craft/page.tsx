@@ -1,3 +1,5 @@
-import OurHeritagePage from "@/app/our-heritage/page";
+import { permanentRedirect } from "next/navigation";
 
-export default OurHeritagePage;
+export default function CraftRedirect() {
+  permanentRedirect("/our-heritage");
+}
