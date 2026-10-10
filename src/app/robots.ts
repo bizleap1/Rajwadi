@@ -8,16 +8,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: "*",
-        allow: [
-          "/",
-          "/collection",
-          "/product/*",
-          "/our-heritage",
-          "/contact",
-          "/privacy-policy",
-          "/shipping-policy",
-          "/terms-and-conditions",
-        ],
+        allow: "/",
         disallow: [
           "/admin",
           "/admin/*",
@@ -31,6 +22,7 @@ export default function robots(): MetadataRoute.Robots {
           "/account/*",
           "/bag",
           "/cart",
+          "/wishlist",
         ],
       },
     ],

@@ -43,13 +43,11 @@ async function main() {
   const staticRoutes = [
     { url: `${siteUrl}`, priority: "1.0", changefreq: "daily" },
     { url: `${siteUrl}/collection`, priority: "0.9", changefreq: "daily" },
-    { url: `${siteUrl}/craft`, priority: "0.8", changefreq: "weekly" },
     { url: `${siteUrl}/our-heritage`, priority: "0.7", changefreq: "monthly" },
     { url: `${siteUrl}/contact`, priority: "0.7", changefreq: "monthly" },
     { url: `${siteUrl}/privacy-policy`, priority: "0.5", changefreq: "monthly" },
     { url: `${siteUrl}/shipping-policy`, priority: "0.5", changefreq: "monthly" },
     { url: `${siteUrl}/terms-and-conditions`, priority: "0.5", changefreq: "monthly" },
-    { url: `${siteUrl}/terms`, priority: "0.5", changefreq: "monthly" },
   ];
 
   const xmlEntries: string[] = [];
