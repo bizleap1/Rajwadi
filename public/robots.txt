@@ -1,4 +1,17 @@
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /admin/*
+Disallow: /api/*
+Disallow: /checkout
+Disallow: /checkout/*
+Disallow: /order-confirmation
+Disallow: /order-confirmation/*
+Disallow: /order/*
+Disallow: /account
+Disallow: /account/*
+Disallow: /bag
+Disallow: /cart
+Disallow: /wishlist
 
 Sitemap: https://www.rajwadirajputiposhak.com/sitemap.xml
