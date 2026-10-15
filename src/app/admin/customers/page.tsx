@@ -108,6 +108,7 @@ export default function AdminCustomersPage() {
   const [customerToDelete, setCustomerToDelete] = useState<CustomerSummary | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteSuccessMsg, setDeleteSuccessMsg] = useState("");
+  const [deletingOrderId, setDeletingOrderId] = useState<string | null>(null);
 
   const fetchCustomers = useCallback(async () => {
     setIsLoading(true);
@@ -203,6 +204,49 @@ export default function AdminCustomersPage() {
       alert(err.message || "Error deleting customer profile");
     } finally {
       setIsDeleting(false);
+    }
+  };
+
+  // Delete an order directly from Customer Profile Modal
+  const handleDeleteOrderFromCustomer = async (
+    orderId: string,
+    orderNumber: string,
+    paymentStatus: string
+  ) => {
+    const isPending = paymentStatus === "PENDING";
+    const confirmMsg = isPending
+      ? `Are you sure you want to remove Pending Order #${orderNumber}?\n\nThis uncompleted/abandoned checkout order will be permanently erased from the database.`
+      : `Are you sure you want to PERMANENTLY DELETE Order #${orderNumber}?\n\nThis will completely remove this order and all its items from the database.`;
+
+    if (!window.confirm(confirmMsg)) return;
+
+    setDeletingOrderId(orderId);
+    try {
+      const res = await fetch(`/api/admin/orders/${orderId}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to delete order");
+      }
+
+      // Optimistically update customerDetail in modal
+      setCustomerDetail((prev) => {
+        if (!prev) return prev;
+        const filtered = prev.orders.filter((o) => o.id !== orderId);
+        return {
+          ...prev,
+          orders: filtered,
+        };
+      });
+
+      // Refresh customers table list in background
+      fetchCustomers();
+      alert(`Order #${orderNumber} has been removed successfully.`);
+    } catch (err: any) {
+      alert(err.message || "Failed to delete order");
+    } finally {
+      setDeletingOrderId(null);
     }
   };
 
@@ -792,6 +836,33 @@ export default function AdminCustomersPage() {
                                   {idx < order.items.length - 1 ? " • " : ""}
                                 </span>
                               ))}
+                            </div>
+
+                            {/* Action Row: Delete / Remove Order */}
+                            <div className="mt-2.5 pt-2 border-t border-[#F0E5D8] flex items-center justify-between">
+                              <span className="text-[10.5px]">
+                                {order.paymentStatus === "PENDING" ? (
+                                  <span className="text-amber-800 font-medium bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
+                                    Pending / Uncompleted Checkout
+                                  </span>
+                                ) : (
+                                  <span className="text-[#8A796B]">Status: {order.fulfilmentStatus}</span>
+                                )}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteOrderFromCustomer(order.id, order.orderNumber, order.paymentStatus)}
+                                disabled={deletingOrderId === order.id}
+                                className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold text-red-700 hover:text-white bg-red-50 hover:bg-red-700 border border-red-200 hover:border-red-700 rounded transition-colors disabled:opacity-50 cursor-pointer shadow-2xs"
+                                title="Permanently Delete Order from Database"
+                              >
+                                {deletingOrderId === order.id ? (
+                                  <Loader2 className="w-3 h-3 animate-spin" />
+                                ) : (
+                                  <Trash2 className="w-3 h-3" />
+                                )}
+                                <span>{order.paymentStatus === "PENDING" ? "Remove Pending Order" : "Delete Order"}</span>
+                              </button>
                             </div>
                           </div>
                         ))}

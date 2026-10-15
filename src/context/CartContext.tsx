@@ -328,12 +328,35 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setTimeout(() => reconcileCart(), 100);
   };
 
+  // Clean up any pending uncompleted checkout order if cart item is removed
+  const cleanupPendingCheckoutOrder = () => {
+    try {
+      if (typeof window === "undefined") return;
+      const rawPending = sessionStorage.getItem("rajwadi_pending_order");
+      if (rawPending) {
+        const parsed = JSON.parse(rawPending);
+        if (parsed?.orderId) {
+          fetch("/api/checkout/cancel-order", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              orderId: parsed.orderId,
+              guestAccessToken: parsed.guestAccessToken,
+            }),
+          }).catch(() => {});
+          sessionStorage.removeItem("rajwadi_pending_order");
+        }
+      }
+    } catch {}
+  };
+
   // Supports both (productId, size) and (productId, size, stitchingSelected)
   const removeFromCart = (
     productId: string,
     size?: string,
     stitchingSelected?: boolean
   ) => {
+    cleanupPendingCheckoutOrder();
     setCartItems((prev) =>
       prev.filter((item) => {
         const idMatches = item.productId === productId || item.product?.id === productId;
@@ -387,6 +410,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   };
 
   const clearCart = () => {
+    cleanupPendingCheckoutOrder();
     setCartItems([]);
     setWarnings([]);
     try {

@@ -341,6 +341,17 @@ export default function CheckoutPage() {
         );
       }
 
+      // Store pending order reference so it can be cleaned up if customer abandons or alters cart
+      try {
+        sessionStorage.setItem(
+          "rajwadi_pending_order",
+          JSON.stringify({
+            orderId: orderData.orderId,
+            guestAccessToken: orderData.guestAccessToken,
+          })
+        );
+      } catch {}
+
       const options = {
         key: orderData.keyId,
         amount: orderData.amountInPaise,
@@ -375,6 +386,10 @@ export default function CheckoutPage() {
             if (!verifyRes.ok) {
               throw new Error(verifyData.error || "Payment verification failed.");
             }
+
+            try {
+              sessionStorage.removeItem("rajwadi_pending_order");
+            } catch {}
 
             clearCart();
             router.push(
