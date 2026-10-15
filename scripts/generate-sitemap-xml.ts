@@ -78,21 +78,13 @@ async function main() {
   </url>`);
 
   for (const post of BLOG_POSTS) {
-    const postImageUrl = formatSitemapImageUrl(post.featuredImage, siteUrl);
-    let entry = `  <url>
+    xmlEntries.push(`  <url>
     <loc>${escapeXml(`${siteUrl}/blog/${post.slug}`)}</loc>
-    <lastmod>${post.updatedAt || post.publishedAt}</lastmod>`;
-    if (postImageUrl) {
-      entry += `
-    <image:image>
-      <image:loc>${postImageUrl}</image:loc>
-    </image:image>`;
-    }
-    entry += `\n  </url>`;
-    xmlEntries.push(entry);
+    <lastmod>${post.updatedAt || post.publishedAt}</lastmod>
+  </url>`);
   }
 
-  // 4. Products (with real updatedAt/createdAt dates, hyphenated image URLs)
+  // 4. Products (clean standard sitemap with loc and lastmod)
   const addedIds = new Set<string>();
 
   try {
@@ -103,11 +95,6 @@ async function main() {
         slug: true,
         updatedAt: true,
         createdAt: true,
-        images: {
-          take: 1,
-          orderBy: { displayOrder: "asc" },
-          select: { secureUrl: true },
-        },
       },
     });
 
@@ -115,16 +102,10 @@ async function main() {
       const identifier = p.slug || p.id;
       if (!addedIds.has(identifier)) {
         addedIds.add(identifier);
-        const imageUrl = formatSitemapImageUrl(p.images?.[0]?.secureUrl, siteUrl);
         const lastmod = p.updatedAt
           ? new Date(p.updatedAt).toISOString().split("T")[0]
           : (p.createdAt ? new Date(p.createdAt).toISOString().split("T")[0] : today);
-        let entry = `  <url>\n    <loc>${escapeXml(`${siteUrl}/product/${encodeURIComponent(identifier)}`)}</loc>\n    <lastmod>${lastmod}</lastmod>`;
-        if (imageUrl) {
-          entry += `\n    <image:image>\n      <image:loc>${imageUrl}</image:loc>\n    </image:image>`;
-        }
-        entry += `\n  </url>`;
-        xmlEntries.push(entry);
+        xmlEntries.push(`  <url>\n    <loc>${escapeXml(`${siteUrl}/product/${encodeURIComponent(identifier)}`)}</loc>\n    <lastmod>${lastmod}</lastmod>\n  </url>`);
       }
     }
   } catch (error) {
@@ -135,24 +116,18 @@ async function main() {
     const identifier = p.id;
     if (!addedIds.has(identifier)) {
       addedIds.add(identifier);
-      const imageUrl = formatSitemapImageUrl(p.image, siteUrl);
       const lastmod = (p as any).updatedAt
         ? new Date((p as any).updatedAt).toISOString().split("T")[0]
         : (p.createdAt ? new Date(p.createdAt).toISOString().split("T")[0] : "2026-03-20");
-      let entry = `  <url>\n    <loc>${escapeXml(`${siteUrl}/product/${encodeURIComponent(identifier)}`)}</loc>\n    <lastmod>${lastmod}</lastmod>`;
-      if (imageUrl) {
-        entry += `\n    <image:image>\n      <image:loc>${imageUrl}</image:loc>\n    </image:image>`;
-      }
-      entry += `\n  </url>`;
-      xmlEntries.push(entry);
+      xmlEntries.push(`  <url>\n    <loc>${escapeXml(`${siteUrl}/product/${encodeURIComponent(identifier)}`)}</loc>\n    <lastmod>${lastmod}</lastmod>\n  </url>`);
     }
   }
 
-  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n${xmlEntries.join("\n")}\n</urlset>\n`;
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${xmlEntries.join("\n")}\n</urlset>\n`;
 
   const outputPath = path.join(process.cwd(), "public", "sitemap.xml");
   fs.writeFileSync(outputPath, xml, "utf-8");
-  console.log(`Generated public/sitemap.xml with ${xmlEntries.length} URLs (clean lastmod, no changefreq/priority, categories & blog included)`);
+  console.log(`Generated public/sitemap.xml with ${xmlEntries.length} URLs (clean standard sitemap protocol, no image schema)`);
   process.exit(0);
 }
 
