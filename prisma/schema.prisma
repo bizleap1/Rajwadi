@@ -1,0 +1,381 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// -------------------------------------------------------------
+// Better Auth & User Models
+// -------------------------------------------------------------
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+  role          String    @default("CUSTOMER") // "CUSTOMER" | "ADMIN"
+  phone         String?
+  passwordHash  String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts      Account[]
+  sessions      Session[]
+  addresses     Address[]
+  orders        Order[]
+  exchangeRequests ExchangeRequest[]
+
+  @@map("users")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  userId                String
+  accountId             String
+  providerId            String
+  accessToken           String?   @db.Text
+  refreshToken          String?   @db.Text
+  idToken               String?   @db.Text
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("accounts")
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("verifications")
+}
+
+model Address {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  phone     String
+  address   String
+  city      String
+  state     String
+  pincode   String
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("addresses")
+}
+
+// -------------------------------------------------------------
+// Product Catalog Models
+// -------------------------------------------------------------
+
+model Product {
+  id                    String            @id @default(cuid())
+  slug                  String            @unique
+  name                  String
+  category              String            // "Stitched" | "Unstitched" | "Traditional"
+  priceInPaise          Int
+  compareAtPriceInPaise Int?
+  fabric                String
+  craft                 String
+  color                 String
+  description           String            @db.Text
+  details               Json              // string[]
+  includes              Json              // string[]
+  status                String            @default("PUBLISHED") // "DRAFT" | "PUBLISHED" | "ARCHIVED"
+  isFeatured            Boolean           @default(false)
+  featuredOrder         Int               @default(0)
+  stock                 Int               @default(10)
+  inStock               Boolean           @default(true)
+  stitchingAvailable    Boolean           @default(false)
+  stitchingPriceInPaise Int               @default(0)
+  imagePosition         String            @default("center 5%")
+  imageScale            Float             @default(1.0)
+  subCategory           String?
+  quality               String?
+  work                  String?
+  odhna                 String?
+  bestFor               String?
+  priceNote             String?
+  type                  String?
+  soldOut               Boolean?          @default(false)
+  enquiryOnly           Boolean?          @default(false)
+  size                  String?
+  sizes                 Json?
+  sequenceNumber        Int?
+  version               Int               @default(1)
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+
+  images                ProductImage[]
+  variants              ProductVariant[]
+  reservations          StockReservation[]
+  orderItems            OrderItem[]
+
+  @@index([sequenceNumber])
+  @@index([category])
+  @@index([status])
+  @@index([isFeatured, featuredOrder])
+  @@index([priceInPaise])
+  @@map("products")
+}
+
+model ProductImage {
+  id           String   @id @default(cuid())
+  productId    String
+  publicId     String?
+  secureUrl    String
+  width        Int?
+  height       Int?
+  format       String?
+  displayOrder Int      @default(0)
+  altText      String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  product      Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId, displayOrder])
+  @@map("product_images")
+}
+
+model ProductVariant {
+  id                    String             @id @default(cuid())
+  productId             String
+  name                  String             // "Size 36", "Unstitched Fabric Set"
+  sku                   String?
+  priceAdjustmentInPaise Int               @default(0)
+  stock                 Int                @default(10)
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+
+  product               Product            @relation(fields: [productId], references: [id], onDelete: Cascade)
+  reservations          StockReservation[]
+
+  @@index([productId])
+  @@map("product_variants")
+}
+
+model StockReservation {
+  id        String          @id @default(cuid())
+  productId String
+  variantId String?
+  quantity  Int
+  orderId   String?
+  sessionId String
+  expiresAt DateTime
+  status    String          @default("ACTIVE") // "ACTIVE" | "FINALIZED" | "RELEASED"
+  createdAt DateTime        @default(now())
+
+  product   Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variant   ProductVariant? @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  @@index([productId, status, expiresAt])
+  @@index([orderId])
+  @@map("stock_reservations")
+}
+
+// -------------------------------------------------------------
+// Orders, Checkout & Payment Models
+// -------------------------------------------------------------
+
+model Order {
+  id                String               @id @default(cuid())
+  orderNumber       String               @unique // "RW1024"
+  userId            String?
+  guestAccessToken  String?              // Strong server-issued access token
+  guestEmail        String?
+  subtotalInPaise   Int
+  shippingInPaise   Int                  @default(0)
+  stitchingInPaise  Int                  @default(0)
+  totalInPaise      Int
+  paymentStatus     String               @default("PENDING") // "PENDING" | "PAID" | "FAILED" | "CANCELLED" | "REFUNDED"
+  fulfilmentStatus  String               @default("PENDING") // "PENDING" | "IN_ATELIER" | "DISPATCHED" | "DELIVERED" | "CANCELLED"
+  paymentMethod     String               @default("RAZORPAY")
+  paymentScreenshotUrl String?           @db.Text
+  utrNumber         String?
+  razorpayOrderId   String?              @unique
+  razorpayPaymentId String?
+  razorpaySignature String?
+  shippingAddress   Json                 // Immutable snapshot
+  idempotencyKey    String?              @unique
+  notes             String?              @db.Text
+  courierPartner    String?              // e.g. "BlueDart", "Delhivery", "DTDC", "Royal Express"
+  trackingNumber    String?              // e.g. "BD98234123"
+  trackingUrl       String?              // e.g. "https://bluedart.com/track/..."
+  estimatedDeliveryDate DateTime?        // e.g. 2026-09-30
+  deliveredAt       DateTime?
+  couponId          String?
+  couponCode        String?
+  discountInPaise   Int                  @default(0)
+  discountDetails   Json?                // Snapshot of discount logic e.g. { type: "PERCENTAGE", value: 10, code: "ROYAL10" }
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+
+  user              User?                @relation(fields: [userId], references: [id], onDelete: SetNull)
+  coupon            Coupon?              @relation(fields: [couponId], references: [id], onDelete: SetNull)
+  items             OrderItem[]
+  transactions      PaymentTransaction[]
+  exchangeRequests  ExchangeRequest[]
+
+  @@index([userId])
+  @@index([couponCode])
+  @@index([guestEmail])
+  @@index([orderNumber])
+  @@index([paymentStatus])
+  @@index([fulfilmentStatus])
+  @@index([createdAt])
+  @@map("orders")
+}
+
+model Coupon {
+  id                    String      @id @default(cuid())
+  code                  String      @unique // "ROYAL10", "FESTIVE500" (always UPPERCASE)
+  description           String?     // e.g. "Exclusive 10% Royal Heritage discount"
+  discountType          String      @default("PERCENTAGE") // "PERCENTAGE" | "FIXED_AMOUNT" | "FREE_SHIPPING"
+  discountValue         Int         // If PERCENTAGE: 10 (means 10%), if FIXED_AMOUNT: 50000 (means ₹500 in paise)
+  maxDiscountInPaise    Int?        // Optional cap on percentage discounts (e.g. 100000 paise = max ₹1,000)
+  minOrderValueInPaise  Int         @default(0) // Minimum subtotal required in paise (e.g. 200000 = ₹2,000)
+  usageLimit            Int?        // Total max usage across all customers (null = unlimited)
+  usedCount             Int         @default(0) // How many times it has been redeemed
+  perUserLimit          Int         @default(1) // Max times a single customer/email can use this coupon
+  startDate             DateTime    @default(now())
+  endDate               DateTime?   // Expiry date (null = no expiration)
+  isActive              Boolean     @default(true) // Admin status toggle
+  showOnCollection      Boolean     @default(false) // Toggle to feature discount on Collection page banner
+  applicableScope       String      @default("ALL") // "ALL" | "SPECIFIC_PRODUCTS" | "SPECIFIC_CATEGORIES"
+  applicableProducts    Json?       // String array of product IDs/slugs e.g. ["morbagh-rajputi-poshak"]
+  applicableCategories  Json?       // String array of categories e.g. ["Stitched", "Unstitched"] (null = all)
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
+
+  orders                Order[]
+
+  @@index([code])
+  @@index([isActive])
+  @@index([startDate, endDate])
+  @@map("coupons")
+}
+
+model OrderItem {
+  id                    String            @id @default(cuid())
+  orderId               String
+  productId             String?
+  productName           String
+  productSlug           String?
+  category              String?
+  size                  String?
+  stitchingSelected     Boolean           @default(false)
+  stitchingPriceInPaise Int               @default(0)
+  unitPriceInPaise      Int
+  quantity              Int
+  totalInPaise          Int
+  imageUrl              String?
+
+  product               Product?          @relation(fields: [productId], references: [id], onDelete: SetNull)
+  order                 Order             @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  exchangeRequests      ExchangeRequest[]
+
+  @@index([orderId])
+  @@map("order_items")
+}
+
+model ExchangeRequest {
+  id                        String    @id @default(cuid())
+  orderId                   String
+  orderItemId               String
+  userId                    String?
+  guestEmail                String?
+  reason                    String    // "SIZE_FITTING" | "COLOR_PREFERENCE" | "DAMAGE_DEFECT" | "ALTERATION" | "OTHER"
+  reasonDetails             String?   @db.Text
+  desiredSize               String?   // e.g. "Size 38"
+  desiredReplacement        String?   @db.Text
+  status                    String    @default("REQUESTED") // "REQUESTED" | "APPROVED" | "PICKUP_SCHEDULED" | "RECEIVED_AT_ATELIER" | "REPLACEMENT_DISPATCHED" | "COMPLETED" | "REJECTED"
+  adminNotes                String?   @db.Text
+  reverseCourierPartner     String?   // e.g. "Delhivery Reverse"
+  reverseTrackingNumber     String?   // e.g. "REV-987123"
+  replacementTrackingNumber String?   // e.g. "BD-654321"
+  createdAt                 DateTime  @default(now())
+  updatedAt                 DateTime  @updatedAt
+
+  order                     Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderItem                 OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  user                      User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([orderId])
+  @@index([orderItemId])
+  @@index([userId])
+  @@index([status])
+  @@map("exchange_requests")
+}
+
+model PaymentTransaction {
+  id                String   @id @default(cuid())
+  orderId           String
+  gateway           String   @default("RAZORPAY")
+  razorpayOrderId   String
+  razorpayPaymentId String?
+  status            String
+  amountInPaise     Int
+  currency          String   @default("INR")
+  payload           Json?
+  createdAt         DateTime @default(now())
+
+  order             Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@index([razorpayOrderId])
+  @@map("payment_transactions")
+}
+
+model WebhookEvent {
+  id          String   @id // Webhook event ID (e.g. event_...)
+  eventType   String
+  processedAt DateTime @default(now())
+  payload     Json?
+
+  @@map("webhook_events")
+}
+
+model CloudinaryAssetQueue {
+  id        String   @id @default(cuid())
+  publicId  String   @unique
+  status    String   @default("PENDING_DELETION") // "PENDING_DELETION" | "DELETED" | "FAILED"
+  attempts  Int      @default(0)
+  lastError String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("cloudinary_asset_queue")
+}

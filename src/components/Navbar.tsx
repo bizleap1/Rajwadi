@@ -1,0 +1,387 @@
+"use client";
+
+import React, { useState, useEffect, useRef } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
+import { Search, Heart, ShoppingBag, Menu, X, User } from "lucide-react";
+import dynamic from "next/dynamic";
+import { useCart } from "@/context/CartContext";
+import { useWishlist } from "@/context/WishlistContext";
+import { useAuth } from "@/context/AuthContext";
+
+const SearchModal = dynamic(() => import("@/components/SearchModal"), { ssr: false });
+const AccountPopover = dynamic(() => import("@/components/AccountPopover"), { ssr: false });
+
+interface NavbarProps {
+  onOpenConsultation?: () => void;
+  solidOnTop?: boolean;
+}
+
+export default function Navbar({
+  onOpenConsultation,
+  solidOnTop = false,
+}: NavbarProps) {
+  const router = useRouter();
+  const { cartCount, setIsCartOpen } = useCart();
+  const { wishlistCount } = useWishlist();
+  const { user } = useAuth();
+  const [isAtTop, setIsAtTop] = useState(true);
+  const [isVisible, setIsVisible] = useState(true);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isAccountOpen, setIsAccountOpen] = useState(false);
+
+  const isScrolled = !isAtTop;
+  const lastScrollY = useRef(0);
+
+  // Active theme style: when scrolled, when mobile menu is open, or when solidOnTop is requested (e.g. on PDP)
+  const useSolidStyle = solidOnTop || isScrolled || isMobileMenuOpen;
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = Math.max(0, window.scrollY);
+
+      // 1. At the very top of the homepage: transparent hero navbar, always visible
+      if (currentScrollY <= 30) {
+        setIsAtTop(true);
+        setIsVisible(true);
+        lastScrollY.current = currentScrollY;
+        return;
+      }
+
+      setIsAtTop(false);
+
+      // If mobile menu, search drawer, or account popover is active, keep navbar in place
+      if (isMobileMenuOpen || isSearchOpen || isAccountOpen) {
+        setIsVisible(true);
+        lastScrollY.current = currentScrollY;
+        return;
+      }
+
+      // 2. Ignore micro-scrolls to prevent jitter (< 8px delta)
+      const delta = currentScrollY - lastScrollY.current;
+      if (Math.abs(delta) < 8) {
+        return;
+      }
+
+      // 3. Directional scroll behavior:
+      // Scrolling DOWN -> hide navbar completely
+      // Scrolling UP -> reveal navbar smoothly
+      if (delta > 0) {
+        setIsVisible(false);
+      } else {
+        setIsVisible(true);
+      }
+
+      lastScrollY.current = currentScrollY;
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [isMobileMenuOpen, isSearchOpen, isAccountOpen]);
+
+  // Lock background scroll when mobile menu is open
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isMobileMenuOpen]);
+
+  return (
+    <>
+      {/* Main Luxury Header: Present when needed, invisible during immersive content consumption */}
+      <header
+        className={`fixed top-0 left-0 w-full ${
+          isMobileMenuOpen ? "z-[70]" : "z-50"
+        } transition-all duration-300 ease-in-out border-none ${
+          isVisible ? "translate-y-0" : "-translate-y-full pointer-events-none"
+        } ${
+          !useSolidStyle
+            ? "bg-gradient-to-b from-charcoal/60 via-charcoal/20 to-transparent py-4 md:py-4.5"
+            : "bg-[#FAF6F0]/95 backdrop-blur-md border-b border-[#E6DCB8]/70 shadow-[0_2px_15px_rgba(23,23,23,0.05)] py-3"
+        }`}
+      >
+        <div className="max-w-7xl mx-auto px-3.5 sm:px-6 md:px-12 flex items-center justify-between lg:grid lg:grid-cols-3">
+          {/* Left Navigation: Collection, Our Heritage, Contact */}
+          <nav className="hidden lg:flex items-center space-x-6 xl:space-x-8 text-xs tracking-[0.24em] xl:tracking-[0.28em] uppercase font-medium whitespace-nowrap">
+            {[
+              { name: "Collection", href: "/collection" },
+              { name: "Blog", href: "/blog" },
+              { name: "Our Heritage", href: "/our-heritage" },
+              { name: "Contact", href: "/contact" },
+            ].map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={`${
+                  useSolidStyle ? "text-charcoal" : "text-royal-ivory"
+                } hover:text-[#C6A15B] transition-colors duration-300 relative group py-1.5 whitespace-nowrap`}
+              >
+                {item.name}
+                <span className="absolute -bottom-1 left-0 w-0 h-[1.5px] bg-[#C6A15B] transition-all duration-300 ease-out group-hover:w-full" />
+              </Link>
+            ))}
+          </nav>
+
+          {/* Mobile Menu Trigger (Mobile only) */}
+          <div className="lg:hidden flex items-center">
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label="Toggle Menu"
+              className={`${
+                useSolidStyle ? "text-charcoal" : "text-royal-ivory"
+              } hover:text-[#C6A15B] transition-colors duration-300 p-1.5 -ml-1`}
+            >
+              {isMobileMenuOpen ? (
+                <X className="w-5 h-5 sm:w-6 sm:h-6 stroke-[1.35]" />
+              ) : (
+                <Menu className="w-5 h-5 sm:w-6 sm:h-6 stroke-[1.35]" />
+              )}
+            </button>
+          </div>
+
+          {/* Center Brand Logo (Clean, Proportioned & Readable on all screens) */}
+          <div className="flex justify-center items-center">
+            <Link
+              href="/"
+              aria-label="Rajwadi Rajputi Poshak"
+              className="flex items-center gap-2 sm:gap-3 md:gap-3.5 lg:gap-4 flex-shrink-0"
+            >
+              <div className="relative w-8 h-8 min-[375px]:w-9 min-[375px]:h-9 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-[64px] lg:h-[64px] flex-shrink-0">
+                <Image
+                  src="/logo-without-bg.png"
+                  alt="Rajwadi Rajputi Poshak Royal Logo"
+                  fill
+                  priority
+                  sizes="(max-width: 640px) 36px, (max-width: 1024px) 56px, 64px"
+                  className={`object-contain transition-all ${
+                    useSolidStyle ? "" : "filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.3)]"
+                  }`}
+                />
+              </div>
+              <div className="flex flex-col text-left justify-center select-none">
+                <span className={`font-serif text-[18px] min-[375px]:text-[20px] sm:text-[24px] lg:text-[32px] tracking-[0.2em] ${
+                  useSolidStyle ? "text-charcoal" : "text-royal-ivory drop-shadow-[0_2px_6px_rgba(0,0,0,0.4)]"
+                } font-light leading-none transition-colors duration-300`}>
+                  Rajwadi
+                </span>
+                <span className={`text-[7px] min-[375px]:text-[8px] sm:text-[9.5px] lg:text-[11px] uppercase tracking-[0.26em] min-[375px]:tracking-[0.3em] font-medium mt-0.5 sm:mt-1 transition-colors duration-300 leading-normal whitespace-nowrap ${
+                  useSolidStyle
+                    ? "text-[#855D25]"
+                    : "text-[#F8F1E7]/95 drop-shadow-[0_2px_5px_rgba(0,0,0,0.7)]"
+                }`}>
+                  Rajputi Poshak
+                </span>
+              </div>
+            </Link>
+          </div>
+
+          {/* Right Navigation: Wishlist | Bag on mobile; Search | Wishlist | Bag | Account on desktop */}
+          <div className="flex items-center justify-end space-x-2.5 min-[375px]:space-x-3 sm:space-x-5 lg:space-x-6 xl:space-x-7">
+            {/* 1. Search Icon (Accessible on all screens) */}
+            <button
+              onClick={() => setIsSearchOpen(true)}
+              aria-label="Search"
+              className={`${
+                useSolidStyle ? "text-charcoal" : "text-royal-ivory"
+              } hover:text-[#C6A15B] transition-colors duration-300 p-1.5 cursor-pointer`}
+            >
+              <Search className="w-4 h-4 sm:w-[18px] sm:h-[18px] stroke-[1.35]" />
+            </button>
+
+            {/* 2. Wishlist Icon as button with aria-label="Wishlist" */}
+            <button
+              type="button"
+              onClick={() => router.push("/wishlist")}
+              aria-label="Wishlist"
+              className={`${
+                useSolidStyle ? "text-charcoal" : "text-royal-ivory"
+              } hover:text-[#C6A15B] transition-colors duration-300 p-1.5 relative cursor-pointer`}
+            >
+              <Heart className="w-4 h-4 sm:w-[18px] sm:h-[18px] stroke-[1.35]" />
+              {wishlistCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 min-w-[15px] h-[15px] px-0.5 rounded-full bg-[#5A1F2B] text-royal-ivory text-[9px] flex items-center justify-center font-sans font-semibold border border-antique-gold/60">
+                  {wishlistCount}
+                </span>
+              )}
+            </button>
+
+            {/* 3. Shopping Bag Icon as button with aria-label="Cart" */}
+            <button
+              type="button"
+              onClick={() => setIsCartOpen(true)}
+              aria-label="Cart"
+              className={`${
+                useSolidStyle ? "text-charcoal" : "text-royal-ivory"
+              } hover:text-[#C6A15B] transition-colors duration-300 p-1.5 relative cursor-pointer`}
+            >
+              <ShoppingBag className="w-4 h-4 sm:w-[18px] sm:h-[18px] stroke-[1.35]" />
+              {cartCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 min-w-[15px] h-[15px] px-0.5 rounded-full bg-[#5A1F2B] text-royal-ivory text-[9px] flex items-center justify-center font-sans font-semibold border border-antique-gold/60">
+                  {cartCount}
+                </span>
+              )}
+            </button>
+
+            {/* 👑 Atelier Owner Portal Direct Link (Only when signed in as ADMIN) */}
+            {user?.role === "ADMIN" && (
+              <Link
+                href="/admin"
+                className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#6D1A2A] text-white text-[10px] uppercase tracking-wider font-semibold rounded-xs hover:bg-[#581522] transition-colors shadow-2xs mr-0.5"
+                title="Atelier Owner Portal"
+              >
+                <span>👑 Owner Portal</span>
+              </Link>
+            )}
+
+            {/* ponytail: account icon hidden — guest checkout mode, re-enable when auth is restored */}
+            {false && (
+              <div className="relative">
+                <button
+                  onClick={() => setIsAccountOpen((prev) => !prev)}
+                  aria-label="My Account"
+                  className={`${
+                    useSolidStyle ? "text-charcoal" : "text-royal-ivory"
+                  } hover:text-[#C6A15B] transition-colors duration-300 p-1.5 cursor-pointer flex items-center justify-center relative`}
+                >
+                  <User className="w-4 h-4 sm:w-[18px] sm:h-[18px] stroke-[1.35]" />
+                  {user?.role === "ADMIN" && (
+                    <span className="absolute -top-1 -right-0.5 text-[9px] leading-none select-none" title="Owner Admin Active">
+                      👑
+                    </span>
+                  )}
+                </button>
+                <AccountPopover
+                  isOpen={isAccountOpen}
+                  onClose={() => setIsAccountOpen(false)}
+                  view="desktop"
+                />
+              </div>
+            )}
+          </div>
+        </div>
+      </header>
+
+      {/* ponytail: account drawer hidden — guest checkout mode */}
+      {false && (
+        <AccountPopover
+          isOpen={isAccountOpen}
+          onClose={() => setIsAccountOpen(false)}
+          view="mobile"
+        />
+      )}
+
+      {/* Global Luxury Search Modal */}
+      <SearchModal
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+      />
+
+      {/* Mobile Drawer Navigation */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <>
+            {/* Dark Backdrop Overlay */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="lg:hidden fixed inset-0 z-[60] bg-black/60 backdrop-blur-xs"
+            />
+
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2 }}
+              className="lg:hidden fixed top-[56px] sm:top-[64px] left-0 w-full z-[65] bg-royal-ivory border-b border-antique-gold/30 px-6 py-7 shadow-2xl max-h-[calc(100dvh-64px)] overflow-y-auto"
+            >
+            <div className="flex flex-col space-y-5 text-center">
+              {/* Quick Search Button on Mobile */}
+              <button
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  setIsSearchOpen(true);
+                }}
+                className="w-full flex items-center justify-between px-4 py-2.5 rounded-sm border border-charcoal/15 bg-soft-beige/50 text-charcoal/70 text-xs tracking-wider uppercase hover:border-antique-gold transition-colors"
+              >
+                <span>Search collections...</span>
+                <Search className="w-4 h-4 text-charcoal/50" />
+              </button>
+
+              {/* Navigation Links */}
+              <div className="flex flex-col space-y-4 py-2">
+                {[
+                  { name: "Collection", href: "/collection" },
+                  { name: "Blog", href: "/blog" },
+                  {
+                    name: wishlistCount > 0 ? `Wishlist (${wishlistCount})` : "Wishlist",
+                    href: "/wishlist",
+                    nofollow: true,
+                  },
+                  { name: "Our Heritage", href: "/our-heritage" },
+                  { name: "Contact", href: "/contact" },
+                ].map((item) => (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    rel={item.nofollow ? "nofollow" : undefined}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="font-serif text-2xl text-charcoal hover:text-[#C6A15B] transition-colors duration-300"
+                  >
+                    {item.name}
+                  </Link>
+                ))}
+              </div>
+
+              {/* Actions: Book Consultation */}
+              <div className="pt-4 border-t border-soft-beige flex flex-col items-center gap-3">
+                {user?.role === "ADMIN" && (
+                  <Link
+                    href="/admin"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="w-full py-3 bg-[#FAF0E1] border border-[#D9C4B0] text-[#6D1A2A] text-xs uppercase tracking-widest font-semibold flex items-center justify-center gap-2 hover:bg-[#F5E6D0] transition-colors shadow-2xs"
+                  >
+                    <span>👑 Atelier Owner Portal</span>
+                  </Link>
+                )}
+                <button
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    onOpenConsultation?.();
+                  }}
+                  className="w-full py-3 bg-heritage-maroon text-royal-ivory text-xs uppercase tracking-widest hover:bg-[#431520] transition-colors shadow-sm"
+                >
+                  Book Royal Consultation
+                </button>
+                {/* ponytail: account button hidden — guest checkout mode */}
+                {false && (
+                  <button
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      setIsAccountOpen(true);
+                    }}
+                    className="inline-flex items-center gap-2 text-xs uppercase tracking-wider text-charcoal/70 hover:text-charcoal pt-1 transition-colors cursor-pointer"
+                  >
+                    <User className="w-3.5 h-3.5 stroke-[1.5]" />
+                    <span>My Account &amp; Services</span>
+                  </button>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        </>
+      )}
+      </AnimatePresence>
+    </>
+  );
+}
