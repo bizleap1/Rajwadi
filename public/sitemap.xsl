@@ -80,14 +80,9 @@
           a:hover {
             text-decoration: underline;
           }
-          .badge {
-            display: inline-block;
-            padding: 3px 8px;
-            border-radius: 6px;
-            font-size: 11px;
-            font-weight: 600;
-            background: #F4E8D8;
-            color: #7A1C28;
+          .muted {
+            color: #8C827A;
+            font-style: italic;
           }
         </style>
       </head>
@@ -99,15 +94,13 @@
           </div>
           <div class="info-bar">
             <span>Total URLs: <strong><xsl:value-of select="count(sitemap:urlset/sitemap:url)"/></strong></span>
-            <span>Optimized for Google Search Console &amp; Bingbot</span>
+            <span>Optimized for Google Search Console</span>
           </div>
           <table>
             <thead>
               <tr>
-                <th style="width: 55%;">URL</th>
-                <th style="width: 15%;">Priority</th>
-                <th style="width: 15%;">Change Frequency</th>
-                <th style="width: 15%;">Last Modified</th>
+                <th style="width: 70%;">URL</th>
+                <th style="width: 30%;">Last Modified</th>
               </tr>
             </thead>
             <tbody>
@@ -119,15 +112,14 @@
                     </a>
                   </td>
                   <td>
-                    <span class="badge">
-                      <xsl:value-of select="sitemap:priority"/>
-                    </span>
-                  </td>
-                  <td>
-                    <xsl:value-of select="sitemap:changefreq"/>
-                  </td>
-                  <td>
-                    <xsl:value-of select="sitemap:lastmod"/>
+                    <xsl:choose>
+                      <xsl:when test="sitemap:lastmod">
+                        <xsl:value-of select="sitemap:lastmod"/>
+                      </xsl:when>
+                      <xsl:otherwise>
+                        <span class="muted">—</span>
+                      </xsl:otherwise>
+                    </xsl:choose>
                   </td>
                 </tr>
               </xsl:for-each>
